@@ -41,6 +41,34 @@ const router = express.Router();
  *         description: Invalid input data
  */
 router.post('/register', register);
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Đăng nhập hệ thống
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: admin@test.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Đăng nhập thành công, trả về JWT Token
+ *       401:
+ *         description: Sai email hoặc mật khẩu
+ */
 router.post('/login', login);
 
 module.exports = router;
