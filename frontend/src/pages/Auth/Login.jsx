@@ -41,7 +41,7 @@ const Login = () => {
     <div className="flex h-screen w-full bg-white font-sans">
       
       {/* CỘT TRÁI: Hero Section (Chiếm 60%) */}
-      <div className="hidden lg:flex lg:w-3/5 relative items-center justify-center overflow-hidden">
+      <div className="hidden lg:flex lg:w-7/7 relative items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-800"></div>
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
         
