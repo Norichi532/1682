@@ -41,12 +41,11 @@ const Login = () => {
       {/* Left Column - Hero Section like Landing Page */}
       <div className="hero-section">
         <div className="hero-content">
-          <h1 className="hero-title">Your Journey Starts Here</h1>
+          <h1 className="hero-title">PhuOngtravel</h1>
           <p className="hero-description">
             Book tour vehicles from 16 to 45 seats. Easy scheduling, verified drivers, unforgettable trips.
           </p>
           <div className="hero-buttons">
-            <button className="btn-primary">Book a Tour Now</button>
             <button className="btn-secondary">Learn More</button>
           </div>
         </div>
