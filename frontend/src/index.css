@@ -1,57 +1,43 @@
+/* =========================================
+   GLOBAL VARIABLES (Biến dùng chung toàn App)
+   ========================================= */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* 1. Bảng màu chủ đạo (PhuOngtravel Colors) */
+  --color-primary: #1877f2;
+  --color-primary-hover: #166fe5;
+  
+  --color-bg-light: #ffffff;
+  --color-bg-gradient: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+  
+  --color-text-main: #1b1f23;
+  --color-text-muted: #65676b;
+  --color-border: #dddfe2;
+  --color-error: #dc2626;
+  --color-error-bg: #fee2e2;
+  --color-code-bg: #f4f3ec;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* 2. Kiểu chữ (Typography) */
+  --font-family-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-family-mono: ui-monospace, Consolas, monospace;
+  
+  /* 3. Kích thước & Bo góc (Spacing & Radius) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 40px;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  /* Cấu hình cơ bản của thẻ Root */
+  font: 16px/1.5 var(--font-family-main);
+  color: var(--color-text-main);
+  background: var(--color-bg-light);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-@media (max-width: 1024px) {
-  :root {
-    font-size: 16px;
-  }
-}
-
+/* =========================================
+   RESET CSS & LAYOUT CHUẨN
+   ========================================= */
 * {
   margin: 0;
   padding: 0;
@@ -66,36 +52,35 @@ html, body, #root {
 }
 
 body {
-  margin: 0;
   min-height: 100vh;
-}
-
-#root {
-  width: 100%;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
 }
 
-h1, h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+#root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* =========================================
+   TYPOGRAPHY (Cấu hình thẻ Heading & Text)
+   ========================================= */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-main);
+  font-weight: 600;
+  color: var(--color-text-main);
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+  font-size: 52px;
+  letter-spacing: -1px;
+  margin-bottom: 24px;
 }
 
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
+  font-size: 32px;
+  margin-bottom: 12px;
 }
 
 p {
@@ -103,25 +88,27 @@ p {
 }
 
 code, .counter {
-  font-family: var(--mono);
+  font-family: var(--font-family-mono);
   display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-main);
 }
 
 code {
-  font-size: 15px;
-  line-height: 135%;
+  font-size: 14px;
   padding: 4px 8px;
-  background: var(--code-bg);
+  background: var(--color-code-bg);
 }
 
+/* =========================================
+   RESPONSIVE
+   ========================================= */
 @media (max-width: 1024px) {
   h1 {
     font-size: 36px;
-    margin: 20px 0;
+    margin-bottom: 20px;
   }
   h2 {
-    font-size: 20px;
+    font-size: 24px;
   }
 }

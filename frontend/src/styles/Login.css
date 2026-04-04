@@ -1,28 +1,15 @@
-/* Reset & Variables */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body, #root {
-  height: 100%;
-  width: 100%;
-}
-
+/* Reset & Variables (Đã được quản lý bên index.css nên có thể tối giản) */
 .login-page {
   min-height: 100vh;
   min-width: 100vw;
   display: flex;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: white;
+  background-color: var(--color-bg-light);
 }
 
 /* ========== Left Column - Hero Section ========== */
 .hero-section {
   flex: 1;
-  /* Đã sửa thành dải màu xanh dương nhạt và tươi hơn */
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+  background: var(--color-bg-gradient); /* Đã dùng biến màu nền */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -33,7 +20,6 @@ html, body, #root {
   min-height: 100vh;
 }
 
-/* Background image with opacity - you can replace this image */
 .hero-section::before {
   content: '';
   position: absolute;
@@ -44,7 +30,7 @@ html, body, #root {
   background-image: url('../assets/images/login-bg.jpg');
   background-size: cover;
   background-position: center;
-  opacity: 0.15; /* Giảm độ mờ xuống một chút cho nền xanh nhạt nổi lên */
+  opacity: 0.15;
   z-index: 0;
 }
 
@@ -66,7 +52,7 @@ html, body, #root {
   line-height: 1.2;
   letter-spacing: -1px;
   color: white;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ nhẹ cho chữ dễ đọc */
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .hero-description {
@@ -82,29 +68,13 @@ html, body, #root {
   justify-content: center;
 }
 
-.btn-primary {
-  padding: 14px 32px;
-  background: #1877f2;
-  color: white;
-  border: none;
-  border-radius: 40px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-primary:hover {
-  background: #166fe5;
-  transform: translateY(-2px);
-}
-
+/* ĐÂY LÀ ĐOẠN CSS MÌNH ĐÃ THÊM LẠI VÀ CHUẨN HÓA */
 .btn-secondary {
   padding: 14px 32px;
   background: transparent;
-  color: white;
-  border: 2px solid white;
-  border-radius: 40px;
+  color: white; /* Giữ màu trắng trên nền xanh */
+  border: 2px solid white; /* Giữ viền trắng cũ */
+  border-radius: var(--radius-lg); /* Dùng biến bo góc tròn to (40px) */
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -112,14 +82,15 @@ html, body, #root {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15); /* Hiệu ứng mờ khi hover */
+  transform: translateY(-2px); /* Nhấc nhẹ nút khi hover */
 }
+/* ================================================== */
 
 /* ========== Right Column - Login Form ========== */
 .login-section {
   width: 480px;
-  background: white; /* Đảm bảo luôn là nền trắng */
+  background: var(--color-bg-light);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -136,13 +107,13 @@ html, body, #root {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 12px;
-  color: #1b1f23;
+  color: var(--color-text-main); /* Đã dùng biến màu chữ chính */
 }
 
 .login-subtitle {
-  color: #65676b;
   font-size: 15px;
   margin-bottom: 32px;
+  color: var(--color-text-muted); /* Đã dùng biến màu chữ phụ */
 }
 
 .google-btn {
@@ -152,12 +123,12 @@ html, body, #root {
   justify-content: center;
   gap: 12px;
   padding: 14px;
-  border: 1px solid #dddfe2;
-  border-radius: 12px;
-  background: white;
+  border: 1px solid var(--color-border); /* Đã dùng biến viền */
+  border-radius: var(--radius-md); /* Đã dùng biến bo góc form (12px) */
+  background: var(--color-bg-light);
   font-size: 15px;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-main);
   cursor: pointer;
   transition: all 0.2s;
   margin-bottom: 24px;
@@ -165,7 +136,6 @@ html, body, #root {
 
 .google-btn:hover {
   background: #f9fafb;
-  border-color: #d1d5db;
 }
 
 .google-btn img {
@@ -186,23 +156,23 @@ html, body, #root {
   left: 0;
   right: 0;
   height: 1px;
-  background: #dddfe2;
+  background: var(--color-border);
 }
 
 .divider span {
-  background: white;
+  background: var(--color-bg-light);
   padding: 0 12px;
-  color: #65676b;
+  color: var(--color-text-muted);
   font-size: 12px;
   position: relative;
   z-index: 1;
 }
 
 .error-message {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--color-error-bg); /* Đã dùng biến nền báo lỗi */
+  color: var(--color-error); /* Đã dùng biến chữ báo lỗi */
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   margin-bottom: 20px;
   text-align: center;
@@ -217,25 +187,25 @@ html, body, #root {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #4b5563;
   margin-bottom: 8px;
+  color: var(--color-text-muted);
 }
 
 .input-group input {
   width: 100%;
   padding: 14px 16px;
   font-size: 16px;
-  border: 1px solid #dddfe2;
-  border-radius: 12px;
-  background: white;
-  color: #1b1f23; /* Đảm bảo chữ gõ vào luôn màu đen */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-light);
+  color: var(--color-text-main);
   transition: all 0.2s;
   font-family: inherit;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #1877f2;
+  border-color: var(--color-primary); /* Đã dùng biến màu chính */
   box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
 }
 
@@ -246,10 +216,10 @@ html, body, #root {
 .login-btn {
   width: 100%;
   padding: 14px;
-  background: #1877f2;
+  background: var(--color-primary); /* Đã dùng biến màu chính */
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -258,7 +228,7 @@ html, body, #root {
 }
 
 .login-btn:hover {
-  background: #166fe5;
+  background: var(--color-primary-hover); /* Đã dùng biến hover */
 }
 
 .login-btn:disabled {
@@ -276,7 +246,7 @@ html, body, #root {
 }
 
 .forgot-link, .signup-link-text {
-  color: #1877f2;
+  color: var(--color-primary); /* Đã dùng biến màu chính */
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -287,11 +257,9 @@ html, body, #root {
 }
 
 .footer-separator {
-  color: #65676b;
+  color: var(--color-text-muted);
   font-size: 14px;
 }
-
-/* Bỏ toàn bộ khối Dark Mode ở đây để form đăng nhập luôn hiển thị nền trắng chữ đen */
 
 /* Responsive */
 @media (max-width: 900px) {
