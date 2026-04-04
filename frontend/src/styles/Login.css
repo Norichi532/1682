@@ -1,0 +1,365 @@
+/* Reset & Variables */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+.login-page {
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ========== Left Column - Hero Section ========== */
+.hero-section {
+  flex: 1;
+  background: linear-gradient(135deg, #1a5d9c 0%, #0e3a5c 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+/* Background image with opacity - you can replace this image */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../assets/images/login-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.25;
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  /* Đổi thành căn giữa để cân bằng với thiết kế split-screen */
+  text-align: center; 
+  color: white;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-title {
+  font-size: 52px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  color: white;
+}
+
+.hero-description {
+  font-size: 18px;
+  opacity: 0.9;
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center; /* Căn giữa các nút */
+}
+
+.btn-primary {
+  padding: 14px 32px;
+  background: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #166fe5;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  padding: 14px 32px;
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 40px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ========== Right Column - Login Form ========== */
+.login-section {
+  width: 480px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 56px;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.05);
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+}
+
+.login-card h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #1b1f23;
+}
+
+.login-subtitle {
+  color: #65676b;
+  font-size: 15px;
+  margin-bottom: 32px;
+}
+
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #dddfe2;
+  border-radius: 12px;
+  background: white;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.google-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.google-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  position: relative;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #dddfe2;
+}
+
+.divider span {
+  background: white;
+  padding: 0 12px;
+  color: #65676b;
+  font-size: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 1px solid #dddfe2;
+  border-radius: 12px;
+  background: white;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #1877f2;
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.input-group input::placeholder {
+  color: #a0a3a8;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+
+.login-btn:hover {
+  background: #166fe5;
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  align-items: center;
+}
+
+.forgot-link, .signup-link-text {
+  color: #1877f2;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.forgot-link:hover, .signup-link-text:hover {
+  text-decoration: underline;
+}
+
+.footer-separator {
+  color: #65676b;
+  font-size: 14px;
+}
+
+/* ========== Dark Mode Support (Đã fix lỗi chữ đen) ========== */
+@media (prefers-color-scheme: dark) {
+  .login-section {
+    background: #18191a; /* Màu nền mềm mại hơn black */
+  }
+  
+  .login-card h2 {
+    color: #ffffff; /* Sửa lỗi chữ Welcome Back bị đen */
+  }
+  
+  .login-subtitle {
+    color: #b0b3b8; /* Thêm màu sáng cho thẻ subtitle */
+  }
+  
+  .input-group label {
+    color: #e4e6eb;
+  }
+  
+  .input-group input {
+    background: #242526;
+    border-color: #3e4042;
+    color: #e4e6eb;
+  }
+
+  .input-group input::placeholder {
+    color: #8a8d91; /* Tối ưu placeholder cho dark mode */
+  }
+  
+  .input-group input:focus {
+    border-color: #2d88ff;
+    background: #242526;
+  }
+  
+  .divider::before {
+    background: #3e4042; /* Đường line mờ đi trong dark mode */
+  }
+
+  .divider span {
+    background: #18191a;
+    color: #b0b3b8;
+  }
+
+  .google-btn {
+    background: #242526;
+    border-color: #3e4042;
+    color: #e4e6eb;
+  }
+
+  .google-btn:hover {
+    background: #3a3b3c;
+    border-color: #555;
+  }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero-section {
+    display: none;
+  }
+  
+  .login-section {
+    width: 100%;
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-section {
+    padding: 24px 20px;
+  }
+  
+  .login-card h2 {
+    font-size: 28px;
+  }
+}
