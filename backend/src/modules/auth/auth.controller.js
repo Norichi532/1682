@@ -54,10 +54,10 @@ exports.login = async (req, res) => {
     }
 
     // 4. Tạo JWT Token
-    // Chỉ giấu những thông tin cần thiết vào token (id, role), KHÔNG giấu password
+    // SỬA Ở ĐÂY: Đổi role thành role_id
     const payload = {
       id: user.id,
-      role: user.role
+      role_id: user.role_id 
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -72,7 +72,7 @@ exports.login = async (req, res) => {
         id: user.id,
         email: user.email,
         full_name: user.full_name,
-        role: user.role
+        role_id: user.role_id // SỬA Ở ĐÂY: Đổi role thành role_id
       }
     });
 

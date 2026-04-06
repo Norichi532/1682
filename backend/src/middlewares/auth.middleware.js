@@ -24,7 +24,7 @@ const authMiddleware = (req, res, next) => {
 // Middleware phân quyền theo Role (Dựa trên role_id trong DB: 1-Admin, 2-Staff, 3-Driver, 4-Customer)
 const authorize = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!allowedRoles.includes(req.user.role)) {
+    if (!allowedRoles.includes(req.user.role_id)) {
       return res.status(403).json({ message: 'Bạn không có quyền truy cập chức năng này!' });
     }
     next();

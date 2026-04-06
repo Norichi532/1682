@@ -1,0 +1,22 @@
+{
+  "repoId": "f3668ead-4a92-42d5-a3c1-826e774192e8",
+  "repoName": "transport-tour-system",
+  "server": "https://api.grapuco.com",
+  "language": "javascript",
+  "features": {
+    "embeddings": true,
+    "dataFlowAnalysis": true
+  },
+  "ignore": [
+    "node_modules",
+    "dist",
+    ".next",
+    ".git",
+    ".grapuco",
+    "__pycache__",
+    "vendor",
+    "target",
+    "build"
+  ],
+  "lastPush": "2026-04-06T02:26:14.224Z"
+}

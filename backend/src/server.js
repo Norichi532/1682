@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const authRoutes = require('./modules/auth/auth.routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./swagger/swagger');
+const { vehicleRoutes } = require('./modules/vehicle');
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Khai báo Routes API
 app.use('/api/auth', authRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Transport & Tour API is running' });
