@@ -1,0 +1,28 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories (QUAN TRỌNG NHẤT)
+node_modules/
+
+# API keys and Secrets (QUAN TRỌNG NHẤT)
+.env
+.env.test
+.env.production
+
+# Thư mục lưu ảnh tạm (nếu Giai đoạn 1 bạn lưu ảnh dưới máy)
+public/uploads/
+uploads/
+
+# OS metadata
+.DS_Store
+Thumbs.db
