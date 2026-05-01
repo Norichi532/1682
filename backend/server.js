@@ -57,6 +57,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // ==========================================
 // ROUTES (API)
 // ==========================================
+// Gọi file router vừa tạo
+const authRoutes = require('./routes/authRoutes');
+
+// Gắn tiền tố /api/auth cho tất cả các route trong file đó
+app.use('/api/auth', authRoutes);
+// ==========================================
+
 
 /**
  * @swagger

@@ -1,0 +1,25 @@
+// models/Product.js
+module.exports = (sequelize, DataTypes) => {
+  const Product = sequelize.define('Product', {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    category_id: { type: DataTypes.INTEGER, allowNull: false },
+    product_name: { type: DataTypes.STRING(255), allowNull: false },
+    description: { type: DataTypes.TEXT },
+    address: { type: DataTypes.TEXT },
+    base_price: { type: DataTypes.DECIMAL(12, 2), defaultValue: 0 },
+    image_url: { type: DataTypes.TEXT }
+  }, {
+    tableName: 'products',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: false
+  });
+
+  Product.associate = function(models) {
+    Product.belongsTo(models.Category, { foreignKey: 'category_id', as: 'category' });
+    Product.hasMany(models.PriceList, { foreignKey: 'product_id', as: 'prices' });
+    Product.hasMany(models.Booking, { foreignKey: 'product_id', as: 'bookings' });
+  };
+
+  return Product;
+};
