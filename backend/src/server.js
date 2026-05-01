@@ -46,7 +46,7 @@ const swaggerOptions = {
     security: [{ bearerAuth: [] }],
   },
   // Scan files with annotations to auto-generate docs (server.js and routes folder)
-  apis: ['./server.js', './routes/*.js'], 
+  apis: ['./src/server.js', './src/routes/*.js'], 
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
@@ -62,6 +62,7 @@ const authRoutes = require('./routes/authRoutes');
 
 // Gắn tiền tố /api/auth cho tất cả các route trong file đó
 app.use('/api/auth', authRoutes);
+
 // ==========================================
 
 
