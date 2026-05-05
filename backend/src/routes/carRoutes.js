@@ -14,7 +14,7 @@ const { verifyToken, verifyRole } = require('../middlewares/authMiddleware');
  * @swagger
  * /api/cars:
  *   get:
- *     summary: Lấy tất cả xe kèm tài xế và dòng xe (admin)
+ *     summary: Lấy tất cả xe đang hoạt động (is_active=true) kèm tài xế và dòng xe (admin)
  *     tags: [Cars]
  *     security:
  *       - bearerAuth: []
@@ -26,7 +26,7 @@ const { verifyToken, verifyRole } = require('../middlewares/authMiddleware');
  *         in: query
  *         schema: { type: string, enum: [AVAILABLE, MAINTENANCE, INACTIVE] }
  *     responses:
- *       200: { description: Danh sách xe }
+ *       200: { description: Danh sách xe đang hoạt động (is_active=true) }
  */
 router.get('/', verifyToken, verifyRole([1]), ctrl.getAllCars);
 
@@ -101,7 +101,8 @@ router.post('/', verifyToken, verifyRole([1]), ctrl.createCar);
  *     responses:
  *       200: { description: Cập nhật thành công }
  *   delete:
- *     summary: Xóa xe (admin)
+ *     summary: Vô hiệu hóa xe - soft delete (admin)
+ *     description: Không xóa thật khỏi DB. Đặt is_active=false để giữ lịch sử booking. Không thể xóa xe đang có chuyến CONFIRMED hoặc IN_PROGRESS.
  *     tags: [Cars]
  *     security:
  *       - bearerAuth: []
@@ -111,7 +112,8 @@ router.post('/', verifyToken, verifyRole([1]), ctrl.createCar);
  *         required: true
  *         schema: { type: integer }
  *     responses:
- *       200: { description: Xóa thành công }
+ *       200: { description: Đã vô hiệu hóa xe thành công }
+ *       400: { description: Xe đang có chuyến chưa hoàn thành }
  */
 router.put('/:id', verifyToken, verifyRole([1]), ctrl.updateCar);
 router.delete('/:id', verifyToken, verifyRole([1]), ctrl.deleteCar);

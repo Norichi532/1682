@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     driver_id: { type: DataTypes.UUID },
     license_plate: { type: DataTypes.STRING(20), unique: true, allowNull: false },
     color: { type: DataTypes.STRING(50) },
-    status: { type: DataTypes.STRING(50), defaultValue: 'AVAILABLE' }
+    status: { type: DataTypes.STRING(50), defaultValue: 'AVAILABLE' },
+    is_active: { type: DataTypes.BOOLEAN, defaultValue: true }
   }, {
     tableName: 'cars',
     timestamps: true,

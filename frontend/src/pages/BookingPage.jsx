@@ -230,7 +230,8 @@ function Step1Schedule({ catId, data, onChange, error }) {
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">Ngày đi <span className="text-red-500">*</span></label>
           <input type="date" value={data.date} onChange={e => onChange('date', e.target.value)}
-            min={new Date().toISOString().split('T')[0]} className={inp} />
+            min={(() => { const d = new Date(); d.setDate(d.getDate() + 3); return d.toISOString().split('T')[0] })()} className={inp} />
+          <p className="text-xs text-gray-400 mt-1">Vui lòng đặt trước ít nhất 3 ngày</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">Giờ đón <span className="text-red-500">*</span></label>
@@ -528,6 +529,10 @@ export default function BookingPage() {
       if (!data.pickup_location.trim()) return 'Vui lòng nhập địa chỉ đón'
       if (catId === 3 && !data.golf_course) return 'Vui lòng chọn sân golf'
       if (!data.date) return 'Vui lòng chọn ngày đi'
+      if (data.date) {
+        const minDate = new Date(); minDate.setDate(minDate.getDate() + 3); minDate.setHours(0,0,0,0)
+        if (new Date(data.date) < minDate) return 'Ngày đi phải cách hôm nay ít nhất 3 ngày'
+      }
       if (!data.time) return 'Vui lòng chọn giờ đón'
     }
     if (step === 2) {

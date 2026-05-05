@@ -13,6 +13,14 @@ const createBooking = async (req, res) => {
       return res.status(400).json({ message: 'product_id, model_id, start_time là bắt buộc' });
     }
 
+    // Kiểm tra đặt xe trước ít nhất 3 ngày
+    const minTime = new Date();
+    minTime.setDate(minTime.getDate() + 3);
+    minTime.setHours(0, 0, 0, 0);
+    if (new Date(start_time) < minTime) {
+      return res.status(400).json({ message: 'Ngày đi phải cách hôm nay ít nhất 3 ngày.' });
+    }
+
     const priceRecord = await PriceList.findOne({ where: { product_id, model_id } });
     if (!priceRecord) {
       return res.status(404).json({ message: 'Không tìm thấy giá cho sản phẩm và dòng xe này' });

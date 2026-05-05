@@ -9,7 +9,7 @@ const carIncludes = [
 const getAllCars = async (req, res) => {
   try {
     const { model_id, status } = req.query;
-    const where = {};
+    const where = { is_active: true };
     if (model_id) where.model_id = model_id;
     if (status) where.status = status;
     const cars = await Car.findAll({ where, include: carIncludes, order: [['id', 'ASC']] });
@@ -25,7 +25,7 @@ const getAvailableCars = async (req, res) => {
       attributes: ['car_id'], raw: true
     });
     const bookedIds = booked.map(b => b.car_id).filter(Boolean);
-    const where = { status: 'AVAILABLE' };
+    const where = { status: 'AVAILABLE', is_active: true };
     if (bookedIds.length > 0) where.id = { [Op.notIn]: bookedIds };
     if (model_id) where.model_id = model_id;
     const cars = await Car.findAll({ where, include: carIncludes, order: [['id', 'ASC']] });
@@ -64,8 +64,23 @@ const deleteCar = async (req, res) => {
   try {
     const car = await Car.findByPk(req.params.id);
     if (!car) return res.status(404).json({ message: 'Không tìm thấy xe' });
-    await car.destroy();
-    res.json({ message: 'Xóa xe thành công' });
+
+    // Chặn xóa nếu đang có booking CONFIRMED hoặc IN_PROGRESS
+    const activeBooking = await Booking.findOne({
+      where: {
+        car_id: car.id,
+        status: { [Op.in]: ['CONFIRMED', 'IN_PROGRESS'] }
+      }
+    });
+    if (activeBooking) {
+      return res.status(400).json({
+        message: 'Không thể xóa xe đang có chuyến chưa hoàn thành (CONFIRMED hoặc IN_PROGRESS).'
+      });
+    }
+
+    // Soft delete: vô hiệu hóa xe, không xóa thật để giữ lịch sử booking
+    await car.update({ is_active: false, driver_id: null });
+    res.json({ message: 'Đã vô hiệu hóa xe thành công' });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
 
