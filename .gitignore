@@ -8,3 +8,7 @@ dist/
 
 # AI tool config (not part of project source)
 .claude/
+
+# Project report documents
+*.docx
+*.doc
