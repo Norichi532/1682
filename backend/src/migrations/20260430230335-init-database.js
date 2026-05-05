@@ -21,14 +21,17 @@ module.exports = {
       phone: { type: Sequelize.STRING(20) },
       avatar_url: { type: Sequelize.TEXT },
       google_id: { type: Sequelize.STRING(255), unique: true },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
 
     // 3. CATEGORIES
     await queryInterface.createTable('categories', {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
       category_name: { type: Sequelize.STRING(100), unique: true, allowNull: false },
-      description: { type: Sequelize.TEXT }
+      description: { type: Sequelize.TEXT },
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
 
     // 4. PRODUCTS (Điểm đến / Tour)
@@ -38,9 +41,9 @@ module.exports = {
       product_name: { type: Sequelize.STRING(255), allowNull: false },
       description: { type: Sequelize.TEXT },
       address: { type: Sequelize.TEXT },
-      base_price: { type: Sequelize.DECIMAL(12, 2), defaultValue: 0 },
       image_url: { type: Sequelize.TEXT },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
 
     // 5. CAR MODELS (Dòng xe)
@@ -50,7 +53,9 @@ module.exports = {
       num_seats: { type: Sequelize.INTEGER, allowNull: false },
       description: { type: Sequelize.TEXT },
       features: { type: Sequelize.JSONB }, // Giữ JSONB cho features để linh hoạt lưu mảng vd: ["wifi", "water"]
-      image_url: { type: Sequelize.TEXT }
+      image_url: { type: Sequelize.TEXT },
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
 
     // 6. CARS (Xe cụ thể)
@@ -61,7 +66,8 @@ module.exports = {
       license_plate: { type: Sequelize.STRING(20), unique: true, allowNull: false },
       color: { type: Sequelize.STRING(50) },
       status: { type: Sequelize.STRING(50), defaultValue: 'AVAILABLE' },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
 
     // 7. PRICE LIST
@@ -69,7 +75,9 @@ module.exports = {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
       product_id: { type: Sequelize.INTEGER, references: { model: 'products', key: 'id' }, onDelete: 'CASCADE' },
       model_id: { type: Sequelize.INTEGER, references: { model: 'car_models', key: 'id' }, onDelete: 'CASCADE' },
-      price: { type: Sequelize.DECIMAL(12, 2), allowNull: false }
+      price: { type: Sequelize.DECIMAL(12, 2), allowNull: false },
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
     // Ràng buộc để không trùng lặp giá cho cùng 1 lộ trình và 1 loại xe
     await queryInterface.addConstraint('price_list', {
@@ -77,6 +85,7 @@ module.exports = {
       type: 'unique',
       name: 'unique_product_model_price'
     });
+  
 
     // 8. BOOKINGS
     await queryInterface.createTable('bookings', {
@@ -102,7 +111,8 @@ module.exports = {
       transaction_code: { type: Sequelize.STRING(100), unique: true },
       amount: { type: Sequelize.DECIMAL(12, 2), allowNull: false },
       status: { type: Sequelize.STRING(50), defaultValue: 'PENDING' },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
 
     // 10. REVIEWS
@@ -112,7 +122,8 @@ module.exports = {
       customer_id: { type: Sequelize.UUID, references: { model: 'users', key: 'id' }, onDelete: 'CASCADE' },
       rating: { type: Sequelize.INTEGER },
       comment: { type: Sequelize.TEXT },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
 
     // 11. NOTIFICATIONS
@@ -121,7 +132,8 @@ module.exports = {
       user_id: { type: Sequelize.UUID, references: { model: 'users', key: 'id' }, onDelete: 'CASCADE' },
       content: { type: Sequelize.TEXT, allowNull: false },
       is_read: { type: Sequelize.BOOLEAN, defaultValue: false },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
+      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     });
   },
 

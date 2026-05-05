@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'cars',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: false
+    updatedAt: 'updated_at'
   });
 
   Car.associate = function(models) {

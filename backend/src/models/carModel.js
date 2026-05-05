@@ -9,7 +9,9 @@ module.exports = (sequelize, DataTypes) => {
     image_url: { type: DataTypes.TEXT }
   }, {
     tableName: 'car_models',
-    timestamps: false
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
   CarModel.associate = function(models) {

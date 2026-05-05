@@ -6,13 +6,12 @@ module.exports = (sequelize, DataTypes) => {
     product_name: { type: DataTypes.STRING(255), allowNull: false },
     description: { type: DataTypes.TEXT },
     address: { type: DataTypes.TEXT },
-    base_price: { type: DataTypes.DECIMAL(12, 2), defaultValue: 0 },
     image_url: { type: DataTypes.TEXT }
   }, {
     tableName: 'products',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: false
+    updatedAt: 'updated_at'
   });
 
   Product.associate = function(models) {
