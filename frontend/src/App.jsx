@@ -1,13 +1,74 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
+
+// Public Pages
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import GoogleCallbackPage from './pages/GoogleCallbackPage'
+import HomePage from './pages/HomePage'
+import ServicesPage from './pages/ServicesPage'
+import CategoryPage from './pages/CategoryPage'
+import ProductDetailPage from './pages/ProductDetailPage'
+import VehiclesPage from './pages/VehiclesPage'
+import VehicleDetailPage from './pages/VehicleDetailPage'
+import AboutPage from './pages/AboutPage'
+
+// Customer Pages
+import BookingPage from './pages/BookingPage'
+import MyOrdersPage from './pages/MyOrdersPage'
+import ProfilePage from './pages/ProfilePage'
+
+// Admin Pages
+import DashboardPage from './pages/admin/DashboardPage'
+import BookingsManagePage from './pages/admin/BookingsManagePage'
+import UsersManagePage from './pages/admin/UsersManagePage'
+import CarsManagePage from './pages/admin/CarsManagePage'
+import CarModelsManagePage from './pages/admin/CarModelsManagePage'
+import ProductsManagePage from './pages/admin/ProductsManagePage'
+
+// Driver Pages
+import SchedulePage from './pages/driver/SchedulePage'
+
 function App() {
-return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50">
-      <h1 className="text-5xl font-bold text-blue-700 mb-4 shadow-sm">
-         PhuOng Tourist Car
-      </h1>
-      <p className="text-xl text-gray-600 font-medium">
-        Tailwind CSS v4 đã cấu hình thành công!
-      </p>
-    </div>
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/cat/:categoryId" element={<CategoryPage />} />
+          <Route path="/services/:id" element={<ProductDetailPage />} />
+          <Route path="/vehicles" element={<VehiclesPage />} />
+          <Route path="/vehicles/:id" element={<VehicleDetailPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+
+          {/* Customer */}
+          <Route path="/booking/:productId" element={<ProtectedRoute allowedRoles={[2]}><BookingPage /></ProtectedRoute>} />
+          <Route path="/my-orders" element={<ProtectedRoute allowedRoles={[2]}><MyOrdersPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute allowedRoles={[2, 3]}><ProfilePage /></ProtectedRoute>} />
+
+          {/* Admin */}
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={[1]}><DashboardPage /></ProtectedRoute>} />
+          <Route path="/admin/bookings" element={<ProtectedRoute allowedRoles={[1]}><BookingsManagePage /></ProtectedRoute>} />
+          <Route path="/admin/products" element={<ProtectedRoute allowedRoles={[1]}><ProductsManagePage /></ProtectedRoute>} />
+          <Route path="/admin/car-models" element={<ProtectedRoute allowedRoles={[1]}><CarModelsManagePage /></ProtectedRoute>} />
+          <Route path="/admin/cars" element={<ProtectedRoute allowedRoles={[1]}><CarsManagePage /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute allowedRoles={[1]}><UsersManagePage /></ProtectedRoute>} />
+
+          {/* Driver */}
+          <Route path="/admin/schedule" element={<ProtectedRoute allowedRoles={[3]}><SchedulePage /></ProtectedRoute>} />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
