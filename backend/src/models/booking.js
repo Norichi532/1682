@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     car_id: { type: DataTypes.INTEGER },
     driver_id: { type: DataTypes.UUID },
     start_time: { type: DataTypes.DATE, allowNull: false },
+    end_time: { type: DataTypes.DATE },
     total_price: { type: DataTypes.DECIMAL(12, 2), allowNull: false },
     status: { type: DataTypes.STRING(50), defaultValue: 'PENDING' },
     additional_data: { type: DataTypes.JSONB } // Lưu thông tin phụ như số hiệu chuyến bay, số túi golf

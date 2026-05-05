@@ -26,8 +26,24 @@ const createBooking = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy giá cho sản phẩm và dòng xe này' });
     }
 
+    // Tính end_time dựa theo loại dịch vụ
+    const start = new Date(start_time);
+    let end_time;
+    const days = additional_data?.days;
+    if (days && parseInt(days) > 1) {
+      // Tour nhiều ngày
+      end_time = new Date(start);
+      end_time.setDate(end_time.getDate() + parseInt(days));
+    } else if (additional_data?.golf_course !== undefined) {
+      // Golf: ước tính 6 tiếng
+      end_time = new Date(start.getTime() + 6 * 60 * 60 * 1000);
+    } else {
+      // Airport hoặc dịch vụ thông thường: ước tính 3 tiếng
+      end_time = new Date(start.getTime() + 3 * 60 * 60 * 1000);
+    }
+
     const booking = await Booking.create({
-      customer_id, product_id, model_id, start_time,
+      customer_id, product_id, model_id, start_time, end_time,
       total_price: priceRecord.price,
       status: 'PENDING',
       additional_data: additional_data || null
@@ -170,20 +186,43 @@ const assignCarAndDriver = async (req, res) => {
       return res.status(400).json({ message: 'car_id và driver_id là bắt buộc' });
     }
 
-    // Kiểm tra xe có đang bận không
-    const conflictingBooking = await Booking.findOne({
-      where: { car_id, status: { [Op.in]: ['CONFIRMED', 'IN_PROGRESS'] }, id: { [Op.ne]: id } }
+    // Lấy thông tin thời gian của booking hiện tại
+    const newStart = new Date(booking.start_time);
+    const newEnd = booking.end_time ? new Date(booking.end_time) : new Date(newStart.getTime() + 3 * 60 * 60 * 1000);
+
+    // Điều kiện overlap: booking khác có start_time < newEnd VÀ end_time > newStart
+    const overlapCondition = {
+      status: { [Op.in]: ['CONFIRMED', 'IN_PROGRESS'] },
+      id: { [Op.ne]: id },
+      start_time: { [Op.lt]: newEnd },
+      [Op.or]: [
+        { end_time: { [Op.gt]: newStart } },
+        { end_time: null } // booking cũ chưa có end_time → coi như bận
+      ]
+    };
+
+    // Kiểm tra xe có bị trùng lịch không
+    const conflictingCar = await Booking.findOne({
+      where: { car_id, ...overlapCondition }
     });
-    if (conflictingBooking) {
-      return res.status(400).json({ message: 'Xe này đang trong chuyến khác chưa hoàn thành!' });
+    if (conflictingCar) {
+      const cfStart = new Date(conflictingCar.start_time).toLocaleString('vi-VN');
+      const cfEnd = conflictingCar.end_time ? new Date(conflictingCar.end_time).toLocaleString('vi-VN') : '?';
+      return res.status(400).json({
+        message: `Xe này đã được gán cho chuyến khác từ ${cfStart} đến ${cfEnd}. Vui lòng chọn xe khác.`
+      });
     }
 
-    // Kiểm tra tài xế có đang bận không
+    // Kiểm tra tài xế có bị trùng lịch không
     const conflictingDriver = await Booking.findOne({
-      where: { driver_id, status: { [Op.in]: ['CONFIRMED', 'IN_PROGRESS'] }, id: { [Op.ne]: id } }
+      where: { driver_id, ...overlapCondition }
     });
     if (conflictingDriver) {
-      return res.status(400).json({ message: 'Tài xế này đang trong chuyến khác chưa hoàn thành!' });
+      const cfStart = new Date(conflictingDriver.start_time).toLocaleString('vi-VN');
+      const cfEnd = conflictingDriver.end_time ? new Date(conflictingDriver.end_time).toLocaleString('vi-VN') : '?';
+      return res.status(400).json({
+        message: `Tài xế này đã có lịch chuyến khác từ ${cfStart} đến ${cfEnd}. Vui lòng chọn tài xế khác.`
+      });
     }
 
     // Xóa external_car_info nếu trước đó đã gán xe ngoài rồi đổi lại nội bộ
