@@ -147,7 +147,8 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
             <DetailRow label="Dịch vụ"       value={booking.product?.product_name} />
             <DetailRow label="Danh mục"       value={booking.product?.category?.category_name} />
             <DetailRow label="Dòng xe"        value={booking.car_model?.model_name} />
-            <DetailRow label="Ngày & Giờ đón" value={fmtDT(booking.start_time)} />
+            <DetailRow label="Giờ đón"         value={fmtDT(booking.start_time)} />
+            <DetailRow label="Giờ kết thúc (dự kiến)" value={fmtDT(booking.end_time)} />
             {directionLabel() && <DetailRow label="Chiều đi" value={directionLabel()} />}
             <DetailRow label="Điểm đón"       value={ad.pickup_location} />
             {catId === 3 && <DetailRow label="Sân golf"      value={ad.golf_course} />}
