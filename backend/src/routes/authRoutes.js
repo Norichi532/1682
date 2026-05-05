@@ -1,8 +1,8 @@
-const { verifyToken } = require('../middlewares/authMiddleware');
-// routes/authRoutes.js
+// src/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const { verifyToken } = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -23,30 +23,15 @@ const authController = require('../controllers/authController');
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - full_name
- *               - email
- *               - password
+ *             required: [full_name, email, password, phone]
  *             properties:
- *               full_name:
- *                 type: string
- *                 example: Huynh Doan Tan Phat
- *               email:
- *                 type: string
- *                 example: phat@example.com
- *               password:
- *                 type: string
- *                 example: "123456"
- *               phone:
- *                 type: string
- *                 example: "0901234567"
+ *               full_name: { type: string, example: Nguyen Van A }
+ *               email: { type: string, example: vana@gmail.com }
+ *               password: { type: string, example: "Pass@123" }
+ *               phone: { type: string, example: "0901234567" }
  *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Bad request or Email already exists
- *       500:
- *         description: Internal server error
+ *       201: { description: Registered successfully }
+ *       400: { description: Validation error or email already exists }
  */
 router.post('/register', authController.register);
 
@@ -54,7 +39,7 @@ router.post('/register', authController.register);
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Login to the system
+ *     summary: Login and receive JWT token
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -62,48 +47,60 @@ router.post('/register', authController.register);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
+ *             required: [email, password]
  *             properties:
- *               email:
- *                 type: string
- *                 example: phat@example.com
- *               password:
- *                 type: string
- *                 example: "123456"
+ *               email: { type: string, example: admin@phuongtravel.vn }
+ *               password: { type: string, example: "Admin@123" }
  *     responses:
- *       200:
- *         description: Login successful, returns JWT Token
- *       400:
- *         description: Invalid password
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
+ *       200: { description: Login successful, returns JWT token }
+ *       400: { description: Invalid password }
+ *       404: { description: User not found }
  */
 router.post('/login', authController.login);
+
 /**
  * @swagger
  * /api/auth/me:
  *   get:
- *     summary: Get current user profile (Protected Route)
+ *     summary: Get current logged-in user info
  *     tags: [Auth]
  *     security:
- *       - bearerAuth: [] 
+ *       - bearerAuth: []
  *     responses:
- *       200:
- *         description: Successfully retrieved user data
- *       401:
- *         description: Unauthorized (No token)
- *       403:
- *         description: Forbidden (Invalid token)
+ *       200: { description: Returns user profile }
+ *       401: { description: Unauthorized }
  */
-router.get('/me', verifyToken, (req, res) => {
-  // Nếu vượt qua được verifyToken, code mới chạy đến đây
-  res.status(200).json({ 
-    message: 'Welcome! You have accessed a protected route.', 
-    user: req.user 
-  });
-});
+router.get('/me', verifyToken, authController.getMe);
+
+/**
+ * @swagger
+ * /api/auth/profile:
+ *   patch:
+ *     summary: Update user profile (name, phone)
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200: { description: Profile updated }
+ */
+router.patch('/profile', verifyToken, authController.updateProfile);
+
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   patch:
+ *     summary: Change user password
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200: { description: Password changed }
+ */
+router.patch('/change-password', verifyToken, authController.changePassword);
+router.post('/forgot-password', authController.forgotPassword);
+
 module.exports = router;
+
+// ── Google OAuth ─────────────────────────────────────────────────────────────
+router.get('/google',          authController.googleAuth);
+router.get('/google/callback', authController.googleCallback);
