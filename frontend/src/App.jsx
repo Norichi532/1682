@@ -27,6 +27,7 @@ import UsersManagePage from './pages/admin/UsersManagePage'
 import CarsManagePage from './pages/admin/CarsManagePage'
 import CarModelsManagePage from './pages/admin/CarModelsManagePage'
 import ProductsManagePage from './pages/admin/ProductsManagePage'
+import CalendarPage from './pages/admin/CalendarPage'
 
 // Driver Pages
 import SchedulePage from './pages/driver/SchedulePage'
@@ -61,6 +62,7 @@ function App() {
           <Route path="/admin/car-models" element={<ProtectedRoute allowedRoles={[1]}><CarModelsManagePage /></ProtectedRoute>} />
           <Route path="/admin/cars" element={<ProtectedRoute allowedRoles={[1]}><CarsManagePage /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute allowedRoles={[1]}><UsersManagePage /></ProtectedRoute>} />
+          <Route path="/admin/calendar" element={<ProtectedRoute allowedRoles={[1]}><CalendarPage /></ProtectedRoute>} />
 
           {/* Driver */}
           <Route path="/admin/schedule" element={<ProtectedRoute allowedRoles={[3]}><SchedulePage /></ProtectedRoute>} />
