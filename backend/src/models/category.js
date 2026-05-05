@@ -6,7 +6,9 @@ module.exports = (sequelize, DataTypes) => {
     description: { type: DataTypes.TEXT }
   }, {
     tableName: 'categories',
-    timestamps: false
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
   Category.associate = function(models) {

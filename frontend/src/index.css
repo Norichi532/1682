@@ -1,1 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap');
 @import "tailwindcss";
+
+/* ─── Custom Theme Colors (Tailwind v4 @theme) ─── */
+@theme {
+  --color-navy: hsl(222, 47%, 11%);
+  --color-navy-light: hsl(221, 40%, 17%);
+  --color-ochre: hsl(38, 92%, 45%);
+  --color-ochre-light: hsl(38, 92%, 55%);
+  --color-mist: hsl(214, 32%, 91%);
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* ─── Base ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Custom Utilities ─── */
+@utility font-display {
+  font-family: 'Playfair Display', serif;
+}
+
+@utility font-body {
+  font-family: 'Inter', sans-serif;
+}
+
+@utility hover-lift {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@utility kinetic-underline {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: hsl(38, 92%, 45%);
+    transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  &:hover::after {
+    width: 100%;
+  }
+}
+
+@utility pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+/* ─── Keyframe Animations ─── */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4); }
+  50%       { box-shadow: 0 0 0 8px rgba(217, 119, 6, 0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bounceDot {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: hsl(222, 47%, 11%); }
+::-webkit-scrollbar-thumb { background: hsl(38, 92%, 45%); border-radius: 3px; }

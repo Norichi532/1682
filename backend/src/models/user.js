@@ -8,12 +8,13 @@ module.exports = (sequelize, DataTypes) => {
     password: { type: DataTypes.STRING(255) },
     phone: { type: DataTypes.STRING(20) },
     avatar_url: { type: DataTypes.TEXT },
-    google_id: { type: DataTypes.STRING(255), unique: true }
+    google_id: { type: DataTypes.STRING(255), unique: true },
+    is_active: { type: DataTypes.BOOLEAN, defaultValue: true }
   }, {
     tableName: 'users',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: false
+    updatedAt: 'updated_at'
   });
 
   User.associate = function(models) {

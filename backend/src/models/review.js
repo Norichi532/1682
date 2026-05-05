@@ -10,12 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'reviews',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: false
+    updatedAt: 'updated_at'
   });
 
   Review.associate = function(models) {
     Review.belongsTo(models.Booking, { foreignKey: 'booking_id', as: 'booking' });
-    Review.belongsTo(models.User, { foreignKey: 'customer_id', as: 'reviewer' });
+    Review.belongsTo(models.User, { foreignKey: 'customer_id', as: 'customer' });
   };
 
   return Review;
