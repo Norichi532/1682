@@ -236,6 +236,20 @@ const assignCarAndDriver = async (req, res) => {
     booking.status = 'CONFIRMED';
     await booking.save();
 
+    // Thông báo cho tài xế được gán
+    try {
+      const fullBooking = await Booking.findByPk(booking.id, {
+        include: [{ model: Product, as: 'product', attributes: ['product_name'] }]
+      });
+      const startStr = new Date(booking.start_time).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      await Notification.create({
+        user_id: driver_id,
+        content: `Bạn được phân công chuyến "${fullBooking?.product?.product_name || 'Dịch vụ'}" lúc ${startStr}.`
+      });
+    } catch (e) {
+      console.error('Driver notification error:', e.message);
+    }
+
     res.json({ message: 'Gán xe và tài xế thành công', data: booking });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

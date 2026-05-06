@@ -90,4 +90,70 @@ const sendWelcomeEmail = async (toEmail, fullName) => {
   });
 };
 
-module.exports = { sendNewPassword, sendCompletionEmail, sendWelcomeEmail };
+const sendDepositEmail = async (toEmail, customerName, productName, depositAmount, bookingId) => {
+  const fmt = (v) => new Intl.NumberFormat('vi-VN').format(v) + 'đ';
+  await transporter.sendMail({
+    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+    to: toEmail,
+    subject: 'Đặt cọc thành công — PhuOng Tourist Car',
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+        <div style="background:linear-gradient(135deg,#1d4ed8,#2563eb);padding:28px 32px;">
+          <h1 style="color:white;margin:0;font-size:22px;">PhuOng Tourist Car</h1>
+          <p style="color:#bfdbfe;margin:6px 0 0;font-size:13px;">Xác nhận thanh toán cọc</p>
+        </div>
+        <div style="padding:28px 32px;background:#fff;">
+          <p style="color:#374151;">Xin chào <strong>${customerName}</strong>,</p>
+          <p style="color:#374151;">Chúng tôi đã nhận được khoản đặt cọc cho đơn đặt xe của bạn.</p>
+          <div style="background:#eff6ff;border-radius:10px;padding:20px;margin:20px 0;">
+            <p style="margin:0 0 8px;color:#6b7280;font-size:13px;">Dịch vụ</p>
+            <p style="margin:0 0 16px;color:#111827;font-weight:bold;font-size:16px;">${productName}</p>
+            <p style="margin:0 0 4px;color:#6b7280;font-size:13px;">Số tiền đặt cọc (30%)</p>
+            <p style="margin:0;color:#1d4ed8;font-weight:bold;font-size:22px;">${fmt(depositAmount)}</p>
+          </div>
+          <p style="color:#6b7280;font-size:13px;">Mã đơn: <strong>#${bookingId.slice(0,8).toUpperCase()}</strong></p>
+          <p style="color:#374151;font-size:14px;">Đơn của bạn đang chờ xếp xe. Chúng tôi sẽ thông báo khi có tài xế được phân công.</p>
+          <a href="${process.env.FRONTEND_URL}/my-orders" style="display:block;text-align:center;background:#1d4ed8;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:20px;">Xem đơn của tôi</a>
+        </div>
+        <div style="background:#f9fafb;padding:14px 32px;text-align:center;border-top:1px solid #e5e7eb;">
+          <p style="color:#9ca3af;font-size:12px;margin:0;">PhuOng Tourist Car — Đà Nẵng, Việt Nam</p>
+        </div>
+      </div>
+    `,
+  });
+};
+
+const sendCancelEmail = async (toEmail, customerName, productName, refundAmount, refundPercent) => {
+  const fmt = (v) => new Intl.NumberFormat('vi-VN').format(v) + 'đ';
+  const refundText = refundPercent === 0
+    ? 'Không hoàn tiền cọc do hủy trong vòng 24 giờ trước chuyến đi.'
+    : `Hoàn <strong>${refundPercent}%</strong> tiền cọc — <strong>${fmt(refundAmount)}</strong> sẽ được hoàn vào tài khoản trong 5–10 ngày làm việc.`;
+  const color = refundPercent === 100 ? '#16a34a' : refundPercent === 50 ? '#d97706' : '#dc2626';
+
+  await transporter.sendMail({
+    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+    to: toEmail,
+    subject: 'Xác nhận hủy đơn — PhuOng Tourist Car',
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+        <div style="background:#374151;padding:28px 32px;">
+          <h1 style="color:white;margin:0;font-size:22px;">PhuOng Tourist Car</h1>
+          <p style="color:#d1d5db;margin:6px 0 0;font-size:13px;">Thông báo hủy đơn</p>
+        </div>
+        <div style="padding:28px 32px;background:#fff;">
+          <p style="color:#374151;">Xin chào <strong>${customerName}</strong>,</p>
+          <p style="color:#374151;">Đơn đặt xe <strong>"${productName}"</strong> của bạn đã được hủy thành công.</p>
+          <div style="background:#fef3f2;border-left:4px solid ${color};border-radius:8px;padding:16px;margin:20px 0;">
+            <p style="margin:0;color:${color};font-size:14px;">${refundText}</p>
+          </div>
+          <a href="${process.env.FRONTEND_URL}/services" style="display:block;text-align:center;background:#1d4ed8;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:20px;">Đặt xe mới</a>
+        </div>
+        <div style="background:#f9fafb;padding:14px 32px;text-align:center;border-top:1px solid #e5e7eb;">
+          <p style="color:#9ca3af;font-size:12px;margin:0;">PhuOng Tourist Car — Đà Nẵng, Việt Nam</p>
+        </div>
+      </div>
+    `,
+  });
+};
+
+module.exports = { sendNewPassword, sendCompletionEmail, sendWelcomeEmail, sendDepositEmail, sendCancelEmail };

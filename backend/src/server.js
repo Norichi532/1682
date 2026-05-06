@@ -83,6 +83,9 @@ app.use('/api/upload', uploadRoutes);
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
+const paymentRoutes = require('./routes/paymentRoutes');
+app.use('/api/payments', paymentRoutes);
+
 /**
  * @swagger
  * /:

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import NotificationBell from '../../components/NotificationBell'
 
 const ADMIN_MENU = [
   {
@@ -165,6 +166,7 @@ export default function AdminLayout({ children, title }) {
           </button>
           <h1 className="text-lg font-bold text-gray-900">{getPageTitle()}</h1>
           <div className="ml-auto flex items-center gap-3">
+            <NotificationBell />
             <Link to="/" className="text-xs text-gray-500 hover:text-blue-600 transition">← Về trang chủ</Link>
           </div>
         </header>

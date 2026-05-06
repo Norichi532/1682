@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from './NotificationBell'
 
 const SERVICE_CATEGORIES = [
   { id: 1, name: 'Đưa đón Sân Bay', icon: '✈️' },
@@ -103,6 +104,8 @@ export default function Navbar() {
                 Đăng nhập
               </Link>
             ) : user.role_id === 2 ? (
+              <>
+              <NotificationBell />
               <div ref={userRef} className="relative">
                 <button onClick={() => setUserDropdown(!userDropdown)} className="flex items-center gap-2 hover:opacity-80 transition">
                   <div className="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
@@ -121,6 +124,7 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+              </>
             ) : (
               <button onClick={() => navigate(user.role_id === 3 ? '/admin/schedule' : '/admin')} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm">
                 Vào Dashboard
