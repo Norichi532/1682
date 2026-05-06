@@ -131,6 +131,7 @@ export default function AboutPage() {
         ))}
       </div>
 
+
       {/* CTA */}
       <div className="bg-navy py-16 px-4 text-center">
         <h2 className="font-display text-3xl font-bold text-white mb-4">Sẵn sàng đặt xe?</h2>

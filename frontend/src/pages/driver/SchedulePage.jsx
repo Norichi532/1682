@@ -10,7 +10,6 @@ const STATUS_CONFIG = {
   CANCELLED:   { label: 'Đã hủy',       color: 'bg-red-100 text-red-800',     dot: 'bg-red-400' },
 }
 
-// Trạng thái tiếp theo tài xế được phép chuyển
 const DRIVER_NEXT_STATUS = {
   CONFIRMED:   { next: 'IN_PROGRESS', label: '🚗 Bắt đầu chuyến', color: 'bg-orange-500 hover:bg-orange-600 text-white' },
   IN_PROGRESS: { next: 'COMPLETED',   label: '✅ Hoàn thành chuyến', color: 'bg-green-600 hover:bg-green-700 text-white' },
@@ -19,16 +18,13 @@ const DRIVER_NEXT_STATUS = {
 function formatDateTime(dt) {
   return dt ? new Date(dt).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '—'
 }
-function formatCurrency(v) {
-  return v ? new Intl.NumberFormat('vi-VN').format(v) + ' đ' : '—'
-}
 
 export default function SchedulePage() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [updating, setUpdating] = useState(null)
-  const [confirmModal, setConfirmModal] = useState(null) // { booking, nextStatus, label }
+  const [confirmModal, setConfirmModal] = useState(null)
 
   useEffect(() => { fetchSchedule() }, [])
 
@@ -52,17 +48,13 @@ export default function SchedulePage() {
     } catch (e) {
       setError(e.response?.data?.message || 'Cập nhật thất bại')
       setConfirmModal(null)
-    } finally {
-      setUpdating(null)
-    }
+    } finally { setUpdating(null) }
   }
 
-  // Tách chuyến hôm nay vs sắp tới vs đã xong
   const today = new Date().toDateString()
-  const activeBookings = bookings.filter(b => ['CONFIRMED', 'IN_PROGRESS'].includes(b.status))
-  const todayBookings = bookings.filter(b => b.start_time && new Date(b.start_time).toDateString() === today && !['COMPLETED', 'CANCELLED'].includes(b.status))
+  const activeBookings   = bookings.filter(b => ['CONFIRMED', 'IN_PROGRESS'].includes(b.status))
   const upcomingBookings = bookings.filter(b => b.status === 'CONFIRMED' && new Date(b.start_time) > new Date() && new Date(b.start_time).toDateString() !== today)
-  const doneBookings = bookings.filter(b => ['COMPLETED', 'CANCELLED'].includes(b.status))
+  const doneBookings     = bookings.filter(b => ['COMPLETED', 'CANCELLED'].includes(b.status))
 
   const BookingCard = ({ b }) => {
     const status = STATUS_CONFIG[b.status] || STATUS_CONFIG.PENDING
@@ -72,7 +64,6 @@ export default function SchedulePage() {
     return (
       <div className={`bg-white rounded-2xl shadow-sm border-l-4 ${b.status === 'IN_PROGRESS' ? 'border-orange-500' : b.status === 'CONFIRMED' ? 'border-blue-500' : 'border-gray-200'} overflow-hidden`}>
         <div className="p-5">
-          {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-xs text-gray-400 font-mono mb-1">#{b.id?.slice(0, 8).toUpperCase()}</p>
@@ -84,7 +75,6 @@ export default function SchedulePage() {
             </span>
           </div>
 
-          {/* Info grid */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-gray-50 rounded-xl p-3">
               <p className="text-xs text-gray-400 mb-1">📅 Thời gian đón</p>
@@ -107,22 +97,14 @@ export default function SchedulePage() {
             </div>
           </div>
 
-          {/* Additional data */}
           {b.additional_data && Object.keys(b.additional_data).length > 0 && (
             <div className="bg-blue-50 rounded-xl p-3 mb-4 space-y-1">
-              {b.additional_data.flight_code && (
-                <p className="text-sm text-gray-700">✈️ <span className="font-medium">Số hiệu bay:</span> {b.additional_data.flight_code}</p>
-              )}
-              {b.additional_data.golf_bags && (
-                <p className="text-sm text-gray-700">⛳ <span className="font-medium">Số túi golf:</span> {b.additional_data.golf_bags}</p>
-              )}
-              {b.additional_data.passengers && (
-                <p className="text-sm text-gray-700">👥 <span className="font-medium">Số khách:</span> {b.additional_data.passengers}</p>
-              )}
+              {b.additional_data.flight_code && <p className="text-sm text-gray-700">✈️ <span className="font-medium">Số hiệu bay:</span> {b.additional_data.flight_code}</p>}
+              {b.additional_data.golf_bags && <p className="text-sm text-gray-700">⛳ <span className="font-medium">Số túi golf:</span> {b.additional_data.golf_bags}</p>}
+              {b.additional_data.passengers && <p className="text-sm text-gray-700">👥 <span className="font-medium">Số khách:</span> {b.additional_data.passengers}</p>}
             </div>
           )}
 
-          {/* Notes */}
           {b.notes && (
             <div className="bg-yellow-50 rounded-xl p-3 mb-4">
               <p className="text-xs text-gray-500 mb-1">📝 Ghi chú</p>
@@ -130,13 +112,10 @@ export default function SchedulePage() {
             </div>
           )}
 
-          {/* Action button */}
           {nextAction && (
-            <button
-              disabled={isUpdating}
+            <button disabled={isUpdating}
               onClick={() => setConfirmModal({ booking: b, nextStatus: nextAction.next, label: nextAction.label })}
-              className={`w-full py-3 rounded-xl font-semibold text-sm transition ${nextAction.color} ${isUpdating ? 'opacity-60 cursor-not-allowed' : ''}`}
-            >
+              className={`w-full py-3 rounded-xl font-semibold text-sm transition ${nextAction.color} ${isUpdating ? 'opacity-60 cursor-not-allowed' : ''}`}>
               {isUpdating ? 'Đang cập nhật...' : nextAction.label}
             </button>
           )}
@@ -172,12 +151,11 @@ export default function SchedulePage() {
           </div>
         ) : (
           <>
-            {/* Stats */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: 'Tổng chuyến', value: bookings.length, color: 'text-blue-600' },
-                { label: 'Đang hoạt động', value: activeBookings.length, color: 'text-orange-600' },
-                { label: 'Hoàn thành', value: doneBookings.filter(b => b.status === 'COMPLETED').length, color: 'text-green-600' },
+                { label: 'Tổng chuyến',    value: bookings.length,                                           color: 'text-blue-600' },
+                { label: 'Đang hoạt động', value: activeBookings.length,                                     color: 'text-orange-600' },
+                { label: 'Hoàn thành',     value: doneBookings.filter(b => b.status === 'COMPLETED').length, color: 'text-green-600' },
               ].map(s => (
                 <div key={s.label} className="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
                   <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
@@ -186,40 +164,28 @@ export default function SchedulePage() {
               ))}
             </div>
 
-            {/* Active/Today trips */}
             {activeBookings.length > 0 && (
               <div>
                 <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">🔴 Đang thực hiện</h2>
-                <div className="space-y-4">
-                  {activeBookings.map(b => <BookingCard key={b.id} b={b} />)}
-                </div>
+                <div className="space-y-4">{activeBookings.map(b => <BookingCard key={b.id} b={b} />)}</div>
               </div>
             )}
-
-            {/* Upcoming */}
             {upcomingBookings.length > 0 && (
               <div>
                 <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">📋 Sắp tới</h2>
-                <div className="space-y-4">
-                  {upcomingBookings.map(b => <BookingCard key={b.id} b={b} />)}
-                </div>
+                <div className="space-y-4">{upcomingBookings.map(b => <BookingCard key={b.id} b={b} />)}</div>
               </div>
             )}
-
-            {/* Done */}
             {doneBookings.length > 0 && (
               <div>
                 <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">✅ Đã xong</h2>
-                <div className="space-y-4">
-                  {doneBookings.map(b => <BookingCard key={b.id} b={b} />)}
-                </div>
+                <div className="space-y-4">{doneBookings.map(b => <BookingCard key={b.id} b={b} />)}</div>
               </div>
             )}
           </>
         )}
       </div>
 
-      {/* Confirm modal */}
       {confirmModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
@@ -231,14 +197,12 @@ export default function SchedulePage() {
               <p className="text-sm text-gray-500">
                 {confirmModal.nextStatus === 'IN_PROGRESS'
                   ? 'Xác nhận bạn đang bắt đầu thực hiện chuyến này.'
-                  : 'Xác nhận chuyến đã hoàn thành. Khách sẽ nhận được email thông báo.'}
+                  : 'Xác nhận chuyến đã hoàn thành. Khách sẽ nhận được thông báo.'}
               </p>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setConfirmModal(null)}
-                className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">
-                Hủy
-              </button>
+                className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">Hủy</button>
               <button onClick={handleUpdateStatus}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition ${confirmModal.nextStatus === 'IN_PROGRESS' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-600 hover:bg-green-700'}`}>
                 Xác nhận

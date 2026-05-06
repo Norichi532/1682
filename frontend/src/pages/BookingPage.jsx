@@ -77,6 +77,9 @@ function BookingSummary({ product, data, step }) {
         {catId === 3 && data.golf_course && (
           <SummaryRow icon="⛳" label="Sân golf" value={data.golf_course} />
         )}
+        {catId === 2 && product?.num_days && (
+          <SummaryRow icon="🗓" label="Thời lượng" value={`${product.num_days} ngày`} />
+        )}
         {data.date && (
           <SummaryRow icon="📅" label="Thời gian" value={fmtDT(data.date, data.time)} />
         )}
@@ -112,7 +115,7 @@ function SummaryRow({ icon, label, value, always }) {
 }
 
 // ─── Step 1: Lịch trình ───────────────────────────────────────────────────────
-function Step1Schedule({ catId, data, onChange, error }) {
+function Step1Schedule({ catId, data, onChange, error, numDays }) {
   const inp = "w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-ochre/40 focus:border-ochre focus:outline-none transition text-navy font-body text-sm"
 
   return (
@@ -246,11 +249,14 @@ function Step1Schedule({ catId, data, onChange, error }) {
           <input type="number" min="1" max="45" value={data.passengers}
             onChange={e => onChange('passengers', parseInt(e.target.value))} className={inp} />
         </div>
-        {catId === 2 && (
+        {catId === 2 && numDays && (
           <div>
-            <label className="block text-sm font-medium text-navy mb-1.5">Số ngày</label>
-            <input type="number" min="1" max="30" value={data.days}
-              onChange={e => onChange('days', parseInt(e.target.value))} className={inp} />
+            <label className="block text-sm font-medium text-navy mb-1.5">Số ngày tour</label>
+            <div className={inp + ' bg-gray-50 text-gray-600 cursor-not-allowed flex items-center gap-2'}>
+              <span>🗓</span>
+              <span className="font-semibold">{numDays} ngày</span>
+              <span className="text-xs text-gray-400 ml-1">(cố định theo chương trình)</span>
+            </div>
           </div>
         )}
         {catId === 3 && (
@@ -381,7 +387,7 @@ function Step3Confirm({ product, data, onChange, error }) {
         <InfoRow label="Thời gian" value={fmtDT(data.date, data.time)} />
         <InfoRow label="Phương tiện" value={`${data.model_name} (${data.passengers} khách)`} />
         {catId === 3 && data.golf_bags > 0 && <InfoRow label="Túi golf" value={`${data.golf_bags} túi`} />}
-        {catId === 2 && <InfoRow label="Số ngày" value={`${data.days} ngày`} />}
+        {catId === 2 && product?.num_days && <InfoRow label="Số ngày" value={`${product.num_days} ngày`} />}
         {catId === 1 && data.flight_code && <InfoRow label="Chuyến bay" value={data.flight_code} />}
         {data.notes && <InfoRow label="Ghi chú" value={data.notes} />}
         <div className="pt-3 border-t border-gray-200 flex justify-between">
@@ -596,9 +602,7 @@ export default function BookingPage() {
       if (catId === 1) {
         if (data.flight_code) additional_data.flight_code = data.flight_code
       }
-      if (catId === 2) {
-        additional_data.days = data.days
-      }
+      // Tour: num_days lấy từ product (backend tự xử lý), không cần gửi lên
       if (catId === 3) {
         additional_data.golf_course = data.golf_course
         additional_data.golf_bags = data.golf_bags
@@ -664,7 +668,7 @@ export default function BookingPage() {
             {/* Main content */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7">
-                {step === 1 && <Step1Schedule catId={catId} data={data} onChange={onChange} error={error} />}
+                {step === 1 && <Step1Schedule catId={catId} data={data} onChange={onChange} error={error} numDays={product?.num_days} />}
                 {step === 2 && <Step2Vehicle pricesByModel={pricesByModel} data={data} onChange={onChange} error={error} />}
                 {step === 3 && <Step3Confirm product={product} data={data} onChange={onChange} error={error} />}
                 {step === 4 && <Step4Payment data={data} submitting={submitting} onSubmit={handleSubmit} error={error} success={success} />}

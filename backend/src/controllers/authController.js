@@ -80,6 +80,7 @@ const googleCallback = async (req, res) => {
     if (!profile.email) return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_email`);
 
     // 3. Tìm hoặc tạo user
+    let isNewUser = false;
     let user = await User.findOne({ where: { email: profile.email } });
     if (!user) {
       user = await User.create({
@@ -90,6 +91,7 @@ const googleCallback = async (req, res) => {
         role_id:    2,
         password:   null,  // tài khoản Google không có password
       });
+      isNewUser = true;
     } else if (!user.google_id) {
       // Tài khoản email đã tồn tại → liên kết Google
       await user.update({ google_id: profile.id, avatar_url: user.avatar_url || profile.picture });
@@ -99,11 +101,19 @@ const googleCallback = async (req, res) => {
       return res.redirect(`${process.env.FRONTEND_URL}/login?error=account_disabled`);
     }
 
+    // Gửi email chào mừng nếu tài khoản mới
+    if (isNewUser) {
+      sendWelcomeEmail(user.email, user.full_name).catch(err =>
+        console.error('Google welcome email error:', err.message)
+      );
+    }
+
     // 4. Tạo JWT và redirect về frontend
     const token = jwt.sign({ id: user.id, role_id: user.role_id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     const userData = encodeURIComponent(JSON.stringify({
       id: user.id, full_name: user.full_name, email: user.email,
-      role_id: user.role_id, phone: user.phone, avatar_url: user.avatar_url
+      role_id: user.role_id, phone: user.phone, avatar_url: user.avatar_url,
+      is_google: !!user.google_id   // flag để frontend biết user dùng Google
     }));
     res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback?token=${token}&user=${userData}`);
   } catch (err) {
