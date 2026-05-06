@@ -213,6 +213,7 @@ module.exports = {
     const b1Id = '10000000-0000-0000-0000-000000000001';
     const b2Id = '10000000-0000-0000-0000-000000000002';
     const b3Id = '10000000-0000-0000-0000-000000000003';
+    const b4Id = '10000000-0000-0000-0000-000000000004';
 
     await queryInterface.bulkInsert('bookings', [
       {
@@ -221,8 +222,9 @@ module.exports = {
         product_id: 1, model_id: 2, car_id: 1,
         driver_id: '00000000-0000-0000-0000-000000000011',
         start_time: new Date('2026-05-10T08:00:00'),
+        end_time: new Date('2026-05-10T11:00:00'),
         total_price: 600000, status: 'COMPLETED',
-        additional_data: JSON.stringify({ flight_code: 'VN123', note: 'Đón tại cửa B' }),
+        additional_data: JSON.stringify({ flight_code: 'VN123', pickup_location: 'Sân bay Đà Nẵng', contact_name: 'Nguyễn Văn An', contact_phone: '0901234567' }),
         created_at: currentTime, updated_at: currentTime
       },
       {
@@ -231,8 +233,9 @@ module.exports = {
         product_id: 4, model_id: 3, car_id: 3,
         driver_id: '00000000-0000-0000-0000-000000000013',
         start_time: new Date('2026-05-15T07:00:00'),
-        total_price: 1500000, status: 'CONFIRMED',
-        additional_data: JSON.stringify({ note: 'Đoàn 20 người' }),
+        end_time: new Date('2026-05-15T19:00:00'),
+        total_price: 2000000, status: 'CONFIRMED',
+        additional_data: JSON.stringify({ pickup_location: 'Khách sạn Mường Thanh', contact_name: 'Trần Thị Bình', contact_phone: '0902345678', passengers: 20 }),
         created_at: currentTime, updated_at: currentTime
       },
       {
@@ -241,25 +244,43 @@ module.exports = {
         product_id: 7, model_id: 2, car_id: null,
         driver_id: null,
         start_time: new Date('2026-05-20T06:30:00'),
-        total_price: 500000, status: 'PENDING',
-        additional_data: JSON.stringify({ golf_bags: 4, note: '' }),
+        end_time: new Date('2026-05-20T12:30:00'),
+        total_price: 1400000, status: 'PENDING',
+        additional_data: JSON.stringify({ golf_course: 'BRG Golf Club', golf_bags: 4, pickup_location: 'Khách sạn Fusion', contact_name: 'Lê Minh Cường', contact_phone: '0903456789' }),
+        created_at: currentTime, updated_at: currentTime
+      },
+      {
+        id: b4Id,
+        customer_id: '00000000-0000-0000-0000-000000000002',
+        product_id: 2, model_id: 2, car_id: 2,
+        driver_id: '00000000-0000-0000-0000-000000000012',
+        start_time: new Date('2026-05-25T10:00:00'),
+        end_time: new Date('2026-05-25T13:00:00'),
+        total_price: 1000000, status: 'CONFIRMED',
+        additional_data: JSON.stringify({ flight_code: 'VJ456', pickup_location: 'Sân bay Đà Nẵng', contact_name: 'Nguyễn Văn An', contact_phone: '0901234567' }),
         created_at: currentTime, updated_at: currentTime
       },
     ], {});
 
-    // 9. PAYMENTS
+    // 9. PAYMENTS (30% deposit — status SUCCESS)
     await queryInterface.bulkInsert('payments', [
       {
         id: '20000000-0000-0000-0000-000000000001',
-        booking_id: b1Id, payment_method: 'PAYOS',
-        transaction_code: 'PAYOS-001', amount: 600000,
-        status: 'PAID', created_at: currentTime, updated_at: currentTime
+        booking_id: b1Id, payment_method: 'VNPAY',
+        transaction_code: 'VNPAY-SEED-001', amount: 180000,  // 30% of 600000
+        status: 'SUCCESS', created_at: currentTime, updated_at: currentTime
       },
       {
         id: '20000000-0000-0000-0000-000000000002',
-        booking_id: b2Id, payment_method: 'PAYOS',
-        transaction_code: 'PAYOS-002', amount: 1500000,
-        status: 'PAID', created_at: currentTime, updated_at: currentTime
+        booking_id: b2Id, payment_method: 'VNPAY',
+        transaction_code: 'VNPAY-SEED-002', amount: 600000,  // 30% of 2000000
+        status: 'SUCCESS', created_at: currentTime, updated_at: currentTime
+      },
+      {
+        id: '20000000-0000-0000-0000-000000000003',
+        booking_id: b4Id, payment_method: 'VNPAY',
+        transaction_code: 'VNPAY-SEED-003', amount: 300000,  // 30% of 1000000
+        status: 'SUCCESS', created_at: currentTime, updated_at: currentTime
       },
     ], {});
 

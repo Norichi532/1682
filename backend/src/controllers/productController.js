@@ -29,9 +29,11 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { category_id, product_name, description, address, image_url, prices } = req.body;
+    const { category_id, product_name, description, address, image_url, prices, num_days } = req.body;
     if (!category_id || !product_name) return res.status(400).json({ message: 'category_id và product_name là bắt buộc' });
-    const p = await Product.create({ category_id, product_name, description, address, image_url });
+    // num_days chỉ dùng cho Tour (category_id = 2)
+    const parsedNumDays = parseInt(category_id) === 2 && num_days ? parseInt(num_days) : null;
+    const p = await Product.create({ category_id, product_name, description, address, image_url, num_days: parsedNumDays });
     // Create price list entries if provided
     if (prices && Array.isArray(prices)) {
       const priceRows = prices.map(pr => ({ product_id: p.id, model_id: pr.model_id, price: pr.price }));
@@ -46,8 +48,9 @@ const updateProduct = async (req, res) => {
   try {
     const p = await Product.findByPk(req.params.id);
     if (!p) return res.status(404).json({ message: 'Không tìm thấy' });
-    const { category_id, product_name, description, address, image_url, prices } = req.body;
-    await p.update({ category_id, product_name, description, address, image_url });
+    const { category_id, product_name, description, address, image_url, prices, num_days } = req.body;
+    const parsedNumDays = parseInt(category_id) === 2 && num_days ? parseInt(num_days) : null;
+    await p.update({ category_id, product_name, description, address, image_url, num_days: parsedNumDays });
     // Update prices: delete old, insert new
     if (prices && Array.isArray(prices)) {
       await PriceList.destroy({ where: { product_id: p.id } });

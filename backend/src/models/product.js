@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     product_name: { type: DataTypes.STRING(255), allowNull: false },
     description: { type: DataTypes.TEXT },
     address: { type: DataTypes.TEXT },
-    image_url: { type: DataTypes.TEXT }
+    image_url: { type: DataTypes.TEXT },
+    num_days: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null }
   }, {
     tableName: 'products',
     timestamps: true,

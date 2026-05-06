@@ -26,15 +26,20 @@ const createBooking = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy giá cho sản phẩm và dòng xe này' });
     }
 
+    // Lấy product để biết category và num_days (tour)
+    const product = await Product.findByPk(product_id, {
+      include: [{ model: Category, as: 'category', attributes: ['id'] }]
+    });
+    const categoryId = product?.category_id;
+
     // Tính end_time dựa theo loại dịch vụ
     const start = new Date(start_time);
     let end_time;
-    const days = additional_data?.days;
-    if (days && parseInt(days) > 1) {
-      // Tour nhiều ngày
+    if (categoryId === 2 && product.num_days && product.num_days > 0) {
+      // Tour: dùng num_days cố định từ product
       end_time = new Date(start);
-      end_time.setDate(end_time.getDate() + parseInt(days));
-    } else if (additional_data?.golf_course !== undefined) {
+      end_time.setDate(end_time.getDate() + product.num_days);
+    } else if (categoryId === 3) {
       // Golf: ước tính 6 tiếng
       end_time = new Date(start.getTime() + 6 * 60 * 60 * 1000);
     } else {
