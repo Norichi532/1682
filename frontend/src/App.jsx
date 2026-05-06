@@ -32,6 +32,9 @@ import CalendarPage from './pages/admin/CalendarPage'
 // Driver Pages
 import SchedulePage from './pages/driver/SchedulePage'
 
+// Payment Pages
+import VNPayReturnPage from './pages/VNPayReturnPage'
+
 function App() {
   return (
     <AuthProvider>
@@ -66,6 +69,9 @@ function App() {
 
           {/* Driver */}
           <Route path="/admin/schedule" element={<ProtectedRoute allowedRoles={[3]}><SchedulePage /></ProtectedRoute>} />
+
+          {/* Payment callback */}
+          <Route path="/vnpay-return" element={<VNPayReturnPage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -407,33 +407,53 @@ function InfoRow({ label, value }) {
 
 // ─── Step 4: Thanh toán ───────────────────────────────────────────────────────
 function Step4Payment({ data, submitting, onSubmit, error, success }) {
+  const deposit = Math.floor(data.price * 0.3)
+  const remaining = data.price - deposit
+
   return (
     <div className="space-y-5">
-      <h2 className="font-display text-xl font-bold text-navy">Phương thức thanh toán</h2>
+      <h2 className="font-display text-xl font-bold text-navy">Xác nhận & Thanh toán cọc</h2>
 
-      {/* COD option */}
-      <div className="border-2 border-ochre bg-ochre/5 rounded-2xl p-5 flex items-center gap-4">
-        <div className="w-12 h-12 bg-ochre/10 rounded-xl flex items-center justify-center flex-shrink-0">
-          <svg className="w-6 h-6 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+      {/* VNPay info card */}
+      <div className="border-2 border-blue-500 bg-blue-50 rounded-2xl p-5 flex items-start gap-4">
+        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
           </svg>
         </div>
         <div className="flex-1">
-          <p className="font-bold text-navy">Thanh toán khi đến nơi (COD)</p>
-          <p className="text-gray-500 text-sm mt-0.5">Thanh toán trực tiếp cho tài xế sau khi hoàn thành chuyến đi</p>
+          <p className="font-bold text-blue-900">Thanh toán qua VNPay</p>
+          <p className="text-blue-700 text-sm mt-0.5">Đặt cọc 30% để xác nhận chuyến đi. Số tiền còn lại thanh toán trực tiếp cho tài xế sau khi hoàn thành.</p>
         </div>
-        <div className="w-6 h-6 rounded-full bg-ochre flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
           <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
         </div>
       </div>
 
-      {/* Final price */}
-      <div className="p-5 bg-mist/50 rounded-2xl border border-gray-100">
-        <div className="flex justify-between items-center">
-          <span className="text-gray-500">Tổng thanh toán</span>
-          <span className="font-display text-3xl font-bold text-ochre">{fmt(data.price)}</span>
+      {/* Price breakdown */}
+      <div className="p-5 bg-mist/50 rounded-2xl border border-gray-100 space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-500">Tổng giá trị chuyến</span>
+          <span className="font-semibold text-navy">{fmt(data.price)}</span>
         </div>
-        <p className="text-gray-400 text-xs mt-2">Giá đã bao gồm thuế và phí phát sinh. Thanh toán bằng tiền mặt.</p>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-500">Đặt cọc ngay (30%)</span>
+          <span className="font-bold text-blue-600">{fmt(deposit)}</span>
+        </div>
+        <div className="flex justify-between text-sm border-t border-gray-200 pt-3">
+          <span className="text-gray-500">Thanh toán sau khi hoàn thành</span>
+          <span className="font-semibold text-gray-700">{fmt(remaining)}</span>
+        </div>
+      </div>
+
+      {/* Refund policy */}
+      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
+        <p className="font-semibold mb-1">📋 Chính sách hoàn tiền cọc khi hủy:</p>
+        <ul className="space-y-0.5 text-amber-700">
+          <li>• Trước 3 ngày: Hoàn 100% tiền cọc</li>
+          <li>• Trước 1–3 ngày: Hoàn 50% tiền cọc</li>
+          <li>• Dưới 24 giờ: Không hoàn tiền</li>
+        </ul>
       </div>
 
       {error && <ErrorMsg msg={error} />}
@@ -447,11 +467,11 @@ function Step4Payment({ data, submitting, onSubmit, error, success }) {
       <button
         onClick={onSubmit}
         disabled={submitting || !!success}
-        className="w-full py-4 bg-ochre hover:bg-ochre-light disabled:bg-ochre/50 text-white font-bold text-lg rounded-2xl transition-all duration-200 hover:shadow-xl flex items-center justify-center gap-2"
+        className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold text-lg rounded-2xl transition-all duration-200 hover:shadow-xl flex items-center justify-center gap-2"
       >
         {submitting ? (
           <><svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Đang xử lý...</>
-        ) : '✓ Xác nhận đặt xe'}
+        ) : `💳 Đặt cọc ${fmt(deposit)} qua VNPay`}
       </button>
     </div>
   )
@@ -584,17 +604,28 @@ export default function BookingPage() {
         additional_data.golf_bags = data.golf_bags
       }
 
-      await api.post('/bookings', {
+      // Step 1: Tạo booking
+      const bookingRes = await api.post('/bookings', {
         product_id: parseInt(productId),
         model_id: data.model_id,
         start_time: startTime,
         additional_data,
       })
+      const bookingId = bookingRes.data.data?.id
 
-      setSuccess('Đặt xe thành công! Chúng tôi sẽ liên hệ xác nhận sớm.')
-      setTimeout(() => navigate('/my-orders'), 2000)
+      if (!bookingId) throw new Error('Không lấy được mã đơn đặt xe')
+
+      // Step 2: Tạo URL thanh toán VNPay (30% cọc)
+      const payRes = await api.post('/payments/create-payment-url', { booking_id: bookingId })
+      const paymentUrl = payRes.data.paymentUrl
+
+      if (!paymentUrl) throw new Error('Không tạo được link thanh toán')
+
+      setSuccess('Đang chuyển đến cổng thanh toán VNPay...')
+      // Redirect to VNPay
+      setTimeout(() => { window.location.href = paymentUrl }, 800)
     } catch (err) {
-      setError(err.response?.data?.message || 'Đặt xe thất bại. Vui lòng thử lại.')
+      setError(err.response?.data?.message || err.message || 'Đặt xe thất bại. Vui lòng thử lại.')
     } finally {
       setSubmitting(false)
     }
