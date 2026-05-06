@@ -3,7 +3,7 @@ import AdminLayout from './AdminLayout'
 import ImageUpload from '../../components/ImageUpload'
 import api from '../../services/api'
 
-const EMPTY_FORM = { category_id: '', product_name: '', description: '', address: '', image_url: '', prices: [] }
+const EMPTY_FORM = { category_id: '', product_name: '', description: '', address: '', image_url: '', num_days: '', prices: [] }
 const CAT_ICONS = { 1: '✈️', 2: '🗺️', 3: '⛳' }
 
 export default function ProductsManagePage() {
@@ -51,6 +51,7 @@ export default function ProductsManagePage() {
     setForm({
       category_id: p.category_id, product_name: p.product_name, description: p.description || '',
       address: p.address || '', image_url: p.image_url || '',
+      num_days: p.num_days || '',
       prices: initPrices(carModels, p.prices || [])
     })
     setError(''); setModalOpen(true)
@@ -64,7 +65,16 @@ export default function ProductsManagePage() {
     e.preventDefault(); setSaving(true); setError('')
     try {
       const prices = form.prices.filter(p => p.price !== '' && p.price !== null).map(p => ({ model_id: p.model_id, price: parseFloat(p.price) }))
-      const payload = { category_id: parseInt(form.category_id), product_name: form.product_name, description: form.description, address: form.address, image_url: form.image_url, prices }
+      const payload = {
+        category_id: parseInt(form.category_id),
+        product_name: form.product_name,
+        description: form.description,
+        address: form.address,
+        image_url: form.image_url,
+        prices,
+        // Chỉ gửi num_days nếu là Tour (category_id = 2)
+        num_days: parseInt(form.category_id) === 2 && form.num_days ? parseInt(form.num_days) : null
+      }
       if (editProduct) await api.put(`/products/${editProduct.id}`, payload)
       else await api.post('/products', payload)
       setModalOpen(false); fetchAll()
@@ -84,6 +94,8 @@ export default function ProductsManagePage() {
     const matchSearch = !search || p.product_name?.toLowerCase().includes(search.toLowerCase()) || p.address?.toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
   })
+
+  const isTour = parseInt(form.category_id) === 2
 
   return (
     <AdminLayout>
@@ -139,6 +151,9 @@ export default function ProductsManagePage() {
                         }
                         <div>
                           <p className="font-semibold text-gray-900 text-sm">{p.product_name}</p>
+                          {p.category_id === 2 && p.num_days && (
+                            <p className="text-xs text-emerald-600 font-medium">🗓 {p.num_days} ngày</p>
+                          )}
                           {p.description && <p className="text-xs text-gray-400 line-clamp-1 max-w-xs">{p.description}</p>}
                         </div>
                       </div>
@@ -193,22 +208,37 @@ export default function ProductsManagePage() {
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Tên dịch vụ *</label>
                   <input value={form.product_name} onChange={e => setForm({...form, product_name: e.target.value})} required
-                    placeholder="vd: Đưa đón sân bay Đà Nẵng – Nội thành"
+                    placeholder="vd: Tour Đà Nẵng – Hội An 3 ngày 2 đêm"
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
                 </div>
-                <div className="col-span-2">
+                <div className={isTour ? '' : 'col-span-2'}>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Danh mục *</label>
-                  <select value={form.category_id} onChange={e => setForm({...form, category_id: e.target.value})} required
+                  <select value={form.category_id} onChange={e => setForm({...form, category_id: e.target.value, num_days: ''})} required
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm">
                     <option value="">-- Chọn danh mục --</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{CAT_ICONS[c.id]} {c.category_name}</option>)}
                   </select>
                 </div>
+
+                {/* Số ngày — chỉ hiện khi là Tour */}
+                {isTour && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Số ngày tour *</label>
+                    <input
+                      type="number" min="1" max="30"
+                      value={form.num_days}
+                      onChange={e => setForm({...form, num_days: e.target.value})}
+                      required={isTour}
+                      placeholder="vd: 3"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Địa điểm / Lộ trình</label>
-                <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="vd: Sân bay Đà Nẵng → Trung tâm thành phố"
+                <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="vd: Đà Nẵng → Hội An → Mỹ Sơn"
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
               </div>
 
