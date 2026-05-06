@@ -222,15 +222,16 @@ const cancelBooking = async (req, res) => {
 
     const msg = refundInfo
       ? refundInfo.refundPercent > 0
-        ? `Đã hủy đơn. Hoàn ${refundInfo.refundPercent}% tiền cọc (${new Intl.NumberFormat('vi-VN').format(refundInfo.refundAmount)}đ) trong 5-10 ngày làm việc.`
+        ? `Đã hủy đơn. Tiền cọc sẽ được hoàn lại trong 5-10 ngày làm việc.`
         : 'Đã hủy đơn. Tiền cọc không được hoàn do hủy trong vòng 24 giờ trước chuyến đi.'
-      : 'Đã hủy đơn thành công.';
+        : 'Đã hủy đơn thành công.';
 
-    // Thông báo + email cho khách
+    // Thông báo + email cho khách + tài xế
     try {
       const fullBooking = await Booking.findByPk(bookingId, {
         include: [
           { model: User, as: 'customer', attributes: ['id', 'full_name', 'email'] },
+          { model: User, as: 'assigned_driver', attributes: ['id', 'full_name'] },
           { model: Product, as: 'product', attributes: ['product_name'] }
         ]
       });
@@ -239,11 +240,19 @@ const cancelBooking = async (req, res) => {
         const ra = refundInfo?.refundAmount || 0;
         const rp = refundInfo?.refundPercent || 0;
         const notifContent = rp > 0
-          ? `Đơn "${productName}" đã hủy. Hoàn ${rp}% cọc — ${new Intl.NumberFormat('vi-VN').format(ra)}đ trong 5-10 ngày.`
-          : `Đơn "${productName}" đã hủy. ${rp === 0 && refundInfo ? 'Không hoàn tiền cọc do hủy trong 24 giờ.' : ''}`;
+          ? `Đơn "${productName}" đã hủy. Tiền cọc sẽ được hoàn lại trong 5-10 ngày làm việc.`
+          : `Đơn "${productName}" đã hủy. ${rp === 0 && refundInfo ? 'Tiền cọc không được hoàn do hủy trong 24 giờ.' : ''}`;
         await Notification.create({ user_id: fullBooking.customer.id, content: notifContent });
         sendCancelEmail(fullBooking.customer.email, fullBooking.customer.full_name, productName, ra, rp)
           .catch(e => console.error('Cancel email error:', e.message));
+
+        // Thông báo cho tài xế nếu đã được gán
+        if (fullBooking.assigned_driver) {
+          await Notification.create({
+            user_id: fullBooking.assigned_driver.id,
+            content: `Chuyến "${productName}" đã bị hủy bởi khách hàng.`
+          });
+        }
       }
     } catch (notifErr) {
       console.error('Cancel notification error:', notifErr.message);

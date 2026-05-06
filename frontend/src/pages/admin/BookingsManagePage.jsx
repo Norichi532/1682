@@ -47,8 +47,10 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
   const [actionError,      setActionError]      = useState('')
   const [actionSuccess,    setActionSuccess]    = useState('')
 
+  const needsAssign = booking.status === 'CONFIRMED' && !booking.assigned_driver && !booking.additional_data?.external_car
+
   useEffect(() => {
-    if (booking.status === 'PENDING') {
+    if (needsAssign) {
       const modelId = booking.car_model?.id
       const carUrl  = modelId ? `/cars/available?model_id=${modelId}` : '/cars/available'
       api.get(carUrl).then(r => setAvailableCars(r.data.data || [])).catch(console.error)
@@ -202,8 +204,16 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
               </div>
             )}
 
-            {/* PENDING — gán xe */}
+            {/* PENDING — chỉ xem, không gán xe */}
             {booking.status === 'PENDING' && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
+                <p className="text-sm text-yellow-700 font-medium">⏳ Chờ khách thanh toán cọc</p>
+                <p className="text-xs text-yellow-500 mt-1">Admin chỉ có thể gán xe sau khi khách đã cọc thành công.</p>
+              </div>
+            )}
+
+            {/* CONFIRMED + chưa gán xe — gán xe */}
+            {needsAssign && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-amber-700 flex items-center gap-2">
@@ -307,8 +317,8 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
               </div>
             )}
 
-            {/* CONFIRMED */}
-            {booking.status === 'CONFIRMED' && (
+            {/* CONFIRMED + đã gán xe — chỉ cho hủy */}
+            {booking.status === 'CONFIRMED' && (booking.assigned_driver || booking.additional_data?.external_car) && (
               <button onClick={() => handleStatus('CANCELLED')}
                 className="w-full py-2.5 border-2 border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition text-sm">
                 ✕ Hủy đặt xe

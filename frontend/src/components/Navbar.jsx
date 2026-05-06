@@ -105,25 +105,30 @@ export default function Navbar() {
               </Link>
             ) : user.role_id === 2 ? (
               <>
-              <NotificationBell />
-              <div ref={userRef} className="relative">
-                <button onClick={() => setUserDropdown(!userDropdown)} className="flex items-center gap-2 hover:opacity-80 transition">
-                  <div className="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                    {getInitial()}
-                  </div>
-                </button>
-                {userDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-1">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{user.full_name}</p>
-                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                {/* Đơn hàng icon */}
+                <Link to="/my-orders" title="Đơn của tôi" className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </Link>
+                <NotificationBell />
+                <div ref={userRef} className="relative">
+                  <button onClick={() => setUserDropdown(!userDropdown)} className="flex items-center gap-2 hover:opacity-80 transition">
+                    <div className="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                      {getInitial()}
                     </div>
-                    <Link to="/my-orders" onClick={() => setUserDropdown(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">Đơn của tôi</Link>
-                    <Link to="/profile" onClick={() => setUserDropdown(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">Hồ sơ</Link>
-                    <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition border-t border-gray-100">Đăng xuất</button>
-                  </div>
-                )}
-              </div>
+                  </button>
+                  {userDropdown && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-1">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{user.full_name}</p>
+                        <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                      </div>
+                      <Link to="/profile" onClick={() => setUserDropdown(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">Chỉnh sửa</Link>
+                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition border-t border-gray-100">Đăng xuất</button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <button onClick={() => navigate(user.role_id === 3 ? '/admin/schedule' : '/admin')} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm">

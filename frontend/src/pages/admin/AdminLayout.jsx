@@ -2,6 +2,133 @@ import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import NotificationBell from '../../components/NotificationBell'
+import api from '../../services/api'
+
+function EyeToggle({ visible, onClick }) {
+  return (
+    <button type="button" onClick={onClick} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-navy transition">
+      {visible
+        ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+        : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+      }
+    </button>
+  )
+}
+
+function ProfileModal({ onClose }) {
+  const { user } = useAuth()
+  const [profileForm, setProfileForm] = useState({ full_name: user?.full_name || '', phone: user?.phone || '' })
+  const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' })
+  const [showPw, setShowPw] = useState({ oldPassword: false, newPassword: false, confirmPassword: false })
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const iCls = "w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-ochre/40 focus:border-ochre focus:outline-none transition text-sm"
+
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault(); setProfileLoading(true); setError(''); setSuccess('')
+    try {
+      await api.patch('/auth/profile', { full_name: profileForm.full_name, phone: profileForm.phone })
+      setSuccess('Cập nhật hồ sơ thành công!')
+    } catch (err) { setError(err.response?.data?.message || 'Cập nhật thất bại') }
+    finally { setProfileLoading(false) }
+  }
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault(); setPasswordLoading(true); setError(''); setSuccess('')
+    try {
+      if (passwordForm.newPassword !== passwordForm.confirmPassword) throw new Error('Mật khẩu mới không khớp')
+      await api.patch('/auth/change-password', { oldPassword: passwordForm.oldPassword, newPassword: passwordForm.newPassword })
+      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' })
+      setSuccess('Đổi mật khẩu thành công!')
+    } catch (err) { setError(err.response?.data?.message || err.message || 'Đổi mật khẩu thất bại') }
+    finally { setPasswordLoading(false) }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-navy rounded-full flex items-center justify-center text-white font-bold text-base">
+              {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <div>
+              <p className="font-semibold text-navy text-sm">{user?.full_name}</p>
+              <p className="text-xs text-gray-400">{user?.email}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <div className="px-6 py-5 space-y-5">
+          {error && <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>}
+          {success && <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm">{success}</div>}
+
+          {/* Thông tin cá nhân */}
+          <div>
+            <h3 className="text-sm font-bold text-navy mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Thông tin cá nhân
+            </h3>
+            <form onSubmit={handleProfileSubmit} className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Họ và tên</label>
+                <input type="text" value={profileForm.full_name}
+                  onChange={e => setProfileForm(f => ({ ...f, full_name: e.target.value }))} className={iCls} />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Số điện thoại</label>
+                <input type="tel" value={profileForm.phone}
+                  onChange={e => setProfileForm(f => ({ ...f, phone: e.target.value }))} className={iCls} />
+              </div>
+              <button type="submit" disabled={profileLoading}
+                className="w-full py-2.5 bg-navy hover:bg-navy-light disabled:bg-navy/50 text-white font-semibold rounded-xl transition text-sm">
+                {profileLoading ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
+              </button>
+            </form>
+          </div>
+
+          <div className="border-t border-dashed border-gray-100" />
+
+          {/* Đổi mật khẩu */}
+          <div>
+            <h3 className="text-sm font-bold text-navy mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              Đổi mật khẩu
+            </h3>
+            <form onSubmit={handlePasswordSubmit} className="space-y-3">
+              {[
+                { field: 'oldPassword',     label: 'Mật khẩu hiện tại' },
+                { field: 'newPassword',     label: 'Mật khẩu mới' },
+                { field: 'confirmPassword', label: 'Xác nhận mật khẩu mới' },
+              ].map(({ field, label }) => (
+                <div key={field}>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+                  <div className="relative">
+                    <input type={showPw[field] ? 'text' : 'password'} value={passwordForm[field]}
+                      onChange={e => setPasswordForm(f => ({ ...f, [field]: e.target.value }))}
+                      className={iCls + ' pr-10'} />
+                    <EyeToggle visible={showPw[field]} onClick={() => setShowPw(p => ({ ...p, [field]: !p[field] }))} />
+                  </div>
+                </div>
+              ))}
+              <button type="submit" disabled={passwordLoading}
+                className="w-full py-2.5 bg-navy hover:bg-navy-light disabled:bg-navy/50 text-white font-semibold rounded-xl transition text-sm">
+                {passwordLoading ? 'Đang cập nhật...' : 'Đổi mật khẩu'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const ADMIN_MENU = [
   {
@@ -65,13 +192,6 @@ const DRIVER_MENU = [
       </svg>
     )
   },
-  {
-    label: 'Hồ sơ', href: '/profile', icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    )
-  },
 ]
 
 export default function AdminLayout({ children, title }) {
@@ -79,6 +199,7 @@ export default function AdminLayout({ children, title }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const handleLogout = () => { logout(); navigate('/login') }
   const isActive = (path) => location.pathname === path
@@ -134,13 +255,19 @@ export default function AdminLayout({ children, title }) {
         {/* User footer */}
         <div className="border-t border-gray-800 p-3 space-y-2">
           {sidebarOpen && (
-            <div className="flex items-center gap-2 px-2 py-1">
+            <button
+              onClick={() => setProfileOpen(true)}
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-800 transition text-left"
+            >
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">{getInitial()}</div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-white truncate">{user?.full_name}</p>
                 <p className="text-xs text-gray-500 truncate">{user?.email}</p>
               </div>
-            </div>
+              <svg className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
           )}
           <button
             onClick={handleLogout}
@@ -176,6 +303,8 @@ export default function AdminLayout({ children, title }) {
           {children}
         </main>
       </div>
+
+      {profileOpen && <ProfileModal onClose={() => setProfileOpen(false)} />}
     </div>
   )
 }
