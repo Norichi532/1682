@@ -73,6 +73,11 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 
+# VNPay (thanh toán online — điền thông tin sandbox của bạn)
+VNPAY_TMN_CODE=71J40SMS
+VNPAY_SECURE_SECRET=W380CCFRZ61X1AZUQ84HEUM33QCVDFDN
+VNPAY_RETURN_URL=http://localhost:5173/vnpay-return
+
 # Frontend URL
 FRONTEND_URL=http://localhost:5173
 ```
