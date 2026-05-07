@@ -60,9 +60,18 @@ function BookingSummary({ product, data, step }) {
   const catId = product?.category?.id
   const icon = catId === 1 ? '✈️' : catId === 3 ? '⛳' : '🗺️'
 
+  // Airport: from_airport → đón tại sân bay, else đón tại pickup_location
   const pickupLabel = catId === 1
     ? (data.direction === 'from_airport' ? 'Sân bay Đà Nẵng' : data.pickup_location)
-    : data.pickup_location
+    : catId === 3
+      ? (data.direction === 'from_golf' ? data.golf_course : data.pickup_location)
+      : data.pickup_location
+
+  const dropLabel = catId === 1
+    ? (data.direction === 'from_airport' ? data.pickup_location : 'Sân bay Đà Nẵng')
+    : catId === 3
+      ? (data.direction === 'from_golf' ? data.pickup_location : data.golf_course)
+      : null
 
   return (
     <div className="bg-navy rounded-2xl p-6 text-white sticky top-20">
@@ -74,8 +83,8 @@ function BookingSummary({ product, data, step }) {
         {pickupLabel && (
           <SummaryRow icon="📍" label="Đón tại" value={pickupLabel} />
         )}
-        {catId === 3 && data.golf_course && (
-          <SummaryRow icon="⛳" label="Sân golf" value={data.golf_course} />
+        {dropLabel && (
+          <SummaryRow icon={catId === 3 ? '⛳' : '🏁'} label={catId === 3 ? 'Sân golf' : 'Trả tại'} value={dropLabel} />
         )}
         {catId === 2 && product?.num_days && (
           <SummaryRow icon="🗓" label="Thời lượng" value={`${product.num_days} ngày`} />
