@@ -12,8 +12,7 @@ module.exports = {
     logging: false
   },
   production: {
-    // Hỗ trợ DB_URL (Supabase/Render) hoặc biến riêng lẻ
-    url: process.env.DB_URL,
+    use_env_variable: 'DB_URL',
     dialect: 'postgres',
     dialectOptions: {
       ssl: { require: true, rejectUnauthorized: false }
