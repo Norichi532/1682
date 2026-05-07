@@ -16,7 +16,7 @@ const getAllProducts = async (req, res) => {
     if (category_id) where.category_id = category_id;
     const products = await Product.findAll({ where, include: productIncludes, order: [['id', 'ASC']] });
     res.json({ message: 'OK', data: products });
-  } catch (e) { res.status(500).json({ message: e.message }); }
+  } catch (e) { res.status(500).json({ message: e.message, detail: e.toString(), stack: e.stack }); }
 };
 
 const getProductById = async (req, res) => {
