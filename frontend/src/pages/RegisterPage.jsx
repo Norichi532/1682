@@ -179,7 +179,7 @@ export default function RegisterPage() {
               <div className="flex-1 h-px bg-gray-200" />
             </div>
             <a
-              href="http://localhost:5000/api/auth/google"
+              href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/google`}
               className="flex items-center justify-center gap-3 w-full py-3 px-4 border-2 border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 rounded-xl transition-all duration-200 font-semibold text-gray-700 text-sm"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
