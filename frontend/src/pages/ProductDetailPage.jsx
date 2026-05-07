@@ -110,6 +110,12 @@ export default function ProductDetailPage() {
                   <span className="font-body">{product.address}</span>
                 </div>
               )}
+              {product.category?.id === 2 && product.num_days && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-ochre/10 border border-ochre/20 rounded-xl">
+                  <span className="text-ochre">🗓</span>
+                  <span className="text-ochre font-semibold text-sm">{product.num_days} ngày</span>
+                </div>
+              )}
               {avgRating && (
                 <div className="flex items-center gap-2">
                   <div className="flex">
@@ -161,6 +167,45 @@ export default function ProductDetailPage() {
                 ))}
               </div>
             </div>
+
+
+            {/* Itinerary timeline — chỉ hiện cho Tour (category_id=2) */}
+            {product.category?.id === 2 && Array.isArray(product.itinerary) && product.itinerary.length > 0 && (
+              <div>
+                <h2 className="font-display text-2xl font-bold text-navy mb-6">Lịch trình</h2>
+                <div className="space-y-6">
+                  {product.itinerary.map((day, di) => (
+                    <div key={di} className="relative">
+                      {/* Day header */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-9 h-9 bg-ochre text-white text-sm font-bold rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                          {day.day}
+                        </div>
+                        <h3 className="font-display text-lg font-bold text-navy">{day.label}</h3>
+                      </div>
+
+                      {/* Timeline items */}
+                      <div className="ml-4 border-l-2 border-ochre/20 pl-6 space-y-4">
+                        {Array.isArray(day.items) && day.items.map((item, ii) => (
+                          <div key={ii} className="relative">
+                            {/* Dot on the line */}
+                            <div className="absolute -left-[1.65rem] top-1 w-3 h-3 bg-ochre rounded-full border-2 border-white shadow-sm" />
+                            <div className="flex gap-4 items-start">
+                              {item.time && (
+                                <span className="flex-shrink-0 font-mono text-xs font-bold text-ochre bg-ochre/10 px-2 py-1 rounded-lg min-w-[3.5rem] text-center">
+                                  {item.time}
+                                </span>
+                              )}
+                              <p className="text-gray-600 text-sm leading-relaxed font-body pt-0.5">{item.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Reviews */}
             <div>

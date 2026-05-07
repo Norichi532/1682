@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
     description: { type: DataTypes.TEXT },
     address: { type: DataTypes.TEXT },
     image_url: { type: DataTypes.TEXT },
-    num_days: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null }
+    num_days: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
+    itinerary: { type: DataTypes.JSONB, allowNull: true, defaultValue: [] }
   }, {
     tableName: 'products',
     timestamps: true,

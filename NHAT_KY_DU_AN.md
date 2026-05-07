@@ -2,7 +2,7 @@
 
 > **Đồ án tốt nghiệp** | Hệ thống đặt xe du lịch trực tuyến  
 > **Sinh viên:** Huỳnh Đoàn Tấn Phát  
-> **Cập nhật lần cuối:** 06/05/2026
+> **Cập nhật lần cuối:** 07/05/2026
 
 ---
 
@@ -355,17 +355,150 @@ Admin hủy đơn CONFIRMED
 | ProfilePage trắng xóa | Lỗi JSX: thiếu đóng ngoặc `}` sau `&&` block, đã sửa |
 | BookingPage trắng xóa (sau thêm num_days) | `product` không phải prop của `Step1Schedule`, đã đổi sang truyền `numDays` |
 | BookingPage blank cho tất cả trang | Lỗi do thêm PublicRoute redirect nhầm, đã revert |
+| Supabase ENOTFOUND (deploy) | Direct connection dùng IPv6, không hỗ trợ IPv4 → đổi sang Session Pooler port 5432 |
+| Render: SequelizeConnectionRefusedError | `config.js` dùng `url:` thay vì `use_env_variable:` → Sequelize không đọc được DB_URL |
+| Frontend deploy xong không có dữ liệu | `api.js` hardcode localhost → đổi sang `import.meta.env.VITE_API_URL` |
+| React Router 404 trên Vercel | Thiếu `vercel.json` với rewrites SPA → thêm file `frontend/public/vercel.json` |
+
+---
+
+## 🌐 Triển khai (Deployment)
+
+### Kiến trúc deploy
+
+```
+GitHub (monorepo)
+├── backend/   → Render (Web Service)
+└── frontend/  → Vercel (Static Site)
+                          ↕
+              Supabase (PostgreSQL cloud)
+```
+
+### 1. Database — Supabase
+
+| Thông tin | Giá trị |
+|---|---|
+| Provider | Supabase (free tier) |
+| Region | Southeast Asia (Singapore) |
+| Kết nối | Session Pooler — port 5432 (IPv4 compatible) |
+| Biến môi trường | `DB_URL` (connection string đầy đủ) |
+
+**Lưu ý quan trọng:**
+- Direct connection dùng IPv6 → không hoạt động trên máy không hỗ trợ IPv6
+- Session Pooler (port 5432) dùng IPv4 → tương thích với Sequelize và Render
+- Transaction Pooler (port 6543) không tương thích với Sequelize (cần prepared statements)
+
+**Sau khi tạo project trên Supabase:**
+```bash
+DB_URL=postgresql://postgres.[project-ref]:[password]@aws-1-us-east-1.pooler.supabase.com:5432/postgres
+```
+
+**Chạy migration và seed trên Supabase:**
+```bash
+cd backend
+DB_URL=<connection_string> npx sequelize-cli db:migrate
+DB_URL=<connection_string> npx sequelize-cli db:seed:all
+```
+
+### 2. Backend — Render
+
+| Thông tin | Giá trị |
+|---|---|
+| Provider | Render (free tier — Web Service) |
+| Region | Oregon (US West) |
+| Root Directory | `backend` |
+| Build Command | `npm install` |
+| Start Command | `npm start` |
+| URL | `https://phuong-tourist-backend.onrender.com` |
+
+**Environment Variables trên Render:**
+```
+NODE_ENV=production
+DB_URL=<Supabase Session Pooler connection string>
+JWT_SECRET=<chuỗi bí mật>
+GOOGLE_CLIENT_ID=<từ Google Console>
+GOOGLE_CLIENT_SECRET=<từ Google Console>
+GOOGLE_CALLBACK_URL=https://phuong-tourist-backend.onrender.com/api/auth/google/callback
+FRONTEND_URL=https://phuong-tourist-frontend.vercel.app
+MAIL_USER=phuongtouristcar.dev@gmail.com
+MAIL_PASS=<app password>
+CLOUDINARY_CLOUD_NAME=<name>
+CLOUDINARY_API_KEY=<key>
+CLOUDINARY_API_SECRET=<secret>
+VNPAY_TMN_CODE=<mã terminal>
+VNPAY_SECURE_SECRET=<hash secret>
+VNPAY_RETURN_URL=https://phuong-tourist-frontend.vercel.app/vnpay-return
+```
+
+**Fix quan trọng — `config/config.js` production:**
+```js
+production: {
+  use_env_variable: 'DB_URL',   // <-- phải dùng use_env_variable, không dùng url:
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: { require: true, rejectUnauthorized: false }
+  },
+  logging: false
+}
+```
+`models/index.js` đọc `config.use_env_variable` để lấy connection string. Nếu dùng `url:` thì Sequelize sẽ không nhận.
+
+### 3. Frontend — Vercel
+
+| Thông tin | Giá trị |
+|---|---|
+| Provider | Vercel (free tier) |
+| Framework | Vite |
+| Root Directory | `frontend` |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+| URL | `https://phuong-tourist-frontend.vercel.app` |
+
+**Environment Variables trên Vercel:**
+```
+VITE_API_URL=https://phuong-tourist-backend.onrender.com/api
+```
+
+**`frontend/public/vercel.json`** — bắt buộc để React Router hoạt động (SPA routing):
+```json
+{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+```
+
+**`frontend/src/services/api.js`** — sử dụng biến môi trường Vite:
+```js
+baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+```
+
+### 4. GitHub — Monorepo
+
+Một repo duy nhất chứa cả `backend/` và `frontend/`:
+```bash
+git init
+git remote add origin https://github.com/<user>/phuong-tourist.git
+git add .
+git commit -m "initial commit"
+git push -u origin main
+```
+- Render tự động redeploy khi có push vào nhánh main (Root Dir: `backend`)
+- Vercel tự động redeploy khi có push vào nhánh main (Root Dir: `frontend`)
+
+### 5. Sau khi deploy — việc cần làm thêm
+
+- [ ] Cập nhật Google OAuth Authorized redirect URI trong Google Console:
+  ```
+  https://phuong-tourist-backend.onrender.com/api/auth/google/callback
+  ```
+- [ ] Test full flow: đăng ký → đặt xe → thanh toán VNPay → admin gán xe
+- [ ] Cập nhật `VNPAY_RETURN_URL` trên VNPay merchant portal sang domain thật
 
 ---
 
 ## 📌 Cần làm thêm (nếu có thời gian)
 
-- [ ] Chạy migration mới: `npx sequelize-cli db:migrate` (thêm `num_days`)
-- [ ] Cập nhật seeder: thêm `num_days` cho các tour demo
-- [ ] Deploy backend lên Render
-- [ ] Deploy frontend lên Vercel / Netlify
 - [ ] Redis caching cho các API thường xuyên gọi
 - [ ] Trang đánh giá sau chuyến (UI hoàn chỉnh)
+- [ ] Thuật toán gợi ý xe thông minh (Greedy)
+- [ ] Dịch toàn bộ giao diện sang tiếng Anh
 
 ---
 

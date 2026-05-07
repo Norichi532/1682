@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     num_seats: { type: DataTypes.INTEGER, allowNull: false },
     description: { type: DataTypes.TEXT },
     features: { type: DataTypes.JSONB }, // Lưu các tiện ích như ["wifi", "nước suối"]
-    image_url: { type: DataTypes.TEXT }
+    image_url: { type: DataTypes.TEXT },
+    images: { type: DataTypes.JSONB, defaultValue: [] } // Gallery nhiều ảnh
   }, {
     tableName: 'car_models',
     timestamps: true,

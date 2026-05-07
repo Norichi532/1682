@@ -294,7 +294,6 @@ export default function AdminLayout({ children, title }) {
           <h1 className="text-lg font-bold text-gray-900">{getPageTitle()}</h1>
           <div className="ml-auto flex items-center gap-3">
             <NotificationBell />
-            <Link to="/" className="text-xs text-gray-500 hover:text-blue-600 transition">← Về trang chủ</Link>
           </div>
         </header>
 

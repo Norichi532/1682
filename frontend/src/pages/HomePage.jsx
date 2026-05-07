@@ -218,6 +218,7 @@ export default function HomePage() {
 
   // Hero parallax + entrance
   const [loaded, setLoaded] = useState(false)
+  const [showMap, setShowMap] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const heroRef = useRef(null)
 
@@ -285,17 +286,39 @@ export default function HomePage() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 pt-32 pb-24 w-full">
           <div className="max-w-3xl">
 
-            {/* Badge */}
-            <div
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border border-ochre/40 bg-ochre/10 mb-8 transition-all duration-700 ${
-                loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: '0ms' }}
-            >
-              <IconMapPin className="w-3.5 h-3.5 text-ochre" />
-              <span className="text-ochre text-xs font-medium tracking-wider uppercase font-body">
-                Đà Nẵng · Hội An · Huế
-              </span>
+            {/* Badge — bấm để xem địa chỉ + Google Maps */}
+            <div className="relative mb-8" style={{ transitionDelay: '0ms' }}>
+              <button
+                onClick={() => setShowMap(prev => !prev)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border border-ochre/40 bg-ochre/10 hover:bg-ochre/20 transition-all duration-300 cursor-pointer ${
+                  loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
+              >
+                <IconMapPin className="w-3.5 h-3.5 text-ochre" />
+                <span className="text-ochre text-xs font-medium tracking-wider uppercase font-body">
+                  Đà Nẵng City
+                </span>
+                <span className="text-ochre/60 text-xs ml-1">{showMap ? '▲' : '▼'}</span>
+              </button>
+
+              {showMap && (
+                <div className="absolute top-full left-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl overflow-hidden w-80">
+                  <div className="p-3 bg-navy flex items-center gap-2">
+                    <IconMapPin className="w-4 h-4 text-ochre flex-shrink-0" />
+                    <span className="text-white text-sm font-medium">09 Tiên Sơn 06, Đà Nẵng</span>
+                  </div>
+                  <iframe
+                    title="PhuOng Tourist Car Location"
+                    src="https://maps.google.com/maps?q=09+Tiên+Sơn+06,+Đà+Nẵng,+Việt+Nam&output=embed&hl=vi"
+                    width="320"
+                    height="200"
+                    style={{ border: 0, display: 'block' }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Heading */}
@@ -305,17 +328,16 @@ export default function HomePage() {
             >
               <h1 className="font-display text-white leading-tight tracking-tight">
                 <span className="block text-3xl lg:text-5xl font-normal text-white/80 mb-2">Dịch vụ xe du lịch</span>
+                {/* Ochre rule — trên chữ ĐÀ NẴNG */}
+                <div
+                  className={`h-0.5 bg-gradient-to-r from-ochre to-transparent mb-3 transition-all duration-700 ${
+                    loaded ? 'opacity-100 w-32' : 'opacity-0 w-0'
+                  }`}
+                  style={{ transitionDelay: '400ms' }}
+                />
                 <span className="block text-6xl lg:text-8xl font-bold text-white" style={{ letterSpacing: '-0.02em' }}>ĐÀ NẴNG</span>
               </h1>
             </div>
-
-            {/* Ochre rule */}
-            <div
-              className={`h-0.5 bg-gradient-to-r from-ochre to-transparent mt-6 mb-8 transition-all duration-700 ${
-                loaded ? 'opacity-100 w-32' : 'opacity-0 w-0'
-              }`}
-              style={{ transitionDelay: '400ms' }}
-            />
 
             {/* Subtitle */}
             <p

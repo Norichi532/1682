@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import AdminLayout from './AdminLayout'
 import ImageUpload from '../../components/ImageUpload'
 import api from '../../services/api'
 
-const EMPTY_FORM = { model_name: '', num_seats: '', description: '', features: '', image_url: '' }
+const EMPTY_FORM = { model_name: '', num_seats: '', description: '', features: '', image_url: '', images: [] }
 
 export default function CarModelsManagePage() {
   const [models, setModels] = useState([])
@@ -14,6 +14,8 @@ export default function CarModelsManagePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [uploadingGallery, setUploadingGallery] = useState(false)
+  const galleryInputRef = useRef()
 
   useEffect(() => { fetchModels() }, [])
 
@@ -32,7 +34,8 @@ export default function CarModelsManagePage() {
     setForm({
       model_name: m.model_name, num_seats: m.num_seats, description: m.description || '',
       features: Array.isArray(m.features) ? m.features.join(', ') : (m.features || ''),
-      image_url: m.image_url || ''
+      image_url: m.image_url || '',
+      images: Array.isArray(m.images) ? m.images : []
     })
     setError(''); setModalOpen(true)
   }
@@ -41,12 +44,36 @@ export default function CarModelsManagePage() {
     e.preventDefault(); setSaving(true); setError('')
     try {
       const featuresArr = form.features ? form.features.split(',').map(f => f.trim()).filter(Boolean) : []
-      const payload = { model_name: form.model_name, num_seats: parseInt(form.num_seats), description: form.description, features: featuresArr, image_url: form.image_url }
+      const payload = {
+        model_name: form.model_name, num_seats: parseInt(form.num_seats),
+        description: form.description, features: featuresArr,
+        image_url: form.image_url, images: form.images || []
+      }
       if (editModel) await api.put(`/car-models/${editModel.id}`, payload)
       else await api.post('/car-models', payload)
       setModalOpen(false); fetchModels()
     } catch (e) { setError(e.response?.data?.message || 'Có lỗi xảy ra') }
     finally { setSaving(false) }
+  }
+
+  const handleGalleryUpload = async (e) => {
+    const files = Array.from(e.target.files)
+    if (!files.length) return
+    setUploadingGallery(true)
+    try {
+      const urls = await Promise.all(files.map(async file => {
+        const formData = new FormData()
+        formData.append('image', file)
+        const res = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+        return res.data.url
+      }))
+      setForm(prev => ({ ...prev, images: [...(prev.images || []), ...urls] }))
+    } catch { setError('Upload ảnh gallery thất bại') }
+    finally { setUploadingGallery(false); e.target.value = '' }
+  }
+
+  const removeGalleryImage = (idx) => {
+    setForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))
   }
 
   const handleDelete = async (id) => {
@@ -145,7 +172,43 @@ export default function CarModelsManagePage() {
               </div>
 
               <div>
-                <ImageUpload label="Ảnh dòng xe" value={form.image_url} onChange={url => setForm({...form, image_url: url})} />
+                <ImageUpload label="Ảnh đại diện" value={form.image_url} onChange={url => setForm({...form, image_url: url})} />
+              </div>
+
+              {/* Gallery nhiều ảnh */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Thư viện ảnh (gallery)</label>
+                {form.images?.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {form.images.map((url, idx) => (
+                      <div key={idx} className="relative h-24 rounded-lg overflow-hidden border border-gray-200 group">
+                        <img src={url} alt={`gallery-${idx}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryImage(idx)}
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                        >✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div
+                  onClick={() => galleryInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-lg p-4 text-center cursor-pointer transition"
+                >
+                  {uploadingGallery ? (
+                    <div className="flex items-center justify-center gap-2 text-blue-600 text-sm">
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      </svg>
+                      Đang upload...
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">+ Thêm ảnh gallery <span className="text-xs text-gray-400">(chọn nhiều ảnh cùng lúc)</span></p>
+                  )}
+                </div>
+                <input ref={galleryInputRef} type="file" accept="image/*" multiple onChange={handleGalleryUpload} className="hidden" />
               </div>
 
               <div className="flex gap-3 pt-2">

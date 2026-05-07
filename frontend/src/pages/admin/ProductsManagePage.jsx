@@ -3,9 +3,102 @@ import AdminLayout from './AdminLayout'
 import ImageUpload from '../../components/ImageUpload'
 import api from '../../services/api'
 
-const EMPTY_FORM = { category_id: '', product_name: '', description: '', address: '', image_url: '', num_days: '', prices: [] }
+const EMPTY_FORM = {
+  category_id: '', product_name: '', description: '', address: '',
+  image_url: '', num_days: '', prices: [],
+  itinerary: []
+}
 const CAT_ICONS = { 1: '✈️', 2: '🗺️', 3: '⛳' }
 
+// ─── Itinerary Editor ────────────────────────────────────────────────────────
+function ItineraryEditor({ value, onChange }) {
+  const days = Array.isArray(value) ? value : []
+
+  const addDay = () => {
+    const nextDay = days.length + 1
+    onChange([...days, { day: nextDay, label: `Ngày ${nextDay}`, items: [{ time: '', desc: '' }] }])
+  }
+
+  const removeDay = (di) => {
+    const updated = days.filter((_, i) => i !== di).map((d, i) => ({ ...d, day: i + 1, label: `Ngày ${i + 1}` }))
+    onChange(updated)
+  }
+
+  const updateDayLabel = (di, label) => {
+    onChange(days.map((d, i) => i === di ? { ...d, label } : d))
+  }
+
+  const addItem = (di) => {
+    onChange(days.map((d, i) => i === di ? { ...d, items: [...d.items, { time: '', desc: '' }] } : d))
+  }
+
+  const removeItem = (di, ii) => {
+    onChange(days.map((d, i) => i === di ? { ...d, items: d.items.filter((_, j) => j !== ii) } : d))
+  }
+
+  const updateItem = (di, ii, field, val) => {
+    onChange(days.map((d, i) =>
+      i === di ? { ...d, items: d.items.map((it, j) => j === ii ? { ...it, [field]: val } : it) } : d
+    ))
+  }
+
+  return (
+    <div className="space-y-4">
+      {days.map((day, di) => (
+        <div key={di} className="border border-gray-200 rounded-xl overflow-hidden">
+          {/* Day header */}
+          <div className="flex items-center gap-2 bg-slate-50 px-4 py-2.5 border-b border-gray-200">
+            <span className="w-7 h-7 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">{day.day}</span>
+            <input
+              value={day.label}
+              onChange={e => updateDayLabel(di, e.target.value)}
+              className="flex-1 bg-transparent text-sm font-semibold text-gray-800 focus:outline-none"
+              placeholder={`Ngày ${day.day}`}
+            />
+            <button type="button" onClick={() => removeDay(di)}
+              className="text-red-400 hover:text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50 transition">
+              ✕ Xóa ngày
+            </button>
+          </div>
+
+          {/* Items */}
+          <div className="p-3 space-y-2">
+            {day.items.map((item, ii) => (
+              <div key={ii} className="flex gap-2 items-start">
+                <input
+                  value={item.time}
+                  onChange={e => updateItem(di, ii, 'time', e.target.value)}
+                  placeholder="07h30"
+                  className="w-20 flex-shrink-0 px-2 py-1.5 border border-gray-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-blue-300 focus:outline-none"
+                />
+                <textarea
+                  value={item.desc}
+                  onChange={e => updateItem(di, ii, 'desc', e.target.value)}
+                  placeholder="Mô tả hoạt động..."
+                  rows={2}
+                  className="flex-1 px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-blue-300 focus:outline-none resize-none"
+                />
+                <button type="button" onClick={() => removeItem(di, ii)}
+                  className="text-gray-300 hover:text-red-500 transition text-xl leading-none pt-1">×</button>
+              </div>
+            ))}
+            <button type="button" onClick={() => addItem(di)}
+              className="text-xs text-gray-500 hover:text-blue-600 border border-dashed border-gray-300 hover:border-blue-400 rounded-lg px-3 py-1.5 w-full transition">
+              + Thêm hoạt động
+            </button>
+          </div>
+        </div>
+      ))}
+
+      <button type="button" onClick={addDay}
+        className="w-full py-2.5 border-2 border-dashed border-gray-300 hover:border-blue-400 text-gray-500 hover:text-blue-600 rounded-xl text-sm font-medium transition">
+        + Thêm ngày
+      </button>
+    </div>
+  )
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ProductsManagePage() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
@@ -19,14 +112,12 @@ export default function ProductsManagePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [modalTab, setModalTab] = useState('basic')
 
   useEffect(() => {
     fetchAll()
     api.get('/categories').then(r => setCategories(r.data.data || []))
-    api.get('/car-models').then(r => {
-      const models = r.data.data || []
-      setCarModels(models)
-    })
+    api.get('/car-models').then(r => setCarModels(r.data.data || []))
   }, [])
 
   const fetchAll = async () => {
@@ -43,17 +134,21 @@ export default function ProductsManagePage() {
 
   const openCreate = () => {
     setEditProduct(null)
-    setForm({ ...EMPTY_FORM, prices: initPrices(carModels) })
+    setForm({ ...EMPTY_FORM, prices: initPrices(carModels), itinerary: [] })
+    setModalTab('basic')
     setError(''); setModalOpen(true)
   }
+
   const openEdit = (p) => {
     setEditProduct(p)
     setForm({
       category_id: p.category_id, product_name: p.product_name, description: p.description || '',
       address: p.address || '', image_url: p.image_url || '',
       num_days: p.num_days || '',
-      prices: initPrices(carModels, p.prices || [])
+      prices: initPrices(carModels, p.prices || []),
+      itinerary: Array.isArray(p.itinerary) ? p.itinerary : []
     })
+    setModalTab('basic')
     setError(''); setModalOpen(true)
   }
 
@@ -65,6 +160,7 @@ export default function ProductsManagePage() {
     e.preventDefault(); setSaving(true); setError('')
     try {
       const prices = form.prices.filter(p => p.price !== '' && p.price !== null).map(p => ({ model_id: p.model_id, price: parseFloat(p.price) }))
+      const isTour = parseInt(form.category_id) === 2
       const payload = {
         category_id: parseInt(form.category_id),
         product_name: form.product_name,
@@ -72,8 +168,8 @@ export default function ProductsManagePage() {
         address: form.address,
         image_url: form.image_url,
         prices,
-        // Chỉ gửi num_days nếu là Tour (category_id = 2)
-        num_days: parseInt(form.category_id) === 2 && form.num_days ? parseInt(form.num_days) : null
+        num_days: isTour && form.num_days ? parseInt(form.num_days) : null,
+        itinerary: isTour ? (form.itinerary || []) : []
       }
       if (editProduct) await api.put(`/products/${editProduct.id}`, payload)
       else await api.post('/products', payload)
@@ -123,7 +219,7 @@ export default function ProductsManagePage() {
           </div>
         </div>
 
-        {/* Products Table */}
+        {/* Table */}
         {loading ? (
           <div className="py-16 flex justify-center"><div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"/></div>
         ) : filtered.length === 0 ? (
@@ -137,7 +233,7 @@ export default function ProductsManagePage() {
                   <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Danh mục</th>
                   <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Địa điểm</th>
                   <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Bảng giá</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase"></th>
+                  <th className="px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -151,17 +247,20 @@ export default function ProductsManagePage() {
                         }
                         <div>
                           <p className="font-semibold text-gray-900 text-sm">{p.product_name}</p>
-                          {p.category_id === 2 && p.num_days && (
-                            <p className="text-xs text-emerald-600 font-medium">🗓 {p.num_days} ngày</p>
-                          )}
-                          {p.description && <p className="text-xs text-gray-400 line-clamp-1 max-w-xs">{p.description}</p>}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {p.category_id === 2 && p.num_days && (
+                              <span className="text-xs text-emerald-600 font-medium">🗓 {p.num_days} ngày</span>
+                            )}
+                            {p.category_id === 2 && Array.isArray(p.itinerary) && p.itinerary.length > 0 && (
+                              <span className="text-xs text-blue-500 font-medium">📋 Có lịch trình</span>
+                            )}
+                          </div>
+                          {p.description && <p className="text-xs text-gray-400 line-clamp-1 max-w-xs mt-0.5">{p.description}</p>}
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full font-medium">
-                        {p.category?.category_name}
-                      </span>
+                      <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full font-medium">{p.category?.category_name}</span>
                     </td>
                     <td className="px-5 py-4 text-sm text-gray-500 max-w-xs">
                       <span className="line-clamp-2">{p.address || '—'}</span>
@@ -193,82 +292,107 @@ export default function ProductsManagePage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl my-4">
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl my-4">
+            {/* Header */}
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">{editProduct ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới'}</h2>
               <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-700">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
-              {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Tên dịch vụ *</label>
-                  <input value={form.product_name} onChange={e => setForm({...form, product_name: e.target.value})} required
-                    placeholder="vd: Tour Đà Nẵng – Hội An 3 ngày 2 đêm"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
-                </div>
-                <div className={isTour ? '' : 'col-span-2'}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Danh mục *</label>
-                  <select value={form.category_id} onChange={e => setForm({...form, category_id: e.target.value, num_days: ''})} required
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm">
-                    <option value="">-- Chọn danh mục --</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{CAT_ICONS[c.id]} {c.category_name}</option>)}
-                  </select>
-                </div>
+            {/* Tabs — chỉ khi Tour */}
+            {isTour && (
+              <div className="flex border-b border-gray-100 px-6">
+                {[
+                  { key: 'basic', label: 'Thông tin chung' },
+                  { key: 'itinerary', label: `Lịch trình${form.itinerary?.length ? ` (${form.itinerary.length} ngày)` : ''}` }
+                ].map(tab => (
+                  <button key={tab.key} type="button" onClick={() => setModalTab(tab.key)}
+                    className={`px-4 py-3 text-sm font-medium border-b-2 transition -mb-px ${
+                      modalTab === tab.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}>{tab.label}</button>
+                ))}
+              </div>
+            )}
 
-                {/* Số ngày — chỉ hiện khi là Tour */}
-                {isTour && (
+            <form onSubmit={handleSave}>
+              <div className="p-6 space-y-4">
+                {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
+
+                {/* Basic info tab */}
+                {(!isTour || modalTab === 'basic') && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Tên dịch vụ *</label>
+                        <input value={form.product_name} onChange={e => setForm({...form, product_name: e.target.value})} required
+                          placeholder="vd: Tour Đà Nẵng – Hội An 1 ngày"
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
+                      </div>
+                      <div className={isTour ? '' : 'col-span-2'}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Danh mục *</label>
+                        <select value={form.category_id} onChange={e => setForm({...form, category_id: e.target.value, num_days: '', itinerary: []})} required
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm">
+                          <option value="">-- Chọn danh mục --</option>
+                          {categories.map(c => <option key={c.id} value={c.id}>{CAT_ICONS[c.id]} {c.category_name}</option>)}
+                        </select>
+                      </div>
+                      {isTour && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Số ngày tour *</label>
+                          <input type="number" min="1" max="30" value={form.num_days}
+                            onChange={e => setForm({...form, num_days: e.target.value})}
+                            required={isTour} placeholder="1"
+                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Địa điểm / Lộ trình</label>
+                      <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="vd: Đà Nẵng → Hội An"
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Mô tả</label>
+                      <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={2}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm resize-none" />
+                    </div>
+
+                    {form.prices.length > 0 && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Bảng giá (VNĐ)</label>
+                        <div className="space-y-2 p-4 bg-gray-50 rounded-xl">
+                          {form.prices.map(p => (
+                            <div key={p.model_id} className="flex items-center gap-3">
+                              <span className="text-sm text-gray-600 w-32 flex-shrink-0">{p.model_name} ({p.num_seats} chỗ)</span>
+                              <input type="number" value={p.price} onChange={e => handlePriceChange(p.model_id, e.target.value)}
+                                min={0} placeholder="0"
+                                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" />
+                              <span className="text-xs text-gray-400 flex-shrink-0">đ</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <ImageUpload label="Ảnh dịch vụ" value={form.image_url} onChange={url => setForm({...form, image_url: url})} />
+                  </>
+                )}
+
+                {/* Itinerary tab */}
+                {isTour && modalTab === 'itinerary' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Số ngày tour *</label>
-                    <input
-                      type="number" min="1" max="30"
-                      value={form.num_days}
-                      onChange={e => setForm({...form, num_days: e.target.value})}
-                      required={isTour}
-                      placeholder="vd: 3"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
+                    <p className="text-xs text-gray-400 mb-4">Nhập lịch trình chi tiết theo từng ngày. Mỗi hoạt động gồm giờ và mô tả.</p>
+                    <ItineraryEditor value={form.itinerary} onChange={itinerary => setForm(f => ({ ...f, itinerary }))} />
                   </div>
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Địa điểm / Lộ trình</label>
-                <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="vd: Đà Nẵng → Hội An → Mỹ Sơn"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Mô tả</label>
-                <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={2}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm resize-none" />
-              </div>
-
-              {/* Price list */}
-              {form.prices.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Bảng giá (VNĐ)</label>
-                  <div className="space-y-2 p-4 bg-gray-50 rounded-xl">
-                    {form.prices.map(p => (
-                      <div key={p.model_id} className="flex items-center gap-3">
-                        <span className="text-sm text-gray-600 w-32 flex-shrink-0">{p.model_name} ({p.num_seats} chỗ)</span>
-                        <input type="number" value={p.price} onChange={e => handlePriceChange(p.model_id, e.target.value)}
-                          min={0} placeholder="0"
-                          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" />
-                        <span className="text-xs text-gray-400 flex-shrink-0">đ</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <ImageUpload label="Ảnh dịch vụ" value={form.image_url} onChange={url => setForm({...form, image_url: url})} />
-
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 px-6 pb-6 pt-2 border-t border-gray-100">
                 <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">Hủy</button>
                 <button type="submit" disabled={saving} className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-xl transition text-sm font-medium">
                   {saving ? 'Đang lưu...' : (editProduct ? 'Cập nhật' : 'Tạo dịch vụ')}

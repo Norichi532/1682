@@ -115,9 +115,9 @@ export default function AboutPage() {
       {/* Contact info */}
       <div className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { icon: '📍', label: 'Địa chỉ', value: 'Đà Nẵng, Việt Nam' },
-          { icon: '📞', label: 'Điện thoại', value: '0901 000 001' },
-          { icon: '✉️', label: 'Email', value: 'admin@phuongtravel.vn' },
+          { icon: '📍', label: 'Địa chỉ', value: '09 Tiên Sơn 06, Đà Nẵng' },
+          { icon: '📞', label: 'Điện thoại', value: '0335 966 977' },
+          { icon: '✉️', label: 'Email', value: 'phuongtouristcar.dev@gmail.com' },
         ].map((c, i) => (
           <AnimatedCard key={c.label} delay={i * 80}>
             <div className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-sm hover-lift">

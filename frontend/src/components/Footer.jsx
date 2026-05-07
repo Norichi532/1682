@@ -27,7 +27,7 @@ export default function Footer() {
             <h3 className="font-semibold text-white mb-4">Liên hệ</h3>
             <div className="space-y-2 text-sm">
               <p>Địa chỉ: 09 Tiên Sơn 06, Đà Nẵng</p>
-              <p>Email: impphat69@gmail.com</p>
+              <p>Email: phuongtouristcar.dev@gmail.com</p>
               <p>Điện thoại: 0335 966 977</p>
             </div>
           </div>

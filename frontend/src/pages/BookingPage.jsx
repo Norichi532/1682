@@ -84,7 +84,14 @@ function BookingSummary({ product, data, step }) {
           <SummaryRow icon="📍" label="Đón tại" value={pickupLabel} />
         )}
         {dropLabel && (
-          <SummaryRow icon={catId === 3 ? '⛳' : '🏁'} label={catId === 3 ? 'Sân golf' : 'Trả tại'} value={dropLabel} />
+          <SummaryRow
+            icon={catId === 3 ? (data.direction === 'from_golf' ? '🏨' : '⛳') : '🏁'}
+            label={catId === 3 ? (data.direction === 'from_golf' ? 'Trả tại' : 'Sân golf') : 'Trả tại'}
+            value={dropLabel}
+          />
+        )}
+        {catId === 1 && (
+          <SummaryRow icon="🛂" label="Nhà ga" value={data.terminal === 'domestic' ? 'Nội địa' : 'Quốc tế'} />
         )}
         {catId === 2 && product?.num_days && (
           <SummaryRow icon="🗓" label="Thời lượng" value={`${product.num_days} ngày`} />
@@ -259,10 +266,34 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
             onChange={e => onChange('passengers', parseInt(e.target.value) || 1)} className={inp} />
           {data.passengers > 45 && (
             <p className="text-red-500 text-xs mt-1.5 font-medium">
-              ⚠️ Nhóm trên 45 người vui lòng liên hệ hotline <strong>0905 123 456</strong> để được hỗ trợ đặt xe đặc biệt.
+              ⚠️ Nhóm trên 45 người vui lòng liên hệ hotline <strong>0335 966 977</strong> để được hỗ trợ đặt xe đặc biệt.
             </p>
           )}
         </div>
+        {catId === 1 && (
+          <div>
+            <label className="block text-sm font-medium text-navy mb-1.5">Nhà ga</label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { value: 'international', label: '🌍 Quốc tế' },
+                { value: 'domestic',      label: '🏠 Nội địa' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange('terminal', opt.value)}
+                  className={`py-2.5 px-3 rounded-xl border-2 text-xs font-semibold transition-all duration-200 text-center ${
+                    data.terminal === opt.value
+                      ? 'border-ochre bg-ochre/5 text-navy'
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {catId === 2 && numDays && (
           <div>
             <label className="block text-sm font-medium text-navy mb-1.5">Số ngày tour</label>
@@ -397,7 +428,7 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
 
       {suitable.length === 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-          ⚠️ Không có xe phù hợp cho đoàn của bạn. Vui lòng liên hệ hotline <strong>0905 123 456</strong> để được hỗ trợ đặt xe đặc biệt.
+          ⚠️ Không có xe phù hợp cho đoàn của bạn. Vui lòng liên hệ hotline <strong>0335 966 977</strong> để được hỗ trợ đặt xe đặc biệt.
         </div>
       )}
 
@@ -577,6 +608,7 @@ export default function BookingPage() {
     passengers: 1,
     days: 1,
     golf_bags: 0,
+    terminal: 'international',
     flight_code: '',
     notes: '',
     // Step 2
@@ -623,11 +655,11 @@ export default function BookingPage() {
       }
       if (!data.time) return 'Vui lòng chọn giờ đón'
       if (!data.passengers || data.passengers < 1) return 'Số hành khách phải ít nhất 1 người'
-      if (data.passengers > 45) return 'Nhóm trên 45 người vui lòng liên hệ hotline 0905 123 456 để được hỗ trợ đặt xe đặc biệt'
+      if (data.passengers > 45) return 'Nhóm trên 45 người vui lòng liên hệ hotline 0335 966 977 để được hỗ trợ đặt xe đặc biệt'
       if (catId === 3) {
         const needed = data.passengers + (data.golf_bags || 0)
         const maxSeats = Math.max(...Object.values(pricesByModel).map(m => m.num_seats || 0), 0)
-        if (maxSeats > 0 && needed > maxSeats) return `Tổng số người (${data.passengers}) + túi golf (${data.golf_bags}) = ${needed} vượt quá sức chứa xe lớn nhất (${maxSeats} chỗ). Vui lòng liên hệ hotline 0905 123 456.`
+        if (maxSeats > 0 && needed > maxSeats) return `Tổng số người (${data.passengers}) + túi golf (${data.golf_bags}) = ${needed} vượt quá sức chứa xe lớn nhất (${maxSeats} chỗ). Vui lòng liên hệ hotline 0335 966 977.`
       }
     }
     if (step === 2) {
@@ -669,6 +701,7 @@ export default function BookingPage() {
         contact_phone: data.phone,
       }
       if (catId === 1) {
+        additional_data.terminal = data.terminal || 'international'
         if (data.flight_code) additional_data.flight_code = data.flight_code
       }
       // Tour: num_days lấy từ product (backend tự xử lý), không cần gửi lên

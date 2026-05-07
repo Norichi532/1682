@@ -17,9 +17,9 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    const { model_name, num_seats, description, features, image_url } = req.body;
+    const { model_name, num_seats, description, features, image_url, images } = req.body;
     if (!model_name || !num_seats) return res.status(400).json({ message: 'model_name và num_seats là bắt buộc' });
-    const m = await CarModel.create({ model_name, num_seats, description, features, image_url });
+    const m = await CarModel.create({ model_name, num_seats, description, features, image_url, images: images || [] });
     res.status(201).json({ message: 'Tạo dòng xe thành công', data: m });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
@@ -28,8 +28,8 @@ const update = async (req, res) => {
   try {
     const m = await CarModel.findByPk(req.params.id);
     if (!m) return res.status(404).json({ message: 'Không tìm thấy' });
-    const { model_name, num_seats, description, features, image_url } = req.body;
-    await m.update({ model_name, num_seats, description, features, image_url });
+    const { model_name, num_seats, description, features, image_url, images } = req.body;
+    await m.update({ model_name, num_seats, description, features, image_url, images: images || m.images || [] });
     res.json({ message: 'Cập nhật thành công', data: m });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
