@@ -40,7 +40,7 @@ const sendCompletionEmail = async (toEmail, customerName, productName) => {
           <p style="color: #1d4ed8; font-weight: bold; margin: 0;">Hay de lai danh gia cho chuyen di!</p>
           <p style="color: #6b7280; font-size: 13px; margin: 8px 0 0;">Danh gia cua ban giup chung toi cai thien dich vu tot hon.</p>
         </div>
-        <a href="http://localhost:5173/my-orders" style="display: block; text-align: center; background: #1d4ed8; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Xem don va Viet danh gia</a>
+        <a href="${process.env.FRONTEND_URL}/my-orders" style="display: block; text-align: center; background: #1d4ed8; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Xem don va Viet danh gia</a>
         <p style="color: #9ca3af; font-size: 12px; margin-top: 24px;">PhuOng Tourist Car - Da Nang</p>
       </div>
     `,
@@ -73,7 +73,7 @@ const sendWelcomeEmail = async (toEmail, fullName) => {
             </ul>
           </div>
           <div style="text-align: center; margin-bottom: 24px;">
-            <a href="http://localhost:5173/services"
+            <a href="${process.env.FRONTEND_URL}/services"
                style="display: inline-block; background: #1d4ed8; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
               Kham pha dich vu ngay
             </a>
