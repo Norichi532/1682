@@ -256,7 +256,12 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">Số hành khách</label>
           <input type="number" min="1" max="45" value={data.passengers}
-            onChange={e => onChange('passengers', parseInt(e.target.value))} className={inp} />
+            onChange={e => onChange('passengers', parseInt(e.target.value) || 1)} className={inp} />
+          {data.passengers > 45 && (
+            <p className="text-red-500 text-xs mt-1.5 font-medium">
+              ⚠️ Nhóm trên 45 người vui lòng liên hệ hotline <strong>0905 123 456</strong> để được hỗ trợ đặt xe đặc biệt.
+            </p>
+          )}
         </div>
         {catId === 2 && numDays && (
           <div>
@@ -301,59 +306,107 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
 }
 
 // ─── Step 2: Phương tiện ──────────────────────────────────────────────────────
-function Step2Vehicle({ pricesByModel, data, onChange, error }) {
+function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
   const models = Object.values(pricesByModel)
+  const passengers = data.passengers || 1
+  const golfBags = data.golf_bags || 0
+
+  // Tính sức chứa thực tế: golf thì 1 túi chiếm 1 ghế
+  const effectiveCapacity = (numSeats) =>
+    catId === 3 ? numSeats - golfBags : numSeats
+
+  const suitable = models.filter(m => effectiveCapacity(m.num_seats) >= passengers)
+  const unsuitable = models.filter(m => effectiveCapacity(m.num_seats) < passengers)
+
+  const VehicleCard = ({ model, disabled }) => {
+    const price = model.prices[0]?.price || 0
+    const selected = data.model_id === model.id
+    const effCap = effectiveCapacity(model.num_seats)
+
+    return (
+      <button
+        key={model.id}
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return
+          onChange('model_id', model.id)
+          onChange('model_name', model.model_name)
+          onChange('price', price)
+        }}
+        className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
+          disabled
+            ? 'border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed'
+            : selected
+              ? 'border-ochre bg-ochre/5'
+              : 'border-gray-100 hover:border-gray-200 bg-white'
+        }`}
+      >
+        {/* Icon */}
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${selected ? 'bg-ochre/10' : 'bg-gray-50'}`}>
+          {model.image_url
+            ? <img src={model.image_url} alt={model.model_name} className="w-10 h-10 object-cover rounded-lg" />
+            : <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+          }
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className={`font-bold text-base ${selected ? 'text-navy' : disabled ? 'text-gray-400' : 'text-gray-800'}`}>
+              {model.model_name}
+            </p>
+            {!disabled && (
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">✓ Phù hợp</span>
+            )}
+            {disabled && (
+              <span className="text-xs bg-red-100 text-red-500 px-2 py-0.5 rounded-full font-medium">Không đủ chỗ</span>
+            )}
+          </div>
+          <p className="text-gray-500 text-sm">
+            {model.num_seats} chỗ
+            {catId === 3 && golfBags > 0 && (
+              <span className="text-gray-400"> · còn {effCap} chỗ sau khi xếp {golfBags} túi golf</span>
+            )}
+          </p>
+        </div>
+
+        {/* Price */}
+        <div className="text-right flex-shrink-0">
+          <p className={`font-bold text-lg ${disabled ? 'text-gray-400' : 'text-ochre'}`}>{fmt(price)}</p>
+          <p className="text-gray-400 text-xs">/chuyến</p>
+        </div>
+
+        {/* Selected indicator */}
+        {selected && !disabled && (
+          <div className="w-6 h-6 rounded-full bg-ochre flex items-center justify-center flex-shrink-0">
+            <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
+          </div>
+        )}
+      </button>
+    )
+  }
 
   return (
     <div className="space-y-5">
       <h2 className="font-display text-xl font-bold text-navy">Chọn phương tiện</h2>
-      <p className="text-gray-500 text-sm">Chọn dòng xe phù hợp với đoàn của bạn</p>
+      <p className="text-gray-500 text-sm">
+        Chọn dòng xe phù hợp với đoàn <strong>{passengers} người</strong>
+        {catId === 3 && golfBags > 0 && <> và <strong>{golfBags} túi golf</strong></>}
+      </p>
+
+      {suitable.length === 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+          ⚠️ Không có xe phù hợp cho đoàn của bạn. Vui lòng liên hệ hotline <strong>0905 123 456</strong> để được hỗ trợ đặt xe đặc biệt.
+        </div>
+      )}
 
       <div className="space-y-3">
-        {models.map(model => {
-          const price = model.prices[0]?.price || 0
-          const selected = data.model_id === model.id
-          return (
-            <button
-              key={model.id}
-              type="button"
-              onClick={() => { onChange('model_id', model.id); onChange('model_name', model.model_name); onChange('price', price) }}
-              className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-200 ${
-                selected ? 'border-ochre bg-ochre/5' : 'border-gray-100 hover:border-gray-200 bg-white'
-              }`}
-            >
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${selected ? 'bg-ochre/10' : 'bg-gray-50'}`}>
-                {model.image_url
-                  ? <img src={model.image_url} alt={model.model_name} className="w-10 h-10 object-cover rounded-lg" />
-                  : <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
-                }
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className={`font-bold text-base ${selected ? 'text-navy' : 'text-gray-800'}`}>{model.model_name}</p>
-                <p className="text-gray-500 text-sm">{model.num_seats} hành khách</p>
-                {Array.isArray(model.features) && model.features.length > 0 && (
-                  <p className="text-gray-400 text-xs mt-0.5 truncate">{model.features.slice(0,3).join(' · ')}</p>
-                )}
-              </div>
-
-              {/* Price */}
-              <div className="text-right flex-shrink-0">
-                <p className={`font-bold text-lg ${selected ? 'text-ochre' : 'text-ochre'}`}>{fmt(price)}</p>
-                <p className="text-gray-400 text-xs">/chuyến</p>
-              </div>
-
-              {/* Selected indicator */}
-              {selected && (
-                <div className="w-6 h-6 rounded-full bg-ochre flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
-                </div>
-              )}
-            </button>
-          )
-        })}
+        {suitable.map(model => <VehicleCard key={model.id} model={model} disabled={false} />)}
+        {unsuitable.length > 0 && suitable.length > 0 && (
+          <p className="text-xs text-gray-400 pt-1">Xe không đủ sức chứa cho đoàn của bạn:</p>
+        )}
+        {unsuitable.map(model => <VehicleCard key={model.id} model={model} disabled={true} />)}
       </div>
       {error && <ErrorMsg msg={error} />}
     </div>
@@ -569,6 +622,13 @@ export default function BookingPage() {
         if (new Date(data.date) < minDate) return 'Ngày đi phải cách hôm nay ít nhất 3 ngày'
       }
       if (!data.time) return 'Vui lòng chọn giờ đón'
+      if (!data.passengers || data.passengers < 1) return 'Số hành khách phải ít nhất 1 người'
+      if (data.passengers > 45) return 'Nhóm trên 45 người vui lòng liên hệ hotline 0905 123 456 để được hỗ trợ đặt xe đặc biệt'
+      if (catId === 3) {
+        const needed = data.passengers + (data.golf_bags || 0)
+        const maxSeats = Math.max(...Object.values(pricesByModel).map(m => m.num_seats || 0), 0)
+        if (maxSeats > 0 && needed > maxSeats) return `Tổng số người (${data.passengers}) + túi golf (${data.golf_bags}) = ${needed} vượt quá sức chứa xe lớn nhất (${maxSeats} chỗ). Vui lòng liên hệ hotline 0905 123 456.`
+      }
     }
     if (step === 2) {
       if (!data.model_id) return 'Vui lòng chọn phương tiện'
@@ -678,7 +738,7 @@ export default function BookingPage() {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7">
                 {step === 1 && <Step1Schedule catId={catId} data={data} onChange={onChange} error={error} numDays={product?.num_days} />}
-                {step === 2 && <Step2Vehicle pricesByModel={pricesByModel} data={data} onChange={onChange} error={error} />}
+                {step === 2 && <Step2Vehicle pricesByModel={pricesByModel} data={data} onChange={onChange} error={error} catId={catId} />}
                 {step === 3 && <Step3Confirm product={product} data={data} onChange={onChange} error={error} />}
                 {step === 4 && <Step4Payment data={data} submitting={submitting} onSubmit={handleSubmit} error={error} success={success} />}
 
