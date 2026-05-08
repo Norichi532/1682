@@ -6,10 +6,10 @@ import { useAuth } from '../context/AuthContext'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const STEPS = [
-  { id: 1, label: 'Lịch trình' },
-  { id: 2, label: 'Phương tiện' },
-  { id: 3, label: 'Xác nhận' },
-  { id: 4, label: 'Thanh toán' },
+  { id: 1, label: 'Details' },
+  { id: 2, label: 'Vehicle' },
+  { id: 3, label: 'Confirm' },
+  { id: 4, label: 'Payment' },
 ]
 
 const GOLF_COURSES = [
@@ -20,10 +20,10 @@ const GOLF_COURSES = [
   'Laguna Golf Lang Co',
 ]
 
-const fmt = (v) => new Intl.NumberFormat('vi-VN').format(v) + ' đ'
+const fmt = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
 const fmtDT = (date, time) => {
   if (!date) return ''
-  return new Date(`${date}T${time || '00:00'}`).toLocaleString('vi-VN', {
+  return new Date(`${date}T${time || '00:00'}`).toLocaleString('en-GB', {
     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
   })
 }
@@ -60,7 +60,7 @@ function BookingSummary({ product, data, step }) {
   const catId = product?.category?.id
   const icon = catId === 1 ? '✈️' : catId === 3 ? '⛳' : '🗺️'
 
-  // Airport: from_airport → đón tại sân bay, else đón tại pickup_location
+  // Airport: from_airport → pickup at airport, else pickup at pickup_location
   const pickupLabel = catId === 1
     ? (data.direction === 'from_airport' ? 'Sân bay Đà Nẵng' : data.pickup_location)
     : catId === 3
@@ -75,41 +75,41 @@ function BookingSummary({ product, data, step }) {
 
   return (
     <div className="bg-navy rounded-2xl p-6 text-white sticky top-20">
-      <h3 className="text-ochre font-semibold text-xs uppercase tracking-widest mb-5">Tóm tắt đặt xe</h3>
+      <h3 className="text-ochre font-semibold text-xs uppercase tracking-widest mb-5">Booking Summary</h3>
       <div className="space-y-4">
 
-        <SummaryRow icon={icon} label="Dịch vụ" value={product?.product_name} always />
+        <SummaryRow icon={icon} label="Service" value={product?.product_name} always />
 
         {pickupLabel && (
-          <SummaryRow icon="📍" label="Đón tại" value={pickupLabel} />
+          <SummaryRow icon="📍" label="Pickup" value={pickupLabel} />
         )}
         {dropLabel && (
           <SummaryRow
             icon={catId === 3 ? (data.direction === 'from_golf' ? '🏨' : '⛳') : '🏁'}
-            label={catId === 3 ? (data.direction === 'from_golf' ? 'Trả tại' : 'Sân golf') : 'Trả tại'}
+            label={catId === 3 ? (data.direction === 'from_golf' ? 'Drop-off' : 'Golf Course') : 'Drop-off'}
             value={dropLabel}
           />
         )}
         {catId === 1 && (
-          <SummaryRow icon="🛂" label="Nhà ga" value={data.terminal === 'domestic' ? 'Nội địa' : 'Quốc tế'} />
+          <SummaryRow icon="🛂" label="Terminal" value={data.terminal === 'domestic' ? 'Domestic' : 'International'} />
         )}
         {catId === 2 && product?.num_days && (
-          <SummaryRow icon="🗓" label="Thời lượng" value={`${product.num_days} ngày`} />
+          <SummaryRow icon="🗓" label="Duration" value={`${product.num_days} days`} />
         )}
         {data.date && (
-          <SummaryRow icon="📅" label="Thời gian" value={fmtDT(data.date, data.time)} />
+          <SummaryRow icon="📅" label="Date & Time" value={fmtDT(data.date, data.time)} />
         )}
         {step >= 2 && data.model_name && (
-          <SummaryRow icon="🚌" label="Phương tiện" value={data.model_name} />
+          <SummaryRow icon="🚌" label="Vehicle" value={data.model_name} />
         )}
 
         {step >= 2 && data.price > 0 && (
           <div className="pt-4 mt-2 border-t border-white/10">
             <div className="flex justify-between items-center">
-              <span className="text-white/60 text-sm">Tạm tính</span>
+              <span className="text-white/60 text-sm">Estimated total</span>
               <span className="text-ochre font-bold text-xl">{fmt(data.price)}</span>
             </div>
-            <p className="text-white/30 text-xs mt-1">Giá cuối sẽ được xác nhận sau</p>
+            <p className="text-white/30 text-xs mt-1">Final price confirmed after selection</p>
           </div>
         )}
       </div>
@@ -130,22 +130,22 @@ function SummaryRow({ icon, label, value, always }) {
   )
 }
 
-// ─── Step 1: Lịch trình ───────────────────────────────────────────────────────
+// ─── Step 1: Schedule ───────────────────────────────────────────────────────
 function Step1Schedule({ catId, data, onChange, error, numDays }) {
   const inp = "w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-ochre/40 focus:border-ochre focus:outline-none transition text-navy font-body text-sm"
 
   return (
     <div className="space-y-5">
-      <h2 className="font-display text-xl font-bold text-navy">Lịch trình & Địa điểm</h2>
+      <h2 className="font-display text-xl font-bold text-navy">Schedule & Location</h2>
 
-      {/* Airport: chiều đi selector */}
+      {/* Airport: direction selector */}
       {catId === 1 && (
         <div>
-          <label className="block text-sm font-medium text-navy mb-2">Chiều đi</label>
+          <label className="block text-sm font-medium text-navy mb-2">Direction</label>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { value: 'from_airport', label: '✈ Sân bay → Khách sạn' },
-              { value: 'to_airport',   label: '🏨 Khách sạn → Sân bay' },
+              { value: 'from_airport', label: '✈ Airport → Hotel' },
+              { value: 'to_airport',   label: '🏨 Hotel → Airport' },
             ].map(opt => (
               <button
                 key={opt.value}
@@ -164,14 +164,14 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
         </div>
       )}
 
-      {/* Golf: chiều đi selector */}
+      {/* Golf: direction selector */}
       {catId === 3 && (
         <div>
-          <label className="block text-sm font-medium text-navy mb-2">Chiều đi</label>
+          <label className="block text-sm font-medium text-navy mb-2">Direction</label>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { value: 'to_golf',   label: '🏌 Khách sạn → Sân golf' },
-              { value: 'from_golf', label: '🔄 Sân golf → Khách sạn' },
+              { value: 'to_golf',   label: '🏌 Hotel → Golf Course' },
+              { value: 'from_golf', label: '🔄 Golf Course → Hotel' },
             ].map(opt => (
               <button
                 key={opt.value}
@@ -190,11 +190,11 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
         </div>
       )}
 
-      {/* Địa chỉ khách sạn — Airport & Golf & Tour */}
+      {/* Hotel address — Airport & Golf & Tour */}
       {catId === 1 && (
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">
-            {data.direction === 'from_airport' ? 'Địa chỉ khách sạn (điểm trả)' : 'Địa chỉ khách sạn (điểm đón)'}
+            {data.direction === 'from_airport' ? 'Hotel address (drop-off)' : 'Hotel address (pickup)'}
             <span className="text-red-500 ml-1">*</span>
           </label>
           <div className="relative">
@@ -202,33 +202,33 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             </span>
             <input type="text" value={data.pickup_location} onChange={e => onChange('pickup_location', e.target.value)}
-              placeholder="Tên khách sạn hoặc địa chỉ..." className={inp + ' pl-10'} />
+              placeholder="Hotel name or address..." className={inp + ' pl-10'} />
           </div>
         </div>
       )}
 
       {catId === 2 && (
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Địa chỉ đón <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Pickup address <span className="text-red-500">*</span></label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ochre">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             </span>
             <input type="text" value={data.pickup_location} onChange={e => onChange('pickup_location', e.target.value)}
-              placeholder="Khách sạn, địa chỉ nơi ở..." className={inp + ' pl-10'} />
+              placeholder="Hotel or accommodation address..." className={inp + ' pl-10'} />
           </div>
         </div>
       )}
 
       {catId === 3 && (
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Địa chỉ khách sạn <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Hotel address <span className="text-red-500">*</span></label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ochre">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             </span>
             <input type="text" value={data.pickup_location} onChange={e => onChange('pickup_location', e.target.value)}
-              placeholder="Tên khách sạn hoặc địa chỉ..." className={inp + ' pl-10'} />
+              placeholder="Hotel name or address..." className={inp + ' pl-10'} />
           </div>
         </div>
       )}
@@ -236,9 +236,9 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
       {/* Golf course selector */}
       {catId === 3 && (
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Chọn sân golf <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Select golf course <span className="text-red-500">*</span></label>
           <select value={data.golf_course} onChange={e => onChange('golf_course', e.target.value)} className={inp}>
-            <option value="">-- Chọn sân golf --</option>
+            <option value="">-- Select golf course --</option>
             {GOLF_COURSES.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
         </div>
@@ -247,13 +247,13 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
       {/* Date + Time */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Ngày đi <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Departure date <span className="text-red-500">*</span></label>
           <input type="date" value={data.date} onChange={e => onChange('date', e.target.value)}
             min={(() => { const d = new Date(); d.setDate(d.getDate() + 3); return d.toISOString().split('T')[0] })()} className={inp} />
-          <p className="text-xs text-gray-400 mt-1">Vui lòng đặt trước ít nhất 3 ngày</p>
+          <p className="text-xs text-gray-400 mt-1">Please book at least 3 days in advance</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Giờ đón <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Pickup time <span className="text-red-500">*</span></label>
           <input type="time" value={data.time} onChange={e => onChange('time', e.target.value)} className={inp} />
         </div>
       </div>
@@ -261,22 +261,22 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
       {/* Passengers + Days (tour) / Golf bags */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Số hành khách</label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Passengers</label>
           <input type="number" min="1" max="45" value={data.passengers}
             onChange={e => onChange('passengers', parseInt(e.target.value) || 1)} className={inp} />
           {data.passengers > 45 && (
             <p className="text-red-500 text-xs mt-1.5 font-medium">
-              ⚠️ Nhóm trên 45 người vui lòng liên hệ hotline <strong>0335 966 977</strong> để được hỗ trợ đặt xe đặc biệt.
+              ⚠️ Groups over 45 passengers please contact our hotline <strong>0335 966 977</strong> for special booking assistance.
             </p>
           )}
         </div>
         {catId === 1 && (
           <div>
-            <label className="block text-sm font-medium text-navy mb-1.5">Nhà ga</label>
+            <label className="block text-sm font-medium text-navy mb-1.5">Terminal</label>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { value: 'international', label: '🌍 Quốc tế' },
-                { value: 'domestic',      label: '🏠 Nội địa' },
+                { value: 'international', label: '🌍 International' },
+                { value: 'domestic',      label: '🏠 Domestic' },
               ].map(opt => (
                 <button
                   key={opt.value}
@@ -296,38 +296,38 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
         )}
         {catId === 2 && numDays && (
           <div>
-            <label className="block text-sm font-medium text-navy mb-1.5">Số ngày tour</label>
+            <label className="block text-sm font-medium text-navy mb-1.5">Tour days</label>
             <div className={inp + ' bg-gray-50 text-gray-600 cursor-not-allowed flex items-center gap-2'}>
               <span>🗓</span>
-              <span className="font-semibold">{numDays} ngày</span>
-              <span className="text-xs text-gray-400 ml-1">(cố định theo chương trình)</span>
+              <span className="font-semibold">{numDays} day(s)</span>
+              <span className="text-xs text-gray-400 ml-1">(fixed by the tour program)</span>
             </div>
           </div>
         )}
         {catId === 3 && (
           <div>
-            <label className="block text-sm font-medium text-navy mb-1.5">Số túi golf</label>
+            <label className="block text-sm font-medium text-navy mb-1.5">Golf bags</label>
             <input type="number" min="0" max="20" value={data.golf_bags}
               onChange={e => onChange('golf_bags', parseInt(e.target.value))} className={inp} />
           </div>
         )}
       </div>
 
-      {/* Flight code — airport chiều đến */}
+      {/* Flight code — airport direction */}
       {catId === 1 && data.direction === 'from_airport' && (
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Mã chuyến bay</label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Flight code</label>
           <input type="text" value={data.flight_code} onChange={e => onChange('flight_code', e.target.value)}
             placeholder="VD: VN123, QH456" className={inp} />
-          <p className="text-xs text-gray-400 mt-1">Nhập để chúng tôi theo dõi giờ hạ cánh thực tế</p>
+          <p className="text-xs text-gray-400 mt-1">Enter so we can monitor your actual landing time</p>
         </div>
       )}
 
       {/* Notes */}
       <div>
-        <label className="block text-sm font-medium text-navy mb-1.5">Ghi chú</label>
+        <label className="block text-sm font-medium text-navy mb-1.5">Notes</label>
         <textarea value={data.notes} onChange={e => onChange('notes', e.target.value)}
-          rows={3} placeholder="Yêu cầu đặc biệt, điểm dừng thêm..."
+          rows={3} placeholder="Special requests, additional stops..."
           className={inp + ' resize-none'} />
       </div>
 
@@ -336,13 +336,13 @@ function Step1Schedule({ catId, data, onChange, error, numDays }) {
   )
 }
 
-// ─── Step 2: Phương tiện ──────────────────────────────────────────────────────
+// ─── Step 2: Vehicle ──────────────────────────────────────────────────────────
 function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
   const models = Object.values(pricesByModel)
   const passengers = data.passengers || 1
   const golfBags = data.golf_bags || 0
 
-  // Tính sức chứa thực tế: golf thì 1 túi chiếm 1 ghế
+  // Calculate effective capacity: 1 golf bag = 1 seat
   const effectiveCapacity = (numSeats) =>
     catId === 3 ? numSeats - golfBags : numSeats
 
@@ -388,16 +388,16 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
               {model.model_name}
             </p>
             {!disabled && (
-              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">✓ Phù hợp</span>
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">✓ Suitable</span>
             )}
             {disabled && (
-              <span className="text-xs bg-red-100 text-red-500 px-2 py-0.5 rounded-full font-medium">Không đủ chỗ</span>
+              <span className="text-xs bg-red-100 text-red-500 px-2 py-0.5 rounded-full font-medium">Not enough space</span>
             )}
           </div>
           <p className="text-gray-500 text-sm">
-            {model.num_seats} chỗ
+            {model.num_seats} seats
             {catId === 3 && golfBags > 0 && (
-              <span className="text-gray-400"> · còn {effCap} chỗ sau khi xếp {golfBags} túi golf</span>
+              <span className="text-gray-400"> · {effCap} seats left after {golfBags} golf bags</span>
             )}
           </p>
         </div>
@@ -405,7 +405,7 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
         {/* Price */}
         <div className="text-right flex-shrink-0">
           <p className={`font-bold text-lg ${disabled ? 'text-gray-400' : 'text-ochre'}`}>{fmt(price)}</p>
-          <p className="text-gray-400 text-xs">/chuyến</p>
+          <p className="text-gray-400 text-xs">/trip</p>
         </div>
 
         {/* Selected indicator */}
@@ -420,22 +420,22 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
 
   return (
     <div className="space-y-5">
-      <h2 className="font-display text-xl font-bold text-navy">Chọn phương tiện</h2>
+      <h2 className="font-display text-xl font-bold text-navy">Select vehicle</h2>
       <p className="text-gray-500 text-sm">
-        Chọn dòng xe phù hợp với đoàn <strong>{passengers} người</strong>
-        {catId === 3 && golfBags > 0 && <> và <strong>{golfBags} túi golf</strong></>}
+        Select a vehicle for your group of <strong>{passengers} people</strong>
+        {catId === 3 && golfBags > 0 && <> and <strong>{golfBags} golf bags</strong></>}
       </p>
 
       {suitable.length === 0 && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-          ⚠️ Không có xe phù hợp cho đoàn của bạn. Vui lòng liên hệ hotline <strong>0335 966 977</strong> để được hỗ trợ đặt xe đặc biệt.
+          ⚠️ No suitable vehicle for your group. Please contact hotline <strong>0335 966 977</strong> for special booking assistance.
         </div>
       )}
 
       <div className="space-y-3">
         {suitable.map(model => <VehicleCard key={model.id} model={model} disabled={false} />)}
         {unsuitable.length > 0 && suitable.length > 0 && (
-          <p className="text-xs text-gray-400 pt-1">Xe không đủ sức chứa cho đoàn của bạn:</p>
+          <p className="text-xs text-gray-400 pt-1">Vehicles with insufficient capacity for your group:</p>
         )}
         {unsuitable.map(model => <VehicleCard key={model.id} model={model} disabled={true} />)}
       </div>
@@ -444,7 +444,7 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
   )
 }
 
-// ─── Step 3: Xác nhận ─────────────────────────────────────────────────────────
+// ─── Step 3: Confirm ─────────────────────────────────────────────────────────
 function Step3Confirm({ product, data, onChange, error }) {
   const catId = product?.category?.id
   const inp = "w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-ochre/40 focus:border-ochre focus:outline-none transition text-navy font-body text-sm"
@@ -452,39 +452,39 @@ function Step3Confirm({ product, data, onChange, error }) {
 
   return (
     <div className="space-y-5">
-      <h2 className="font-display text-xl font-bold text-navy">Thông tin liên hệ</h2>
+      <h2 className="font-display text-xl font-bold text-navy">Contact information</h2>
 
       {/* Contact info */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Họ tên <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Full name <span className="text-red-500">*</span></label>
           <input type="text" value={data.full_name} onChange={e => onChange('full_name', e.target.value)} placeholder="Nguyễn Văn A" className={inp} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Số điện thoại <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-medium text-navy mb-1.5">Phone number <span className="text-red-500">*</span></label>
           <input type="tel" value={data.phone} onChange={e => onChange('phone', e.target.value)} placeholder="0901234567" className={inp} />
         </div>
       </div>
 
       {/* Booking summary review */}
       <div className="mt-4 p-5 bg-mist/50 rounded-2xl border border-gray-100 space-y-3">
-        <h3 className="font-semibold text-navy text-sm mb-3">Kiểm tra lại thông tin</h3>
-        <InfoRow label="Dịch vụ" value={product?.product_name} />
-        <InfoRow label="Điểm đón" value={
+        <h3 className="font-semibold text-navy text-sm mb-3">Review your information</h3>
+        <InfoRow label="Service" value={product?.product_name} />
+        <InfoRow label="Pickup" value={
           catId === 1 && data.direction === 'from_airport' ? 'Sân bay Đà Nẵng' : data.pickup_location
         } />
         {catId === 1 && data.direction === 'from_airport' && data.pickup_location && (
-          <InfoRow label="Điểm trả" value={data.pickup_location} />
+          <InfoRow label="Drop-off" value={data.pickup_location} />
         )}
-        {catId === 3 && data.golf_course && <InfoRow label="Sân golf" value={data.golf_course} />}
-        <InfoRow label="Thời gian" value={fmtDT(data.date, data.time)} />
-        <InfoRow label="Phương tiện" value={`${data.model_name} (${data.passengers} khách)`} />
-        {catId === 3 && data.golf_bags > 0 && <InfoRow label="Túi golf" value={`${data.golf_bags} túi`} />}
-        {catId === 2 && product?.num_days && <InfoRow label="Số ngày" value={`${product.num_days} ngày`} />}
-        {catId === 1 && data.flight_code && <InfoRow label="Chuyến bay" value={data.flight_code} />}
-        {data.notes && <InfoRow label="Ghi chú" value={data.notes} />}
+        {catId === 3 && data.golf_course && <InfoRow label="Golf course" value={data.golf_course} />}
+        <InfoRow label="Date & Time" value={fmtDT(data.date, data.time)} />
+        <InfoRow label="Vehicle" value={`${data.model_name} (${data.passengers} passengers)`} />
+        {catId === 3 && data.golf_bags > 0 && <InfoRow label="Golf bags" value={`${data.golf_bags} bags`} />}
+        {catId === 2 && product?.num_days && <InfoRow label="Days" value={`${product.num_days} days`} />}
+        {catId === 1 && data.flight_code && <InfoRow label="Flight" value={data.flight_code} />}
+        {data.notes && <InfoRow label="Notes" value={data.notes} />}
         <div className="pt-3 border-t border-gray-200 flex justify-between">
-          <span className="text-gray-500 text-sm">Tổng tiền</span>
+          <span className="text-gray-500 text-sm">Total price</span>
           <span className="text-ochre font-bold text-xl">{fmt(data.price)}</span>
         </div>
       </div>
@@ -504,14 +504,14 @@ function InfoRow({ label, value }) {
   )
 }
 
-// ─── Step 4: Thanh toán ───────────────────────────────────────────────────────
+// ─── Step 4: Payment ─────────────────────────────────────────────────────────
 function Step4Payment({ data, submitting, onSubmit, error, success }) {
   const deposit = Math.floor(data.price * 0.3)
   const remaining = data.price - deposit
 
   return (
     <div className="space-y-5">
-      <h2 className="font-display text-xl font-bold text-navy">Xác nhận & Thanh toán cọc</h2>
+      <h2 className="font-display text-xl font-bold text-navy">Confirm & Pay Deposit</h2>
 
       {/* VNPay info card */}
       <div className="border-2 border-blue-500 bg-blue-50 rounded-2xl p-5 flex items-start gap-4">
@@ -521,8 +521,8 @@ function Step4Payment({ data, submitting, onSubmit, error, success }) {
           </svg>
         </div>
         <div className="flex-1">
-          <p className="font-bold text-blue-900">Thanh toán qua VNPay</p>
-          <p className="text-blue-700 text-sm mt-0.5">Đặt cọc 30% để xác nhận chuyến đi. Số tiền còn lại thanh toán trực tiếp cho tài xế sau khi hoàn thành.</p>
+          <p className="font-bold text-blue-900">Pay via VNPay</p>
+          <p className="text-blue-700 text-sm mt-0.5">Pay a 30% deposit to confirm your trip. The remaining balance is paid directly to the driver upon completion.</p>
         </div>
         <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
           <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
@@ -532,26 +532,26 @@ function Step4Payment({ data, submitting, onSubmit, error, success }) {
       {/* Price breakdown */}
       <div className="p-5 bg-mist/50 rounded-2xl border border-gray-100 space-y-3">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Tổng giá trị chuyến</span>
+          <span className="text-gray-500">Total trip value</span>
           <span className="font-semibold text-navy">{fmt(data.price)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Đặt cọc ngay (30%)</span>
+          <span className="text-gray-500">Deposit now (30%)</span>
           <span className="font-bold text-blue-600">{fmt(deposit)}</span>
         </div>
         <div className="flex justify-between text-sm border-t border-gray-200 pt-3">
-          <span className="text-gray-500">Thanh toán sau khi hoàn thành</span>
+          <span className="text-gray-500">Pay on completion</span>
           <span className="font-semibold text-gray-700">{fmt(remaining)}</span>
         </div>
       </div>
 
       {/* Refund policy */}
       <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800">
-        <p className="font-semibold mb-1">📋 Chính sách hoàn tiền cọc khi hủy:</p>
+        <p className="font-semibold mb-1">📋 Deposit refund policy on cancellation:</p>
         <ul className="space-y-0.5 text-amber-700">
-          <li>• Trước 3 ngày: Hoàn 100% tiền cọc</li>
-          <li>• Trước 1–3 ngày: Hoàn 50% tiền cọc</li>
-          <li>• Dưới 24 giờ: Không hoàn tiền</li>
+          <li>• 3+ days before: Full 100% refund</li>
+          <li>• 1–3 days before: 50% refund</li>
+          <li>• Under 24 hours: No refund</li>
         </ul>
       </div>
 
@@ -569,8 +569,8 @@ function Step4Payment({ data, submitting, onSubmit, error, success }) {
         className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold text-lg rounded-2xl transition-all duration-200 hover:shadow-xl flex items-center justify-center gap-2"
       >
         {submitting ? (
-          <><svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Đang xử lý...</>
-        ) : `💳 Đặt cọc ${fmt(deposit)} qua VNPay`}
+          <><svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Processing...</>
+        ) : `💳 Pay deposit ${fmt(deposit)} via VNPay`}
       </button>
     </div>
   )
@@ -646,28 +646,28 @@ export default function BookingPage() {
   // Validate before next step
   const validate = () => {
     if (step === 1) {
-      if (!data.pickup_location.trim()) return 'Vui lòng nhập địa chỉ đón'
-      if (catId === 3 && !data.golf_course) return 'Vui lòng chọn sân golf'
-      if (!data.date) return 'Vui lòng chọn ngày đi'
+      if (!data.pickup_location.trim()) return 'Please enter pickup address'
+      if (catId === 3 && !data.golf_course) return 'Please select a golf course'
+      if (!data.date) return 'Please select a departure date'
       if (data.date) {
         const minDate = new Date(); minDate.setDate(minDate.getDate() + 3); minDate.setHours(0,0,0,0)
-        if (new Date(data.date) < minDate) return 'Ngày đi phải cách hôm nay ít nhất 3 ngày'
+        if (new Date(data.date) < minDate) return 'Departure date must be at least 3 days from today'
       }
-      if (!data.time) return 'Vui lòng chọn giờ đón'
-      if (!data.passengers || data.passengers < 1) return 'Số hành khách phải ít nhất 1 người'
-      if (data.passengers > 45) return 'Nhóm trên 45 người vui lòng liên hệ hotline 0335 966 977 để được hỗ trợ đặt xe đặc biệt'
+      if (!data.time) return 'Please select pickup time'
+      if (!data.passengers || data.passengers < 1) return 'Passenger count must be at least 1'
+      if (data.passengers > 45) return 'Groups over 45 passengers please contact hotline 0335 966 977 for special booking assistance'
       if (catId === 3) {
         const needed = data.passengers + (data.golf_bags || 0)
         const maxSeats = Math.max(...Object.values(pricesByModel).map(m => m.num_seats || 0), 0)
-        if (maxSeats > 0 && needed > maxSeats) return `Tổng số người (${data.passengers}) + túi golf (${data.golf_bags}) = ${needed} vượt quá sức chứa xe lớn nhất (${maxSeats} chỗ). Vui lòng liên hệ hotline 0335 966 977.`
+        if (maxSeats > 0 && needed > maxSeats) return `Total passengers (${data.passengers}) + golf bags (${data.golf_bags}) = ${needed} exceeds maximum capacity (${maxSeats} seats). Please contact hotline 0335 966 977.`
       }
     }
     if (step === 2) {
-      if (!data.model_id) return 'Vui lòng chọn phương tiện'
+      if (!data.model_id) return 'Please select a vehicle'
     }
     if (step === 3) {
       if (!data.full_name.trim()) return 'Vui lòng nhập họ tên'
-      if (!data.phone.trim()) return 'Vui lòng nhập số điện thoại'
+      if (!data.phone.trim()) return 'Please enter your phone number'
     }
     return ''
   }
@@ -704,13 +704,13 @@ export default function BookingPage() {
         additional_data.terminal = data.terminal || 'international'
         if (data.flight_code) additional_data.flight_code = data.flight_code
       }
-      // Tour: num_days lấy từ product (backend tự xử lý), không cần gửi lên
+      // Tour: num_days is taken from product (handled by backend)
       if (catId === 3) {
         additional_data.golf_course = data.golf_course
         additional_data.golf_bags = data.golf_bags
       }
 
-      // Step 1: Tạo booking
+      // Step 1: Create booking
       const bookingRes = await api.post('/bookings', {
         product_id: parseInt(productId),
         model_id: data.model_id,
@@ -719,19 +719,19 @@ export default function BookingPage() {
       })
       const bookingId = bookingRes.data.data?.id
 
-      if (!bookingId) throw new Error('Không lấy được mã đơn đặt xe')
+      if (!bookingId) throw new Error('Failed to get booking ID')
 
-      // Step 2: Tạo URL thanh toán VNPay (30% cọc)
+      // Step 2: Create VNPay payment URL (30% deposit)
       const payRes = await api.post('/payments/create-payment-url', { booking_id: bookingId })
       const paymentUrl = payRes.data.paymentUrl
 
-      if (!paymentUrl) throw new Error('Không tạo được link thanh toán')
+      if (!paymentUrl) throw new Error('Failed to create payment link')
 
-      setSuccess('Đang chuyển đến cổng thanh toán VNPay...')
+      setSuccess('Redirecting to VNPay payment gateway...')
       // Redirect to VNPay
       setTimeout(() => { window.location.href = paymentUrl }, 800)
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Đặt xe thất bại. Vui lòng thử lại.')
+      setError(err.response?.data?.message || err.message || 'Booking failed. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -748,8 +748,8 @@ export default function BookingPage() {
   if (!product) return (
     <PublicLayout>
       <div className="text-center py-24">
-        <p className="text-gray-500 mb-4">Không tìm thấy dịch vụ.</p>
-        <button onClick={() => navigate('/services')} className="px-6 py-2.5 bg-navy text-white rounded-xl">Quay lại</button>
+        <p className="text-gray-500 mb-4">Service not found.</p>
+        <button onClick={() => navigate('/services')} className="px-6 py-2.5 bg-navy text-white rounded-xl">Back</button>
       </div>
     </PublicLayout>
   )
@@ -758,8 +758,8 @@ export default function BookingPage() {
     <PublicLayout>
       {/* Header */}
       <div className="bg-navy py-10 px-4 text-center">
-        <h1 className="font-display text-3xl font-bold text-white mb-1">Đặt xe</h1>
-        <p className="text-white/50 text-sm">Điền thông tin để đặt xe du lịch</p>
+        <h1 className="font-display text-3xl font-bold text-white mb-1">Book Now</h1>
+        <p className="text-white/50 text-sm">Fill in the details to book your trip</p>
       </div>
 
       <div className="bg-mist/30 min-h-screen">
@@ -781,11 +781,11 @@ export default function BookingPage() {
                     <button onClick={step === 1 ? () => navigate(`/services/${productId}`) : handleBack}
                       className="flex items-center gap-2 px-5 py-2.5 text-gray-500 hover:text-navy transition font-medium">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
-                      Quay lại
+                      Back
                     </button>
                     <button onClick={handleNext}
                       className="flex items-center gap-2 px-8 py-2.5 bg-navy hover:bg-navy-light text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg">
-                      Tiếp theo
+                      Next
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
                     </button>
                   </div>
@@ -795,7 +795,7 @@ export default function BookingPage() {
                   <button onClick={handleBack}
                     className="flex items-center gap-2 mt-4 text-gray-400 hover:text-navy transition text-sm">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
-                    Quay lại chỉnh sửa
+                    Back to edit
                   </button>
                 )}
               </div>

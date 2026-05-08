@@ -37,17 +37,17 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!EMAIL_REGEX.test(form.email)) return setError('Email phải là địa chỉ @gmail.com hợp lệ.')
-    if (!PHONE_REGEX.test(form.phone)) return setError('Số điện thoại phải có đúng 10 chữ số và bắt đầu bằng 0.')
-    if (!PASSWORD_REGEX.test(form.password)) return setError('Mật khẩu tối thiểu 6 ký tự, gồm chữ, số và ký tự đặc biệt.')
-    if (form.password !== confirmPassword) return setError('Mật khẩu xác nhận không khớp.')
+    if (!EMAIL_REGEX.test(form.email)) return setError('Email must be a valid @gmail.com address.')
+    if (!PHONE_REGEX.test(form.phone)) return setError('Phone number must be exactly 10 digits and start with 0.')
+    if (!PASSWORD_REGEX.test(form.password)) return setError('Password must be at least 6 characters including letters, numbers, and special characters.')
+    if (form.password !== confirmPassword) return setError('Passwords do not match.')
 
     setLoading(true)
     try {
       await api.post('/auth/register', form)
       navigate('/login', { state: { registered: true } })
     } catch (err) {
-      setError(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.')
+      setError(err.response?.data?.message || 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -73,13 +73,13 @@ export default function RegisterPage() {
               </div>
               <span className="font-display text-2xl font-bold tracking-wide">PhuOng Tourist Car</span>
             </div>
-            <h2 className="font-display text-4xl font-bold leading-tight mb-4">Tạo tài khoản mới</h2>
+            <h2 className="font-display text-4xl font-bold leading-tight mb-4">Create your account</h2>
             <p className="text-white/70 text-lg leading-relaxed">
-              Đăng ký để trải nghiệm dịch vụ xe du lịch chuyên nghiệp hàng đầu.
+              Register to experience our premium tour car services.
             </p>
           </div>
           <div className="space-y-4">
-            {['Đặt xe nhanh chóng và dễ dàng', 'Theo dõi lịch sử chuyến đi', 'Nhận thông báo và ưu đãi đặc biệt'].map((item) => (
+            {['Quick and easy booking', 'Track your trip history', 'Receive notifications and special offers'].map((item) => (
               <div key={item} className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-full bg-ochre/20 border border-ochre/40 flex items-center justify-center flex-shrink-0">
                   <svg className="w-3.5 h-3.5 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,13 +109,13 @@ export default function RegisterPage() {
           </div>
 
           <div className="mb-6">
-            <h1 className="font-display text-3xl font-bold text-navy">Đăng ký</h1>
-            <p className="text-gray-500 mt-2">Điền thông tin để tạo tài khoản</p>
+            <h1 className="font-display text-3xl font-bold text-navy">Register</h1>
+            <p className="text-gray-500 mt-2">Fill in your details to create an account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Họ và tên <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-navy mb-1.5">Full name <span className="text-red-500">*</span></label>
               <input type="text" name="full_name" value={form.full_name} onChange={handleChange} placeholder="Nguyễn Văn A" required className={inputClass} />
             </div>
             <div>
@@ -123,11 +123,11 @@ export default function RegisterPage() {
               <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="email@gmail.com" required className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Số điện thoại <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-navy mb-1.5">Phone number <span className="text-red-500">*</span></label>
               <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="0901234567" required className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Mật khẩu <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-navy mb-1.5">Password <span className="text-red-500">*</span></label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} name="password" value={form.password} onChange={handleChange} placeholder="••••••••" required className={inputClass + ' pr-12'} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-navy transition">
@@ -136,7 +136,7 @@ export default function RegisterPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Xác nhận mật khẩu <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-navy mb-1.5">Confirm password <span className="text-red-500">*</span></label>
               <div className="relative">
                 <input type={showConfirm ? 'text' : 'password'} value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setError('') }} placeholder="••••••••" required className={inputClass + ' pr-12'} />
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-navy transition">
@@ -165,9 +165,9 @@ export default function RegisterPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Đang tạo tài khoản...
+                  Creating account...
                 </>
-              ) : 'Tạo tài khoản'}
+              ) : 'Create account'}
             </button>
           </form>
 
@@ -175,7 +175,7 @@ export default function RegisterPage() {
           <div className="mt-5">
             <div className="relative flex items-center gap-3 mb-4">
               <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-gray-400 text-xs font-medium">hoặc</span>
+              <span className="text-gray-400 text-xs font-medium">or</span>
               <div className="flex-1 h-px bg-gray-200" />
             </div>
             <a
@@ -188,14 +188,14 @@ export default function RegisterPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Đăng ký bằng Google
+              Sign up with Google
             </a>
           </div>
 
           <p className="mt-5 text-center text-gray-500 text-sm">
-            Đã có tài khoản?{' '}
+            Already have an account?{' '}
             <Link to="/login" className="text-ochre font-semibold hover:underline">
-              Đăng nhập
+              Login
             </Link>
           </p>
         </div>

@@ -34,7 +34,7 @@ export default function GoogleCallbackPage() {
     <div className="min-h-screen flex items-center justify-center bg-mist/30">
       <div className="text-center">
         <div className="w-12 h-12 border-4 border-navy/20 border-t-navy rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-navy font-medium">Đang xác thực Google...</p>
+        <p className="text-navy font-medium">Authenticating with Google...</p>
       </div>
     </div>
   )

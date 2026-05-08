@@ -56,11 +56,11 @@ function ProductCard({ product, index, onClick, formatCurrency, getMinPrice }) {
         <p className="text-gray-500 text-sm mb-4 line-clamp-2">{product.description}</p>
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div>
-            <p className="text-xs text-gray-400 mb-0.5">Giá từ</p>
+            <p className="text-xs text-gray-400 mb-0.5">Starting from</p>
             <p className="text-ochre font-bold text-xl">{formatCurrency(getMinPrice(product.prices))}</p>
           </div>
           <span className="flex items-center gap-1 text-sm font-semibold text-navy group-hover:text-ochre transition-colors duration-200">
-            Xem chi tiết
+            View details
             <svg className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
             </svg>
@@ -105,7 +105,7 @@ export default function ServicesPage() {
     return Math.min(...prices.map(p => parseFloat(p.price)))
   }
 
-  const formatCurrency = (value) => new Intl.NumberFormat('vi-VN').format(value) + ' đ'
+  const formatCurrency = (value) => new Intl.NumberFormat('en-GB').format(value) + ' VND'
 
   return (
     <PublicLayout>
@@ -114,12 +114,12 @@ export default function ServicesPage() {
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, hsl(38,92%,45%) 0%, transparent 50%), radial-gradient(circle at 80% 20%, hsl(214,32%,91%) 0%, transparent 40%)' }} />
         <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-ochre font-body text-sm font-semibold uppercase tracking-widest mb-3">Khám phá</p>
+          <p className="text-ochre font-body text-sm font-semibold uppercase tracking-widest mb-3">Explore</p>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-white mb-4">
-            Dịch vụ của chúng tôi
+            Our Services
           </h1>
           <p className="text-white/70 font-body text-lg max-w-xl mx-auto">
-            Xe du lịch chuyên nghiệp — đưa đón sân bay, tour tham quan và hành trình đặc biệt
+            Professional tour vehicles — airport transfers, sightseeing tours and special journeys
           </p>
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function ServicesPage() {
                 selectedCategory === 'all' ? 'bg-navy text-white shadow-md' : 'bg-mist text-navy hover:bg-navy/10'
               }`}
             >
-              Tất cả
+              All
             </button>
             {categories.map(cat => (
               <button
@@ -160,11 +160,11 @@ export default function ServicesPage() {
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-gray-500 text-lg">Không có dịch vụ nào trong danh mục này.</p>
+              <p className="text-gray-500 text-lg">No services found in this category.</p>
             </div>
           ) : (
             <>
-              <p className="text-sm text-gray-400 mb-6">{filteredProducts.length} dịch vụ</p>
+              <p className="text-sm text-gray-400 mb-6">{filteredProducts.length} services</p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map((product, index) => (
                   <ProductCard

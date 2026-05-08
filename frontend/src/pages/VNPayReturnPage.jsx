@@ -15,14 +15,14 @@ export default function VNPayReturnPage() {
         const res = await api.get('/payments/vnpay-return', { params })
         if (res.data.success) {
           setStatus('success')
-          setMessage('Thanh toán cọc thành công! Đơn của bạn đã được xác nhận.')
+          setMessage('Deposit payment successful! Your booking has been confirmed.')
         } else {
           setStatus('fail')
-          setMessage(res.data.message || 'Thanh toán thất bại hoặc bị hủy.')
+          setMessage(res.data.message || 'Payment failed or was cancelled.')
         }
       } catch {
         setStatus('fail')
-        setMessage('Có lỗi xảy ra khi xác nhận thanh toán.')
+        setMessage('An error occurred while confirming payment.')
       }
     }
     verify()
@@ -34,7 +34,7 @@ export default function VNPayReturnPage() {
         {status === 'loading' && (
           <>
             <div className="w-14 h-14 border-4 border-navy/20 border-t-ochre rounded-full animate-spin mx-auto mb-6" />
-            <p className="text-gray-500">Đang xác nhận thanh toán...</p>
+            <p className="text-gray-500">Confirming payment...</p>
           </>
         )}
 
@@ -45,16 +45,16 @@ export default function VNPayReturnPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="font-display text-2xl font-bold text-navy mb-2">Đặt xe thành công!</h1>
+            <h1 className="font-display text-2xl font-bold text-navy mb-2">Booking Confirmed!</h1>
             <p className="text-gray-500 mb-8">{message}</p>
             <div className="space-y-3">
               <button onClick={() => navigate('/my-orders')}
                 className="w-full py-3 bg-navy text-white font-semibold rounded-xl hover:bg-navy-light transition">
-                Xem đơn của tôi
+                View my bookings
               </button>
               <button onClick={() => navigate('/')}
                 className="w-full py-3 border border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition">
-                Về trang chủ
+                Back to home
               </button>
             </div>
           </>
@@ -67,16 +67,16 @@ export default function VNPayReturnPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h1 className="font-display text-2xl font-bold text-navy mb-2">Thanh toán thất bại</h1>
+            <h1 className="font-display text-2xl font-bold text-navy mb-2">Payment Failed</h1>
             <p className="text-gray-500 mb-8">{message}</p>
             <div className="space-y-3">
               <button onClick={() => navigate(-1)}
                 className="w-full py-3 bg-ochre text-white font-semibold rounded-xl hover:bg-ochre-light transition">
-                Thử lại
+                Try again
               </button>
               <button onClick={() => navigate('/')}
                 className="w-full py-3 border border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition">
-                Về trang chủ
+                Back to home
               </button>
             </div>
           </>

@@ -23,7 +23,7 @@ export default function NotificationBell() {
     return () => clearInterval(interval)
   }, [])
 
-  // Đóng dropdown khi click ra ngoài
+  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
     document.addEventListener('mousedown', handler)
@@ -33,14 +33,14 @@ export default function NotificationBell() {
   const unreadCount = notifications.filter(n => !n.is_read).length
 
   const handleClick = async (n) => {
-    // Đánh dấu đã đọc
+    // Mark as read
     if (!n.is_read) {
       try {
         await api.patch(`/notifications/${n.id}/read`)
         setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x))
       } catch { /* silent */ }
     }
-    // Điều hướng theo role
+    // Navigate by role
     setOpen(false)
     if (user?.role_id === 2) navigate('/my-orders')
     else if (user?.role_id === 1) navigate('/admin/bookings')
@@ -56,10 +56,10 @@ export default function NotificationBell() {
 
   const formatTime = (d) => {
     const diff = (Date.now() - new Date(d)) / 1000
-    if (diff < 60) return 'Vừa xong'
-    if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`
-    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`
-    return new Date(d).toLocaleDateString('vi-VN')
+    if (diff < 60) return 'Just now'
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`
+    return new Date(d).toLocaleDateString('en-GB')
   }
 
   return (
@@ -85,10 +85,10 @@ export default function NotificationBell() {
         <div className="absolute right-0 top-10 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="font-semibold text-gray-800 text-sm">Thông báo</span>
+            <span className="font-semibold text-gray-800 text-sm">Notifications</span>
             {unreadCount > 0 && (
               <button onClick={markAllRead} className="text-xs text-blue-600 hover:underline">
-                Đọc tất cả
+                Mark all read
               </button>
             )}
           </div>
@@ -96,7 +96,7 @@ export default function NotificationBell() {
           {/* List */}
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="py-10 text-center text-gray-400 text-sm">Chưa có thông báo nào</div>
+              <div className="py-10 text-center text-gray-400 text-sm">No notifications yet</div>
             ) : (
               notifications.map(n => (
                 <div

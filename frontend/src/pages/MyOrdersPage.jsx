@@ -4,11 +4,11 @@ import PublicLayout from '../components/PublicLayout'
 import api from '../services/api'
 
 const STATUS_STYLES = {
-  PENDING:     { label: 'Chờ thanh toán', cls: 'bg-yellow-50 text-yellow-700 border border-yellow-200' },
-  CONFIRMED:   { label: 'Đã xác nhận',    cls: 'bg-blue-50 text-blue-700 border border-blue-200' },
-  IN_PROGRESS: { label: 'Đang đi',        cls: 'bg-purple-50 text-purple-700 border border-purple-200' },
-  COMPLETED:   { label: 'Hoàn thành',     cls: 'bg-green-50 text-green-700 border border-green-200' },
-  CANCELLED:   { label: 'Đã hủy',         cls: 'bg-red-50 text-red-700 border border-red-200' },
+  PENDING:     { label: 'Awaiting Payment', cls: 'bg-yellow-50 text-yellow-700 border border-yellow-200' },
+  CONFIRMED:   { label: 'Confirmed',    cls: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  IN_PROGRESS: { label: 'In Progress',        cls: 'bg-purple-50 text-purple-700 border border-purple-200' },
+  COMPLETED:   { label: 'Completed',     cls: 'bg-green-50 text-green-700 border border-green-200' },
+  CANCELLED:   { label: 'Cancelled',         cls: 'bg-red-50 text-red-700 border border-red-200' },
 }
 
 const StarPicker = ({ value, onChange }) => (
@@ -22,12 +22,12 @@ const StarPicker = ({ value, onChange }) => (
   </div>
 )
 
-// Tính thông tin hoàn tiền hiển thị phía client (chỉ để preview, backend xử lý thực tế)
+// Calculate refund info for client display (preview only, backend handles actual logic)
 const getRefundPreview = (startTime) => {
   const diff = (new Date(startTime) - new Date()) / (1000 * 60 * 60 * 24)
-  if (diff >= 3)  return { percent: 100, label: 'Hoàn 100% cọc' }
-  if (diff >= 1)  return { percent: 50,  label: 'Hoàn 50% cọc' }
-  return { percent: 0, label: 'Không hoàn tiền' }
+  if (diff >= 3)  return { percent: 100, label: 'Refund 100% deposit' }
+  if (diff >= 1)  return { percent: 50,  label: 'Refund 50% deposit' }
+  return { percent: 0, label: 'No refund' }
 }
 
 export default function MyOrdersPage() {
@@ -84,7 +84,7 @@ export default function MyOrdersPage() {
       setReviewedIds(prev => new Set([...prev, reviewModal.booking_id]))
       setReviewModal(null)
     } catch (err) {
-      alert(err.response?.data?.message || 'Gửi đánh giá thất bại')
+      alert(err.response?.data?.message || 'Failed to submit review')
     } finally {
       setSubmitting(false)
     }
@@ -104,7 +104,7 @@ export default function MyOrdersPage() {
       setCancelModal(null)
       fetchBookings()
     } catch (err) {
-      alert(err.response?.data?.message || 'Hủy đơn thất bại. Vui lòng thử lại.')
+      alert(err.response?.data?.message || 'Cancellation failed. Please try again.')
     } finally {
       setCancelling(false)
     }
@@ -115,20 +115,20 @@ export default function MyOrdersPage() {
       const res = await api.post('/payments/create-payment-url', { booking_id: booking.id })
       if (res.data.paymentUrl) window.location.href = res.data.paymentUrl
     } catch (err) {
-      alert(err.response?.data?.message || 'Không tạo được link thanh toán')
+      alert(err.response?.data?.message || 'Failed to create payment link')
     }
   }
 
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : ''
-  const formatCurrency = (v) => new Intl.NumberFormat('vi-VN').format(v) + ' đ'
+  const formatCurrency = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
 
   return (
     <PublicLayout>
       {/* Page header */}
       <div className="bg-navy py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <p className="text-ochre text-sm font-semibold uppercase tracking-widest mb-2">Tài khoản</p>
-          <h1 className="font-display text-3xl font-bold text-white">Đơn đặt xe của tôi</h1>
+          <p className="text-ochre text-sm font-semibold uppercase tracking-widest mb-2">Account</p>
+          <h1 className="font-display text-3xl font-bold text-white">My Bookings</h1>
         </div>
       </div>
 
@@ -145,10 +145,10 @@ export default function MyOrdersPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <p className="text-gray-500 text-lg mb-5 font-body">Bạn chưa có đơn đặt xe nào.</p>
+              <p className="text-gray-500 text-lg mb-5 font-body">You have no bookings yet.</p>
               <button onClick={() => navigate('/services')}
                 className="px-8 py-3 bg-navy hover:bg-navy-light text-white rounded-xl font-semibold transition-all duration-200 hover:shadow-lg">
-                Khám phá dịch vụ
+                Explore services
               </button>
             </div>
           ) : (
@@ -158,7 +158,7 @@ export default function MyOrdersPage() {
                 const canReview  = booking.status === 'COMPLETED' && !reviewedIds.has(booking.id) && !booking.review
                 const canCancel  = booking.status === 'PENDING' || booking.status === 'CONFIRMED'
                 const payment    = payments[booking.id]
-                // PENDING + no payment hoặc payment chưa SUCCESS → cho retry
+                // PENDING + no payment or payment not SUCCESS → allow retry
                 const needsPay   = booking.status === 'PENDING' && (!payment || payment.status === 'PENDING')
 
                 return (
@@ -173,28 +173,28 @@ export default function MyOrdersPage() {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-5 p-4 bg-mist/40 rounded-xl">
                       <div>
-                        <p className="text-gray-400 text-xs mb-1">Ngày đón</p>
+                        <p className="text-gray-400 text-xs mb-1">Pickup date</p>
                         <p className="font-semibold text-navy">{formatDate(booking.start_time)}</p>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs mb-1">Tổng tiền</p>
+                        <p className="text-gray-400 text-xs mb-1">Total</p>
                         <p className="font-bold text-ochre text-base">{formatCurrency(booking.total_price)}</p>
                       </div>
                       {payment && (
                         <div>
-                          <p className="text-gray-400 text-xs mb-1">Đã cọc</p>
+                          <p className="text-gray-400 text-xs mb-1">Deposit paid</p>
                           <p className="font-semibold text-blue-600">{formatCurrency(payment.amount)}</p>
                         </div>
                       )}
                       {booking.assigned_car && (
                         <div>
-                          <p className="text-gray-400 text-xs mb-1">Biển số</p>
+                          <p className="text-gray-400 text-xs mb-1">License plate</p>
                           <p className="font-semibold text-navy">{booking.assigned_car.license_plate}</p>
                         </div>
                       )}
                       {booking.assigned_driver && (
                         <div>
-                          <p className="text-gray-400 text-xs mb-1">Tài xế</p>
+                          <p className="text-gray-400 text-xs mb-1">Driver</p>
                           <p className="font-semibold text-navy">{booking.assigned_driver.full_name}</p>
                         </div>
                       )}
@@ -207,7 +207,7 @@ export default function MyOrdersPage() {
                         {needsPay && (
                           <button onClick={() => retryPayment(booking)}
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all duration-200">
-                            💳 Thanh toán cọc
+                            💳 Pay deposit now
                           </button>
                         )}
 
@@ -215,7 +215,7 @@ export default function MyOrdersPage() {
                         {canCancel && (
                           <button onClick={() => openCancel(booking)}
                             className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl text-sm font-semibold transition-all duration-200">
-                            ✕ Hủy đơn
+                            ✕ Cancel booking
                           </button>
                         )}
 
@@ -230,7 +230,7 @@ export default function MyOrdersPage() {
                         ) : canReview && (
                           <button onClick={() => openReview(booking)}
                             className="flex items-center gap-2 px-4 py-2 bg-ochre/10 hover:bg-ochre/20 text-ochre border border-ochre/30 rounded-xl text-sm font-semibold transition-all duration-200">
-                            ⭐ Viết đánh giá
+                            ⭐ Write a review
                           </button>
                         )}
                       </div>
@@ -252,7 +252,7 @@ export default function MyOrdersPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
               </svg>
             </div>
-            <h2 className="font-display text-xl font-bold text-navy text-center mb-1">Xác nhận hủy đơn</h2>
+            <h2 className="font-display text-xl font-bold text-navy text-center mb-1">Confirm Cancellation</h2>
             <p className="text-gray-500 text-sm text-center mb-5">{cancelModal.booking.product?.product_name}</p>
 
             {cancelModal.payment && cancelModal.refund && (
@@ -261,13 +261,13 @@ export default function MyOrdersPage() {
                 : cancelModal.refund.percent === 50 ? 'bg-amber-50 border border-amber-200 text-amber-800'
                 : 'bg-red-50 border border-red-200 text-red-800'
               }`}>
-                <p className="font-semibold mb-1">Chính sách hoàn tiền:</p>
-                <p>Số tiền đã cọc: <strong>{new Intl.NumberFormat('vi-VN').format(cancelModal.payment.amount)} đ</strong></p>
+                <p className="font-semibold mb-1">Refund policy:</p>
+                <p>Deposit paid: <strong>{new Intl.NumberFormat('en-GB').format(cancelModal.payment.amount)} VND</strong></p>
                 <p className="mt-1">→ {cancelModal.refund.label}
                   {cancelModal.refund.percent > 0 && (
                     <strong> ({new Intl.NumberFormat('vi-VN').format(
                       Math.floor(cancelModal.payment.amount * cancelModal.refund.percent / 100)
-                    )} đ)</strong>
+                    )} VND)</strong>
                   )}
                 </p>
               </div>
@@ -275,18 +275,18 @@ export default function MyOrdersPage() {
 
             {!cancelModal.payment && (
               <div className="p-4 rounded-xl mb-5 text-sm bg-gray-50 border border-gray-200 text-gray-600">
-                Đơn chưa thanh toán cọc. Hủy đơn sẽ không phát sinh hoàn tiền.
+                No deposit paid. Cancellation will not incur any refund.
               </div>
             )}
 
             <div className="flex gap-3">
               <button onClick={() => setCancelModal(null)} disabled={cancelling}
                 className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium">
-                Đóng
+                Close
               </button>
               <button onClick={confirmCancel} disabled={cancelling}
                 className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-xl transition font-bold">
-                {cancelling ? 'Đang hủy...' : 'Xác nhận hủy'}
+                {cancelling ? 'Cancelling...' : 'Confirm cancellation'}
               </button>
             </div>
           </div>
@@ -297,33 +297,33 @@ export default function MyOrdersPage() {
       {reviewModal && (
         <div className="fixed inset-0 bg-navy/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7">
-            <h2 className="font-display text-xl font-bold text-navy mb-1">Đánh giá chuyến đi</h2>
+            <h2 className="font-display text-xl font-bold text-navy mb-1">Review your trip</h2>
             <p className="text-gray-500 text-sm mb-6">{reviewModal.product_name}</p>
 
             <form onSubmit={submitReview} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-navy mb-2">Mức độ hài lòng</label>
+                <label className="block text-sm font-medium text-navy mb-2">Satisfaction level</label>
                 <StarPicker value={rating} onChange={setRating} />
                 <p className="text-sm text-ochre mt-1 font-medium">
-                  {['', 'Rất tệ', 'Không hài lòng', 'Bình thường', 'Hài lòng', 'Rất hài lòng'][rating]}
+                  {['', 'Very poor', 'Unsatisfied', 'Neutral', 'Satisfied', 'Very satisfied'][rating]}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-navy mb-2">Nhận xét của bạn</label>
+                <label className="block text-sm font-medium text-navy mb-2">Your comment</label>
                 <textarea
                   value={comment} onChange={e => setComment(e.target.value)}
-                  rows={4} placeholder="Chia sẻ trải nghiệm của bạn về chuyến đi..."
+                  rows={4} placeholder="Share your experience about this trip..."
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-ochre/40 focus:border-ochre resize-none text-sm font-body transition"
                 />
               </div>
               <div className="flex gap-3">
                 <button type="button" onClick={() => setReviewModal(null)}
                   className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition font-medium">
-                  Hủy
+                  Cancel
                 </button>
                 <button type="submit" disabled={submitting}
                   className="flex-1 py-2.5 bg-navy hover:bg-navy-light disabled:bg-navy/50 text-white rounded-xl transition-all duration-200 font-bold">
-                  {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
+                  {submitting ? 'Submitting...' : 'Submit review'}
                 </button>
               </div>
             </form>

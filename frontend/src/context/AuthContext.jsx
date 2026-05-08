@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from 'react'
 const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
-  // Khởi tạo trực tiếp từ localStorage — không cần useEffect, không gây cascading renders
+  // Initialize directly from localStorage — no useEffect needed, avoids cascading renders
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem('user')

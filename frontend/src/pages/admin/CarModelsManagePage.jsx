@@ -24,7 +24,7 @@ export default function CarModelsManagePage() {
       setLoading(true)
       const res = await api.get('/car-models')
       setModels(res.data.data || [])
-    } catch { setError('Không thể tải dữ liệu') }
+    } catch { setError('Failed to load data') }
     finally { setLoading(false) }
   }
 
@@ -52,7 +52,7 @@ export default function CarModelsManagePage() {
       if (editModel) await api.put(`/car-models/${editModel.id}`, payload)
       else await api.post('/car-models', payload)
       setModalOpen(false); fetchModels()
-    } catch (e) { setError(e.response?.data?.message || 'Có lỗi xảy ra') }
+    } catch (e) { setError(e.response?.data?.message || 'An error occurred') }
     finally { setSaving(false) }
   }
 
@@ -68,7 +68,7 @@ export default function CarModelsManagePage() {
         return res.data.url
       }))
       setForm(prev => ({ ...prev, images: [...(prev.images || []), ...urls] }))
-    } catch { setError('Upload ảnh gallery thất bại') }
+    } catch { setError('Failed to upload gallery images') }
     finally { setUploadingGallery(false); e.target.value = '' }
   }
 
@@ -78,7 +78,7 @@ export default function CarModelsManagePage() {
 
   const handleDelete = async (id) => {
     try { await api.delete(`/car-models/${id}`); setDeleteConfirm(null); fetchModels() }
-    catch (e) { setError(e.response?.data?.message || 'Xóa thất bại') }
+    catch (e) { setError(e.response?.data?.message || 'Delete failed') }
   }
 
   return (
@@ -89,7 +89,7 @@ export default function CarModelsManagePage() {
         <div className="flex justify-end">
           <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/></svg>
-            Thêm dòng xe
+            Add vehicle model
           </button>
         </div>
 
@@ -109,7 +109,7 @@ export default function CarModelsManagePage() {
                         </svg>
                       </div>
                   }
-                  <div className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">{m.num_seats} chỗ</div>
+                  <div className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">{m.num_seats} seats</div>
                 </div>
                 {/* Info */}
                 <div className="p-4">
@@ -123,8 +123,8 @@ export default function CarModelsManagePage() {
                     </div>
                   )}
                   <div className="flex gap-2">
-                    <button onClick={() => openEdit(m)} className="flex-1 py-2 text-xs bg-gray-100 hover:bg-blue-100 hover:text-blue-700 text-gray-600 rounded-lg transition font-medium">Chỉnh sửa</button>
-                    <button onClick={() => setDeleteConfirm(m)} className="flex-1 py-2 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition font-medium">Xóa</button>
+                    <button onClick={() => openEdit(m)} className="flex-1 py-2 text-xs bg-gray-100 hover:bg-blue-100 hover:text-blue-700 text-gray-600 rounded-lg transition font-medium">Edit</button>
+                    <button onClick={() => setDeleteConfirm(m)} className="flex-1 py-2 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition font-medium">Delete</button>
                   </div>
                 </div>
               </div>
@@ -138,7 +138,7 @@ export default function CarModelsManagePage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl my-4">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">{editModel ? 'Chỉnh sửa dòng xe' : 'Thêm dòng xe mới'}</h2>
+              <h2 className="text-lg font-bold text-gray-900">{editModel ? 'Edit Vehicle Model' : 'Add New Vehicle Model'}</h2>
               <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-700">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
@@ -148,36 +148,36 @@ export default function CarModelsManagePage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Tên dòng xe *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Model name *</label>
                   <input value={form.model_name} onChange={e => setForm({...form, model_name: e.target.value})} required placeholder="vd: Ford Transit"
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Số chỗ ngồi *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Number of seats *</label>
                   <input type="number" value={form.num_seats} onChange={e => setForm({...form, num_seats: e.target.value})} required min={1} placeholder="16"
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Mô tả</label>
-                <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={2} placeholder="Mô tả về dòng xe..."
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={2} placeholder="Vehicle model description..."
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm resize-none" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Tiện ích (phân cách bằng dấu phẩy)</label>
-                <input value={form.features} onChange={e => setForm({...form, features: e.target.value})} placeholder="Wi-Fi, Điều hòa, USB Charging"
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Amenities (comma-separated)</label>
+                <input value={form.features} onChange={e => setForm({...form, features: e.target.value})} placeholder="Wi-Fi, Air Conditioning, USB Charging"
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
               </div>
 
               <div>
-                <ImageUpload label="Ảnh đại diện" value={form.image_url} onChange={url => setForm({...form, image_url: url})} />
+                <ImageUpload label="Main image" value={form.image_url} onChange={url => setForm({...form, image_url: url})} />
               </div>
 
-              {/* Gallery nhiều ảnh */}
+              {/* Image Gallery */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Thư viện ảnh (gallery)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Image Gallery</label>
                 {form.images?.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {form.images.map((url, idx) => (
@@ -205,16 +205,16 @@ export default function CarModelsManagePage() {
                       Đang upload...
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">+ Thêm ảnh gallery <span className="text-xs text-gray-400">(chọn nhiều ảnh cùng lúc)</span></p>
+                    <p className="text-sm text-gray-500">+ Add gallery photos <span className="text-xs text-gray-400">(select multiple at once)</span></p>
                   )}
                 </div>
                 <input ref={galleryInputRef} type="file" accept="image/*" multiple onChange={handleGalleryUpload} className="hidden" />
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">Hủy</button>
+                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">Cancel</button>
                 <button type="submit" disabled={saving} className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-xl transition text-sm font-medium">
-                  {saving ? 'Đang lưu...' : (editModel ? 'Cập nhật' : 'Tạo dòng xe')}
+                  {saving ? 'Saving...' : (editModel ? 'Update' : 'Create model')}
                 </button>
               </div>
             </form>
@@ -229,11 +229,11 @@ export default function CarModelsManagePage() {
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Xóa dòng xe?</h3>
-            <p className="text-sm text-gray-500 mb-6">Dòng xe <strong>{deleteConfirm.model_name}</strong> và tất cả xe liên quan sẽ bị xóa.</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Delete vehicle model?</h3>
+            <p className="text-sm text-gray-500 mb-6">Vehicle model <strong>{deleteConfirm.model_name}</strong> and all related vehicles will be permanently deleted.</p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">Hủy</button>
-              <button onClick={() => handleDelete(deleteConfirm.id)} className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition text-sm font-medium">Xóa</button>
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition text-sm">Cancel</button>
+              <button onClick={() => handleDelete(deleteConfirm.id)} className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition text-sm font-medium">Delete</button>
             </div>
           </div>
         </div>

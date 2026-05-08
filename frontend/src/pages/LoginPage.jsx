@@ -30,7 +30,7 @@ export default function LoginPage() {
       else if (roleId === 3) navigate('/admin/schedule')
       else navigate('/')
     } catch (err) {
-      setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.')
+      setError(err.response?.data?.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -48,13 +48,13 @@ export default function LoginPage() {
               <img src="/logo.png" alt="logo" className="w-11 h-11 rounded-xl object-contain" />
               <span className="font-display text-2xl font-bold tracking-wide">PhuOng Tourist Car</span>
             </Link>
-            <h2 className="font-display text-4xl font-bold leading-tight mb-4">Chào mừng trở lại!</h2>
+            <h2 className="font-display text-4xl font-bold leading-tight mb-4">Welcome back!</h2>
             <p className="text-white/70 text-lg leading-relaxed">
-              Dịch vụ xe du lịch chuyên nghiệp — an toàn, thoải mái và đáng tin cậy.
+              Professional tour car service — safe, comfortable and reliable.
             </p>
           </div>
           <div className="space-y-4">
-            {['Đội ngũ tài xế chuyên nghiệp', 'Xe chất lượng cao, đa dạng lựa chọn', 'Đặt xe dễ dàng, thanh toán tiện lợi'].map((item) => (
+            {['Professional, experienced drivers', 'High-quality vehicles with diverse options', 'Easy booking and convenient payment'].map((item) => (
               <div key={item} className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-full bg-ochre/20 border border-ochre/40 flex items-center justify-center flex-shrink-0">
                   <svg className="w-3.5 h-3.5 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,19 +79,19 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {/* Nút quay lại trang chủ */}
+          {/* Back to home button */}
           <div className="mb-6 hidden lg:block">
             <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-navy transition font-medium">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Quay lại trang chủ
+              Back to home
             </Link>
           </div>
 
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold text-navy">Đăng nhập</h1>
-            <p className="text-gray-500 mt-2">Nhập thông tin tài khoản của bạn</p>
+            <h1 className="font-display text-3xl font-bold text-navy">Login</h1>
+            <p className="text-gray-500 mt-2">Enter your account credentials</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -109,7 +109,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-navy mb-1.5">Mật khẩu</label>
+              <label className="block text-sm font-medium text-navy mb-1.5">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -135,7 +135,7 @@ export default function LoginPage() {
                 </button>
               </div>
               <div className="flex justify-end mt-1.5">
-                <Link to="/forgot-password" className="text-sm text-ochre hover:underline font-medium">Quên mật khẩu?</Link>
+                <Link to="/forgot-password" className="text-sm text-ochre hover:underline font-medium">Forgot password?</Link>
               </div>
             </div>
 
@@ -159,9 +159,9 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Đang đăng nhập...
+                  Signing in...
                 </>
-              ) : 'Đăng nhập'}
+              ) : 'Login'}
             </button>
           </form>
 
@@ -169,7 +169,7 @@ export default function LoginPage() {
           <div className="mt-5">
             <div className="relative flex items-center gap-3 mb-4">
               <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-gray-400 text-xs font-medium">hoặc</span>
+              <span className="text-gray-400 text-xs font-medium">or</span>
               <div className="flex-1 h-px bg-gray-200" />
             </div>
             <a
@@ -182,14 +182,14 @@ export default function LoginPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Đăng nhập bằng Google
+              Sign in with Google
             </a>
           </div>
 
           <p className="mt-5 text-center text-gray-500 text-sm">
-            Chưa có tài khoản?{' '}
+            Don't have an account?{' '}
             <Link to="/register" className="text-ochre font-semibold hover:underline">
-              Đăng ký ngay
+              Register now
             </Link>
           </p>
         </div>

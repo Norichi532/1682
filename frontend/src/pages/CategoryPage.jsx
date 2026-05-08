@@ -6,7 +6,7 @@ import api from '../services/api'
 const CATEGORY_META = {
   1: {
     hero: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200',
-    intro: 'Dịch vụ đưa đón sân bay chuyên nghiệp, đúng giờ với đội ngũ tài xế kinh nghiệm. Chúng tôi theo dõi chuyến bay thực tế để điều chỉnh giờ đón phù hợp.',
+    intro: 'Professional, punctual airport transfer service with experienced drivers. We monitor actual flight status to adjust pickup times accordingly.',
   },
   2: {
     hero: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
@@ -18,7 +18,7 @@ const CATEGORY_META = {
   },
 }
 
-const formatCurrency = (v) => new Intl.NumberFormat('vi-VN').format(v) + ' đ'
+const formatCurrency = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
 
 function ProductCard({ product, index, onClick, getMinPrice }) {
   const ref = useRef(null)
@@ -57,9 +57,9 @@ function ProductCard({ product, index, onClick, getMinPrice }) {
           </div>
         )}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-ochre font-bold text-xl">Từ {formatCurrency(getMinPrice(product.prices))}</span>
+          <span className="text-ochre font-bold text-xl">From {formatCurrency(getMinPrice(product.prices))}</span>
           <span className="flex items-center gap-1 text-sm font-semibold text-navy group-hover:text-ochre transition-colors">
-            Chi tiết
+            Details
             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
             </svg>
@@ -123,7 +123,7 @@ export default function CategoryPage() {
       <div className="bg-mist/40 min-h-[50vh]">
         <div className="max-w-7xl mx-auto px-4 py-14">
           <h2 className="font-display text-2xl font-bold text-navy mb-8">
-            {loading ? '' : `${products.length} tuyến đường có sẵn`}
+            {loading ? '' : `${products.length} routes available`}
           </h2>
 
           {loading ? (
@@ -131,7 +131,7 @@ export default function CategoryPage() {
               {[1,2,3].map(i => <div key={i} className="bg-white rounded-2xl h-64 animate-pulse" />)}
             </div>
           ) : products.length === 0 ? (
-            <p className="text-gray-500 text-center py-16">Không có dịch vụ nào trong danh mục này.</p>
+            <p className="text-gray-500 text-center py-16">No services found in this category.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product, index) => (

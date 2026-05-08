@@ -3,17 +3,17 @@ import PublicLayout from '../components/PublicLayout'
 import { useNavigate } from 'react-router-dom'
 
 const STATS = [
-  { value: '5+', label: 'Năm kinh nghiệm' },
-  { value: '50+', label: 'Chuyến xe mỗi tháng' },
-  { value: '3', label: 'Loại phương tiện' },
-  { value: '100%', label: 'Tài xế được đào tạo' },
+  { value: '5+', label: 'Years of experience' },
+  { value: '50+', label: 'Trips per month' },
+  { value: '3', label: 'Vehicle types' },
+  { value: '100%', label: 'Trained drivers' },
 ]
 
 const VALUES = [
-  { icon: '🛡️', title: 'An toàn', desc: 'Xe được kiểm định định kỳ, tài xế được huấn luyện kỹ năng lái xe an toàn và xử lý tình huống.' },
-  { icon: '⏰', title: 'Đúng giờ', desc: 'Theo dõi lịch bay thực tế, cập nhật tình trạng giao thông để đảm bảo đón đúng hẹn.' },
-  { icon: '💼', title: 'Chuyên nghiệp', desc: 'Tài xế ăn mặc lịch sự, thái độ niềm nở, am hiểu địa bàn Đà Nẵng và các tỉnh lân cận.' },
-  { icon: '💰', title: 'Giá minh bạch', desc: 'Bảng giá công khai theo từng loại xe và tuyến đường, không phát sinh chi phí ẩn.' },
+  { icon: '🛡️', title: 'Safe', desc: 'Vehicles are regularly inspected, drivers are trained in safe driving and emergency handling.' },
+  { icon: '⏰', title: 'On Time', desc: 'We monitor actual flight schedules and traffic conditions to ensure punctual pickup.' },
+  { icon: '💼', title: 'Professional', desc: 'Drivers are well-dressed, courteous, and familiar with Da Nang and surrounding areas.' },
+  { icon: '💰', title: 'Transparent Pricing', desc: 'Published rates by vehicle type and route, no hidden charges.' },
 ]
 
 function AnimatedCard({ children, delay = 0 }) {
@@ -43,12 +43,12 @@ export default function AboutPage() {
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: 'radial-gradient(circle at 30% 60%, hsl(38,92%,45%) 0%, transparent 50%), radial-gradient(circle at 75% 25%, hsl(214,32%,91%) 0%, transparent 40%)' }} />
         <div className="relative max-w-4xl mx-auto text-center">
-          <p className="text-ochre text-sm font-semibold uppercase tracking-widest mb-3 font-body">Về chúng tôi</p>
+          <p className="text-ochre text-sm font-semibold uppercase tracking-widest mb-3 font-body">About PhuOng Tourist Car</p>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-white mb-5">
             PhuOng Tourist Car
           </h1>
           <p className="text-white/70 font-body text-lg leading-relaxed max-w-2xl mx-auto">
-            Đơn vị cung cấp dịch vụ xe du lịch chuyên nghiệp tại Đà Nẵng, phục vụ đưa đón sân bay, tour tham quan và các hành trình đặc biệt cho cá nhân lẫn đoàn khách.
+            Professional tour car service provider in Da Nang, specializing in airport transfers, sightseeing tours and special journeys for individuals and groups.
           </p>
         </div>
       </div>
@@ -70,15 +70,15 @@ export default function AboutPage() {
       {/* Story */}
       <div className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
         <AnimatedCard>
-          <h2 className="font-display text-3xl font-bold text-navy mb-5">Câu chuyện của chúng tôi</h2>
+          <h2 className="font-display text-3xl font-bold text-navy mb-5">Our Story</h2>
           <p className="text-gray-600 leading-relaxed mb-4 font-body">
-            PhuOng Tourist Car được thành lập với mong muốn mang đến dịch vụ vận chuyển du lịch tiện lợi, an toàn và đáng tin cậy tại thành phố biển Đà Nẵng — một trong những điểm đến hàng đầu Việt Nam.
+            PhuOng Tourist Car was founded with the goal of providing convenient, safe, and reliable transport services in the coastal city of Da Nang — one of Vietnam's top destinations.
           </p>
           <p className="text-gray-600 leading-relaxed mb-4 font-body">
-            Với đội xe gồm Ford Transit 16 chỗ, Hyundai County 29 chỗ và Hyundai Universe 45 chỗ, chúng tôi phục vụ từ nhóm nhỏ đến đoàn khách lớn, phù hợp với mọi nhu cầu di chuyển.
+            With a fleet ranging from 7-seater to 45-seater vehicles, we serve groups of all sizes to meet all travel needs.
           </p>
           <p className="text-gray-600 leading-relaxed font-body">
-            Toàn bộ xe đều màu trắng tinh tế, được bảo dưỡng định kỳ và trang bị đầy đủ tiện nghi hiện đại để mang lại trải nghiệm tốt nhất cho hành khách.
+            All vehicles are clean, regularly maintained and fully equipped with modern amenities to deliver the best experience for passengers.
           </p>
         </AnimatedCard>
         <AnimatedCard delay={150}>
@@ -96,7 +96,7 @@ export default function AboutPage() {
       <div className="bg-mist/50 py-16 px-4">
         <div className="max-w-5xl mx-auto">
           <AnimatedCard>
-            <h2 className="font-display text-3xl font-bold text-navy text-center mb-12">Giá trị cốt lõi</h2>
+            <h2 className="font-display text-3xl font-bold text-navy text-center mb-12">Core Values</h2>
           </AnimatedCard>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {VALUES.map((v, i) => (
@@ -115,8 +115,8 @@ export default function AboutPage() {
       {/* Contact info */}
       <div className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { icon: '📍', label: 'Địa chỉ', value: '09 Tiên Sơn 06, Đà Nẵng' },
-          { icon: '📞', label: 'Điện thoại', value: '0335 966 977' },
+          { icon: '📍', label: 'Address', value: '09 Tiên Sơn 06, Đà Nẵng' },
+          { icon: '📞', label: 'Phone', value: '0335 966 977' },
           { icon: '✉️', label: 'Email', value: 'phuongtouristcar.dev@gmail.com' },
         ].map((c, i) => (
           <AnimatedCard key={c.label} delay={i * 80}>
@@ -134,13 +134,13 @@ export default function AboutPage() {
 
       {/* CTA */}
       <div className="bg-navy py-16 px-4 text-center">
-        <h2 className="font-display text-3xl font-bold text-white mb-4">Sẵn sàng đặt xe?</h2>
-        <p className="text-white/60 font-body mb-8">Xem ngay danh sách dịch vụ và chọn tuyến đường phù hợp.</p>
+        <h2 className="font-display text-3xl font-bold text-white mb-4">Ready to Book?</h2>
+        <p className="text-white/60 font-body mb-8">Browse our services and choose the right route for you.</p>
         <button
           onClick={() => navigate('/services')}
           className="px-10 py-3.5 bg-ochre hover:bg-ochre-light text-white font-bold rounded-xl transition-all duration-200 hover:shadow-lg"
         >
-          Xem dịch vụ →
+          View Services →
         </button>
       </div>
     </PublicLayout>

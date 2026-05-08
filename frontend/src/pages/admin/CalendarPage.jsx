@@ -16,16 +16,16 @@ const STATUS_COLORS = {
   CANCELLED:   { bg: '#FEE2E2', border: '#EF4444', text: '#991B1B' },
 }
 const STATUS_LABELS = {
-  PENDING: 'Chờ xác nhận', CONFIRMED: 'Đã xác nhận',
-  IN_PROGRESS: 'Đang thực hiện', COMPLETED: 'Hoàn thành', CANCELLED: 'Đã hủy',
+  PENDING: 'Pending', CONFIRMED: 'Confirmed',
+  IN_PROGRESS: 'In Progress', COMPLETED: 'Completed', CANCELLED: 'Cancelled',
 }
 
 const MESSAGES = {
-  today: 'Hôm nay', previous: '‹', next: '›',
-  month: 'Tháng', week: 'Tuần', day: 'Ngày', agenda: 'Lịch',
-  date: 'Ngày', time: 'Giờ', event: 'Sự kiện',
-  noEventsInRange: 'Không có chuyến xe nào trong khoảng này.',
-  showMore: total => `+${total} chuyến nữa`,
+  today: 'Today', previous: '‹', next: '›',
+  month: 'Month', week: 'Week', day: 'Day', agenda: 'Agenda',
+  date: 'Date', time: 'Time', event: 'Event',
+  noEventsInRange: 'No trips in this range.',
+  showMore: total => `+${total} more`,
 }
 
 export default function CalendarPage() {
@@ -41,14 +41,14 @@ export default function CalendarPage() {
     }).catch(console.error).finally(() => setLoading(false))
   }, [])
 
-  // Chuyển booking thành events cho calendar
+  // Convert bookings into calendar events
   const events = useMemo(() => bookings
     .filter(b => b.start_time && b.status !== 'CANCELLED')
     .map(b => {
       const start = new Date(b.start_time)
       const end   = b.end_time ? new Date(b.end_time) : new Date(start.getTime() + 3 * 60 * 60 * 1000)
       const plate = b.assigned_car?.license_plate || (b.additional_data?.external_car?.license_plate) || '—'
-      const driver = b.assigned_driver?.full_name || b.additional_data?.external_car?.driver_name || 'Chưa gán'
+      const driver = b.assigned_driver?.full_name || b.additional_data?.external_car?.driver_name || 'Unassigned'
       return {
         id: b.id,
         title: `🚗 ${plate} · ${driver}`,
@@ -74,16 +74,16 @@ export default function CalendarPage() {
     }
   }
 
-  const fmt = (v) => new Intl.NumberFormat('vi-VN').format(v) + ' đ'
+  const fmt = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
   const fmtDT = (d) => d ? dayjs(d).format('HH:mm DD/MM/YYYY') : '—'
 
   return (
-    <AdminLayout title="Lịch điều phối xe">
+    <AdminLayout title="Vehicle Schedule Calendar">
       <div className="space-y-4">
 
         {/* Legend */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 flex flex-wrap gap-4 items-center">
-          <span className="text-sm font-semibold text-navy mr-2">Trạng thái:</span>
+          <span className="text-sm font-semibold text-navy mr-2">Status:</span>
           {Object.entries(STATUS_LABELS).filter(([k]) => k !== 'CANCELLED').map(([key, label]) => {
             const c = STATUS_COLORS[key]
             return (
@@ -94,7 +94,7 @@ export default function CalendarPage() {
             )
           })}
           <div className="ml-auto text-xs text-gray-400">
-            Tổng: <span className="font-semibold text-navy">{events.length} chuyến</span>
+            Total: <span className="font-semibold text-navy">{events.length} trips</span>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ export default function CalendarPage() {
             onClick={e => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-5">
               <div>
-                <h2 className="font-display text-xl font-bold text-navy">Chi tiết chuyến xe</h2>
+                <h2 className="font-display text-xl font-bold text-navy">Details trips xe</h2>
                 <p className="text-xs text-gray-400 mt-0.5">#{selected.id?.slice(0, 8)}</p>
               </div>
               <button onClick={() => setSelected(null)}
@@ -144,7 +144,7 @@ export default function CalendarPage() {
             <div className="space-y-3 text-sm">
               {/* Status */}
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Trạng thái</span>
+                <span className="text-gray-400">Status</span>
                 <span className="px-3 py-1 rounded-full text-xs font-semibold"
                   style={{
                     background: STATUS_COLORS[selected.status]?.bg,
@@ -157,34 +157,34 @@ export default function CalendarPage() {
 
               <div className="h-px bg-gray-100" />
 
-              {/* Khách hàng */}
-              <Row label="Khách hàng" value={selected.customer?.full_name} />
+              {/* Customer */}
+              <Row label="Customer" value={selected.customer?.full_name} />
               <Row label="SĐT" value={selected.customer?.phone} />
-              <Row label="Dịch vụ" value={selected.product?.product_name} />
-              <Row label="Giờ đón" value={fmtDT(selected.start_time)} />
-              <Row label="Giờ kết thúc" value={fmtDT(selected.end_time)} />
+              <Row label="Service" value={selected.product?.product_name} />
+              <Row label="Pickup time" value={fmtDT(selected.start_time)} />
+              <Row label="End time" value={fmtDT(selected.end_time)} />
 
               <div className="h-px bg-gray-100" />
 
-              {/* Xe & Tài xế */}
+              {/* Vehicle & Driver */}
               {selected.assigned_car ? (
                 <>
-                  <Row label="Biển số" value={selected.assigned_car.license_plate} />
-                  <Row label="Tài xế" value={selected.assigned_driver?.full_name} />
-                  <Row label="SĐT tài xế" value={selected.assigned_driver?.phone} />
+                  <Row label="License plate" value={selected.assigned_car.license_plate} />
+                  <Row label="Driver" value={selected.assigned_driver?.full_name} />
+                  <Row label="Driver phone" value={selected.assigned_driver?.phone} />
                 </>
               ) : selected.additional_data?.external_car ? (
                 <>
-                  <Row label="Xe ngoài" value={selected.additional_data.external_car.license_plate} />
-                  <Row label="Tài xế" value={selected.additional_data.external_car.driver_name} />
-                  <Row label="Đơn vị" value={selected.additional_data.external_car.vendor} />
+                  <Row label="External vehicle" value={selected.additional_data.external_car.license_plate} />
+                  <Row label="Driver" value={selected.additional_data.external_car.driver_name} />
+                  <Row label="Vendor" value={selected.additional_data.external_car.vendor} />
                 </>
               ) : (
-                <p className="text-gray-400 italic text-xs">Chưa gán xe & tài xế</p>
+                <p className="text-gray-400 italic text-xs">No vehicle &amp; driver assigned</p>
               )}
 
               <div className="h-px bg-gray-100" />
-              <Row label="Tổng tiền" value={fmt(selected.total_price)} highlight />
+              <Row label="Total" value={fmt(selected.total_price)} highlight />
             </div>
           </div>
         </div>

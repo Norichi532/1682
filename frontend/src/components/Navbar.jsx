@@ -4,9 +4,9 @@ import { useAuth } from '../context/AuthContext'
 import NotificationBell from './NotificationBell'
 
 const SERVICE_CATEGORIES = [
-  { id: 1, name: 'Đưa đón Sân Bay', icon: '✈️' },
-  { id: 2, name: 'Tour Du Lịch', icon: '🗺️' },
-  { id: 3, name: 'Sân Golf', icon: '⛳' },
+  { id: 1, name: 'Airport Transfer', icon: '✈️' },
+  { id: 2, name: 'Tours', icon: '🗺️' },
+  { id: 3, name: 'Golf Transfer', icon: '⛳' },
 ]
 
 export default function Navbar() {
@@ -51,16 +51,16 @@ export default function Navbar() {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-1">
             <Link to="/" className="px-3 py-2 text-gray-700 hover:text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition">
-              Trang chủ
+              Home
             </Link>
 
-            {/* Dịch vụ dropdown */}
+            {/* Services dropdown */}
             <div ref={serviceRef} className="relative">
               <button
                 onClick={() => setServiceDropdown(!serviceDropdown)}
                 className="flex items-center gap-1 px-3 py-2 text-gray-700 hover:text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition"
               >
-                Dịch vụ
+                Services
                 <svg className={`w-4 h-4 transition-transform ${serviceDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
                 </svg>
@@ -82,7 +82,7 @@ export default function Navbar() {
                       onClick={() => { navigate('/services'); setServiceDropdown(false) }}
                       className="w-full text-left flex items-center gap-3 px-4 py-2.5 text-gray-500 hover:bg-gray-50 transition text-sm"
                     >
-                      Xem tất cả dịch vụ →
+                      View all services →
                     </button>
                   </div>
                 </div>
@@ -90,10 +90,10 @@ export default function Navbar() {
             </div>
 
             <Link to="/vehicles" className="px-3 py-2 text-gray-700 hover:text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition">
-              Phương tiện
+              Vehicles
             </Link>
             <Link to="/about" className="px-3 py-2 text-gray-700 hover:text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition">
-              Giới thiệu
+              About
             </Link>
           </div>
 
@@ -101,12 +101,12 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {!user ? (
               <Link to="/login" className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm">
-                Đăng nhập
+                Login
               </Link>
             ) : user.role_id === 2 ? (
               <>
-                {/* Đơn hàng icon */}
-                <Link to="/my-orders" title="Đơn của tôi" className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition">
+                {/* Orders icon */}
+                <Link to="/my-orders" title="My Bookings" className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
@@ -124,15 +124,15 @@ export default function Navbar() {
                         <p className="text-sm font-semibold text-gray-900 truncate">{user.full_name}</p>
                         <p className="text-xs text-gray-400 truncate">{user.email}</p>
                       </div>
-                      <Link to="/profile" onClick={() => setUserDropdown(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">Chỉnh sửa</Link>
-                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition border-t border-gray-100">Đăng xuất</button>
+                      <Link to="/profile" onClick={() => setUserDropdown(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">Edit Profile</Link>
+                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition border-t border-gray-100">Logout</button>
                     </div>
                   )}
                 </div>
               </>
             ) : (
               <button onClick={() => navigate(user.role_id === 3 ? '/admin/schedule' : '/admin')} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium text-sm">
-                Vào Dashboard
+                Go to Dashboard
               </button>
             )}
           </div>
@@ -148,22 +148,22 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 border-t border-gray-100 pt-2 space-y-1">
-            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Trang chủ</Link>
-            <div className="px-4 py-1 text-xs text-gray-400 uppercase tracking-wide">Dịch vụ</div>
+            <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Home</Link>
+            <div className="px-4 py-1 text-xs text-gray-400 uppercase tracking-wide">Services</div>
             {SERVICE_CATEGORIES.map(cat => (
               <button key={cat.id} onClick={() => { navigate(`/services/cat/${cat.id}`); setMobileMenuOpen(false) }}
                 className="w-full text-left flex items-center gap-2 px-6 py-2 text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg text-sm">
                 <span>{cat.icon}</span> {cat.name}
               </button>
             ))}
-            <Link to="/vehicles" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Phương tiện</Link>
-            <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Giới thiệu</Link>
+            <Link to="/vehicles" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">Vehicles</Link>
+            <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg font-medium">About</Link>
             {user?.role_id === 2 && <>
-              <Link to="/my-orders" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg">Đơn của tôi</Link>
-              <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg">Hồ sơ</Link>
-              <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg">Đăng xuất</button>
+              <Link to="/my-orders" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg">My Bookings</Link>
+              <Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 text-gray-700 hover:bg-gray-50 rounded-lg">Profile</Link>
+              <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg">Logout</button>
             </>}
-            {!user && <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-center mt-2">Đăng nhập</Link>}
+            {!user && <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-center mt-2">Login</Link>}
           </div>
         )}
       </div>

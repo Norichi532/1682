@@ -40,9 +40,9 @@ export default function ProfilePage() {
     setProfileSubmitting(true); setError(''); setSuccess('')
     try {
       await api.patch('/auth/profile', { full_name: profileForm.full_name, phone: profileForm.phone })
-      setSuccess('Cập nhật hồ sơ thành công!')
+      setSuccess('Profile updated successfully!')
     } catch (err) {
-      setError(err.response?.data?.message || 'Cập nhật hồ sơ thất bại')
+      setError(err.response?.data?.message || 'Failed to update profile')
     } finally { setProfileSubmitting(false) }
   }
 
@@ -50,13 +50,13 @@ export default function ProfilePage() {
     e.preventDefault()
     setPasswordSubmitting(true); setError(''); setSuccess('')
     try {
-      if (passwordForm.newPassword !== passwordForm.confirmPassword) throw new Error('Mật khẩu mới không khớp')
+      if (passwordForm.newPassword !== passwordForm.confirmPassword) throw new Error('New passwords do not match')
       await api.patch('/auth/change-password', { oldPassword: passwordForm.oldPassword, newPassword: passwordForm.newPassword })
       setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' })
-      setSuccess('Đổi mật khẩu thành công!')
+      setSuccess('Password changed successfully!')
       setShowPasswordSection(false)
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Đổi mật khẩu thất bại')
+      setError(err.response?.data?.message || err.message || 'Failed to change password')
     } finally { setPasswordSubmitting(false) }
   }
 
@@ -76,7 +76,7 @@ export default function ProfilePage() {
               {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
             <div>
-              <p className="text-ochre text-xs font-semibold uppercase tracking-widest mb-0.5">Tài khoản</p>
+              <p className="text-ochre text-xs font-semibold uppercase tracking-widest mb-0.5">Account</p>
               <h1 className="font-display text-xl font-bold text-white">{user?.full_name}</h1>
               <p className="text-white/60 text-sm">{user?.email}</p>
             </div>
@@ -86,11 +86,11 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             {[
               {
-                key: 'edit', label: 'Chỉnh sửa',
+                key: 'edit', label: 'Edit',
                 icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               },
               ...(!user?.is_google ? [{
-                key: 'password', label: 'Đổi mật khẩu',
+                key: 'password', label: 'Change Password',
                 icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
               }] : []),
             ].map(btn => (
@@ -108,7 +108,7 @@ export default function ProfilePage() {
             <button onClick={handleLogout}
               className="flex items-center gap-2 px-5 py-3 rounded-xl border border-red-500/30 bg-white/5 text-red-400 hover:bg-red-500/20 text-sm font-medium transition">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-              Đăng xuất
+              Logout
             </button>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Thông tin cá nhân */}
+          {/* Personal Information */}
           {activeSection === 'edit' && (
             <div className="flex justify-center">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 w-full max-w-lg">
@@ -139,11 +139,11 @@ export default function ProfilePage() {
                   <svg className="w-5 h-5 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  Thông tin cá nhân
+                  Personal Information
                 </h2>
                 <form onSubmit={handleProfileSubmit} className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-navy mb-1.5">Họ và tên</label>
+                    <label className="block text-sm font-medium text-navy mb-1.5">Full Name</label>
                     <input type="text" name="full_name" value={profileForm.full_name}
                       onChange={e => { setProfileForm(f => ({ ...f, full_name: e.target.value })); setError(''); setSuccess('') }}
                       className={inputClass} />
@@ -151,24 +151,24 @@ export default function ProfilePage() {
                   <div>
                     <label className="block text-sm font-medium text-navy mb-1.5">Email</label>
                     <input type="email" value={user?.email || ''} disabled className={disabledClass} />
-                    <p className="text-xs text-gray-400 mt-1">Email không thể thay đổi</p>
+                    <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-navy mb-1.5">Số điện thoại</label>
+                    <label className="block text-sm font-medium text-navy mb-1.5">Phone Number</label>
                     <input type="tel" name="phone" value={profileForm.phone}
                       onChange={e => { setProfileForm(f => ({ ...f, phone: e.target.value })); setError(''); setSuccess('') }}
                       className={inputClass} />
                   </div>
                   <button type="submit" disabled={profileSubmitting}
                     className="w-full py-3 bg-navy hover:bg-navy-light disabled:bg-navy/50 text-white font-semibold rounded-xl transition-all duration-200">
-                    {profileSubmitting ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
+                    {profileSubmitting ? 'Updating...' : 'Update Profile'}
                   </button>
                 </form>
               </div>
             </div>
           )}
 
-          {/* Đổi mật khẩu */}
+          {/* Change Password */}
           {activeSection === 'password' && (
             <div className="flex justify-center">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 w-full max-w-lg">
@@ -176,13 +176,13 @@ export default function ProfilePage() {
                   <svg className="w-5 h-5 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                  Đổi mật khẩu
+                  Change Password
                 </h2>
                 <form onSubmit={handlePasswordSubmit} className="space-y-5">
                   {[
-                    { field: 'oldPassword',     label: 'Mật khẩu cũ' },
-                    { field: 'newPassword',     label: 'Mật khẩu mới' },
-                    { field: 'confirmPassword', label: 'Xác nhận mật khẩu' },
+                    { field: 'oldPassword',     label: 'Current Password' },
+                    { field: 'newPassword',     label: 'New Password' },
+                    { field: 'confirmPassword', label: 'Confirm Password' },
                   ].map(({ field, label }) => (
                     <div key={field}>
                       <label className="block text-sm font-medium text-navy mb-1.5">{label}</label>
@@ -200,7 +200,7 @@ export default function ProfilePage() {
                   ))}
                   <button type="submit" disabled={passwordSubmitting}
                     className="w-full py-3 bg-navy hover:bg-navy-light disabled:bg-navy/50 text-white font-semibold rounded-xl transition-all duration-200">
-                    {passwordSubmitting ? 'Đang cập nhật...' : 'Đổi mật khẩu'}
+                    {passwordSubmitting ? 'Updating...' : 'Change Password'}
                   </button>
                 </form>
               </div>

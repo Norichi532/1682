@@ -27,7 +27,7 @@ export default function VehicleDetailPage() {
 
   if (!model) return (
     <PublicLayout>
-      <div className="text-center py-24 text-gray-500">Không tìm thấy phương tiện.</div>
+      <div className="text-center py-24 text-gray-500">Vehicle not found.</div>
     </PublicLayout>
   )
 
@@ -45,26 +45,26 @@ export default function VehicleDetailPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
             </svg>
-            Quay lại đội xe
+            Back to vehicles
           </button>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-14 space-y-12">
 
-        {/* ── Tên + badges ── */}
+        {/* ── Name + badges ── */}
         <div className="text-center">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-navy mb-3">{model.model_name}</h1>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <span className="px-4 py-2 bg-ochre/10 text-ochre font-semibold rounded-xl text-sm border border-ochre/20">
-              {model.num_seats} chỗ ngồi
+              {model.num_seats} seats
             </span>
           </div>
         </div>
 
         {/* ── Gallery ── */}
         <div className="space-y-3">
-          {/* Ảnh chính */}
+          {/* Main photo */}
           <div className="rounded-2xl overflow-hidden shadow-xl bg-gray-900 h-80 md:h-[420px] flex items-center justify-center">
             {gallery.length > 0
               ? <img src={gallery[activeImg]} alt={model.model_name} className="w-full h-full object-contain transition-all duration-300" />
@@ -94,24 +94,24 @@ export default function VehicleDetailPage() {
           )}
         </div>
 
-        {/* ── Mô tả + tiện nghi ── */}
+        {/* ── Description + amenities ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Mô tả */}
+          {/* Description */}
           {model.description && (
             <div>
-              <h2 className="font-display text-xl font-bold text-navy mb-3">Giới thiệu</h2>
+              <h2 className="font-display text-xl font-bold text-navy mb-3">Overview</h2>
               <p className="text-gray-600 leading-relaxed font-body">{model.description}</p>
             </div>
           )}
 
-          {/* Tiện nghi */}
+          {/* Amenities */}
           {features.length > 0 && (
             <div>
               <h2 className="font-display text-xl font-bold text-navy mb-3 flex items-center gap-2">
                 <svg className="w-5 h-5 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
                 </svg>
-                Tiện nghi trên xe
+                On-board amenities
               </h2>
               <div className="grid grid-cols-2 gap-3">
                 {features.map((f, i) => (
@@ -135,7 +135,7 @@ export default function VehicleDetailPage() {
             onClick={() => navigate('/services')}
             className="px-10 py-4 bg-navy hover:bg-navy-light text-white font-bold rounded-xl transition-all duration-200 hover:shadow-lg font-body"
           >
-            Xem các tuyến đường sử dụng xe này →
+            View routes using this vehicle →
           </button>
         </div>
       </div>

@@ -43,20 +43,20 @@ function IconMapPin({ className = 'w-3.5 h-3.5' }) {
 
 /* ─── Category meta for services section ─── */
 const CATEGORY_META = [
-  { id: 1, icon: '✈️', iconBg: 'bg-sky-100', tag: 'Phổ biến nhất',
-    description: 'Dịch vụ đón đưa sân bay Đà Nẵng chuyên nghiệp, đúng giờ. Tài xế theo dõi lịch bay thực tế.' },
-  { id: 2, icon: '🗺️', iconBg: 'bg-emerald-50', tag: 'Trải nghiệm',
-    description: 'Khám phá Đà Nẵng, Hội An, Huế và các điểm đến miền Trung theo lịch trình linh hoạt.' },
-  { id: 3, icon: '⛳', iconBg: 'bg-lime-50', tag: 'Cao cấp',
-    description: 'Đưa đón đến các sân golf hàng đầu Đà Nẵng. Xe rộng rãi, chứa đủ gậy golf.' },
+  { id: 1, icon: '✈️', iconBg: 'bg-sky-100', tag: 'Most Popular',
+    description: 'Professional Da Nang airport transfer service, always on time. Drivers monitor actual flight schedules.' },
+  { id: 2, icon: '🗺️', iconBg: 'bg-emerald-50', tag: 'Experience',
+    description: 'Explore Da Nang, Hoi An, Hue and Central Vietnam destinations on flexible itineraries.' },
+  { id: 3, icon: '⛳', iconBg: 'bg-lime-50', tag: 'Premium',
+    description: 'Transfer to top golf courses in Da Nang. Spacious vehicles with ample room for golf equipment.' },
 ]
 
 const VEHICLE_SPECS = {
-  16: ['16 chỗ ngồi', 'Wi-Fi miễn phí', 'Điều hòa 2 chiều'],
-  29: ['29 chỗ ngồi', 'Ghế nệm cao cấp', 'Màn hình giải trí'],
-  45: ['45 chỗ ngồi', 'Ghế máy bay', 'WC riêng'],
+  16: ['16 seats', 'Free Wi-Fi', 'Dual air conditioning'],
+  29: ['29 seats', 'Premium cushioned seats', 'Entertainment screen'],
+  45: ['45 seats', 'Aircraft-style seats', 'Private restroom'],
 }
-const VEHICLE_TAGS = { 16: 'Phổ biến', 29: 'Nhóm lớn', 45: 'Đoàn lớn' }
+const VEHICLE_TAGS = { 16: 'Popular', 29: 'Large Group', 45: 'Big Tour' }
 
 /* ─── ServiceCard with IntersectionObserver ─── */
 function ServiceCard({ cat, index, onClick }) {
@@ -90,7 +90,7 @@ function ServiceCard({ cat, index, onClick }) {
       <h3 className="font-display font-bold text-navy text-xl mb-3">{cat.category_name}</h3>
       <p className="text-gray-500 text-sm font-body leading-relaxed mb-6">{cat.description || cat.descriptionFallback}</p>
       <div className="flex items-center gap-2 text-navy-light font-semibold text-sm font-body group-hover:text-ochre transition-colors duration-200">
-        Xem chi tiết
+        View details
         <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
       </div>
       <div className="mt-6 h-0.5 bg-gradient-to-r from-ochre/0 via-ochre/40 to-ochre/0 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center" />
@@ -111,7 +111,7 @@ function VehicleCard({ model, index, onClick }) {
     if (ref.current) obs.observe(ref.current)
     return () => obs.disconnect()
   }, [])
-  const specs = VEHICLE_SPECS[model.num_seats] || [`${model.num_seats} chỗ ngồi`]
+  const specs = VEHICLE_SPECS[model.num_seats] || [`${model.num_seats} seats`]
   const tag = VEHICLE_TAGS[model.num_seats] || ''
   return (
     <div
@@ -150,7 +150,7 @@ function VehicleCard({ model, index, onClick }) {
         hovered ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
       }`}>
         <span className="font-display font-bold text-8xl leading-none">{model.num_seats}</span>
-        <span className="font-body text-lg text-white/80 mt-1">chỗ ngồi</span>
+        <span className="font-body text-lg text-white/80 mt-1">seats</span>
         <span className="font-body text-sm text-white/60 mt-2 tracking-wide">{model.model_name}</span>
       </div>
       {/* Hover: specs panel */}
@@ -158,7 +158,7 @@ function VehicleCard({ model, index, onClick }) {
         hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}>
         <div className="text-ochre text-xs font-semibold tracking-widest uppercase font-body mb-2">{model.model_name}</div>
-        <h3 className="font-display font-bold text-white text-2xl mb-4">{model.num_seats} chỗ ngồi</h3>
+        <h3 className="font-display font-bold text-white text-2xl mb-4">{model.num_seats} seats</h3>
         <div className="space-y-2">
           {specs.map(spec => (
             <div key={spec} className="flex items-center gap-2 text-white/80 text-sm font-body">
@@ -168,7 +168,7 @@ function VehicleCard({ model, index, onClick }) {
           ))}
         </div>
         <button className="mt-5 flex items-center gap-2 text-ochre text-sm font-semibold font-body hover:gap-3 transition-all duration-200">
-          Xem chi tiết <IconChevronRight />
+          View details <IconChevronRight />
         </button>
       </div>
     </div>
@@ -177,10 +177,10 @@ function VehicleCard({ model, index, onClick }) {
 
 /* ─── ReasonCard with IntersectionObserver ─── */
 const REASONS = [
-  { icon: '🛡️', title: 'An toàn tuyệt đối', description: 'Tài xế được đào tạo bài bản, xe bảo dưỡng định kỳ, bảo hiểm đầy đủ.' },
-  { icon: '⏰', title: 'Đúng giờ', description: 'Cam kết đến đúng giờ, theo dõi lịch trình thực tế để không bao giờ trễ.' },
-  { icon: '💰', title: 'Giá rõ ràng', description: 'Báo giá minh bạch, không phát sinh phí ẩn. Hóa đơn VAT đầy đủ.' },
-  { icon: '📞', title: 'Hỗ trợ 24/7', description: 'Đội ngũ hỗ trợ luôn sẵn sàng 24 giờ mỗi ngày, 7 ngày mỗi tuần.' },
+  { icon: '🛡️', title: 'Absolute Safety', description: 'Professionally trained drivers, regularly maintained vehicles, full insurance coverage.' },
+  { icon: '⏰', title: 'Always On Time', description: 'Committed to punctuality, tracking actual schedules so you never have to wait.' },
+  { icon: '💰', title: 'Transparent Pricing', description: 'Clear upfront quotes, no hidden fees. Full VAT invoices available.' },
+  { icon: '📞', title: '24/7 Support', description: 'Our support team is always available 24 hours a day, 7 days a week.' },
 ]
 function ReasonCard({ reason, index }) {
   const ref = useRef(null)
@@ -286,7 +286,7 @@ export default function HomePage() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 pt-32 pb-24 w-full">
           <div className="max-w-3xl">
 
-            {/* Badge — bấm để xem địa chỉ + Google Maps */}
+            {/* Badge — click to show address + Google Maps */}
             <div className="relative mb-8" style={{ transitionDelay: '0ms' }}>
               <button
                 onClick={() => setShowMap(prev => !prev)}
@@ -309,7 +309,7 @@ export default function HomePage() {
                   </div>
                   <iframe
                     title="PhuOng Tourist Car Location"
-                    src="https://maps.google.com/maps?q=09+Tiên+Sơn+06,+Đà+Nẵng,+Việt+Nam&output=embed&hl=vi"
+                    src="https://maps.google.com/maps?q=09+Tiên+Sơn+06,+Đà+Nẵng,+Việt+Nam&output=embed&hl=en"
                     width="320"
                     height="200"
                     style={{ border: 0, display: 'block' }}
@@ -327,8 +327,8 @@ export default function HomePage() {
               style={{ transitionDelay: '150ms' }}
             >
               <h1 className="font-display text-white leading-tight tracking-tight">
-                <span className="block text-3xl lg:text-5xl font-normal text-white/80 mb-2">Dịch vụ xe du lịch</span>
-                {/* Ochre rule — trên chữ ĐÀ NẴNG */}
+                <span className="block text-3xl lg:text-5xl font-normal text-white/80 mb-2">Tour Car Service</span>
+                {/* Ochre rule — above DA NANG heading */}
                 <div
                   className={`h-0.5 bg-gradient-to-r from-ochre to-transparent mb-3 transition-all duration-700 ${
                     loaded ? 'opacity-100 w-32' : 'opacity-0 w-0'
@@ -346,7 +346,7 @@ export default function HomePage() {
               }`}
               style={{ transitionDelay: '500ms' }}
             >
-              Chúng tôi cung cấp dịch vụ xe du lịch chuyên nghiệp, an toàn và tiện nghi cho mọi nhu cầu của bạn.
+              We provide professional, safe, and comfortable tour car services for all your travel needs.
             </p>
 
             {/* CTA Buttons */}
@@ -360,14 +360,14 @@ export default function HomePage() {
                 onClick={() => navigate('/services')}
                 className="group flex items-center gap-3 bg-ochre hover:bg-ochre-light text-white px-8 py-4 rounded-2xl font-semibold text-base transition-all duration-300 font-body pulse-glow"
               >
-                Xem dịch vụ
+                View Services
                 <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
                 onClick={() => navigate('/vehicles')}
                 className="flex items-center gap-3 bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-2xl font-semibold text-base border border-white/20 backdrop-blur-sm transition-all duration-300 font-body"
               >
-                Đội xe của chúng tôi
+                Our Fleet
               </button>
             </div>
 
@@ -379,9 +379,9 @@ export default function HomePage() {
               style={{ transitionDelay: '800ms' }}
             >
               {[
-                { value: '500+', label: 'Chuyến xe/tháng' },
-                { value: '98%', label: 'Khách hài lòng' },
-                { value: '10+', label: 'Năm kinh nghiệm' },
+                { value: '500+', label: 'Trips/month' },
+                { value: '98%', label: 'Satisfied Customers' },
+                { value: '10+', label: 'Years Experience' },
               ].map(stat => (
                 <div key={stat.label}>
                   <div className="font-display text-3xl font-bold text-ochre">{stat.value}</div>
@@ -411,10 +411,10 @@ export default function HomePage() {
             ref={servicesTitleRef}
             className={`text-center mb-16 transition-all duration-700 ${servicesTitleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <span className="text-ochre text-xs font-semibold tracking-widest uppercase font-body block mb-4">Dịch vụ</span>
-            <h2 className="font-display font-bold text-navy text-4xl lg:text-5xl tracking-tight mb-4">Dịch vụ của chúng tôi</h2>
+            <span className="text-ochre text-xs font-semibold tracking-widest uppercase font-body block mb-4">Services</span>
+            <h2 className="font-display font-bold text-navy text-4xl lg:text-5xl tracking-tight mb-4">Our Services</h2>
             <p className="text-gray-500 text-lg font-body max-w-xl mx-auto leading-relaxed">
-              Mỗi hành trình là một trải nghiệm đáng nhớ với đội ngũ tài xế chuyên nghiệp
+              Every journey is a memorable experience with our professional driver team
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
@@ -437,10 +437,10 @@ export default function HomePage() {
             ref={fleetTitleRef}
             className={`text-center mb-16 transition-all duration-700 ${fleetTitleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <span className="text-ochre text-xs font-semibold tracking-widest uppercase font-body block mb-4">Đội xe</span>
-            <h2 className="font-display font-bold text-white text-4xl lg:text-5xl tracking-tight mb-4">Đội xe của chúng tôi</h2>
+            <span className="text-ochre text-xs font-semibold tracking-widest uppercase font-body block mb-4">Our Vehicles</span>
+            <h2 className="font-display font-bold text-white text-4xl lg:text-5xl tracking-tight mb-4">Our Vehicles</h2>
             <p className="text-white/60 text-lg font-body max-w-xl mx-auto leading-relaxed">
-              Xe đời mới, bảo dưỡng định kỳ, đảm bảo sự thoải mái và an toàn tuyệt đối
+              Modern vehicles, regularly serviced, ensuring absolute comfort and safety
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
@@ -459,7 +459,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-3 border border-ochre/50 text-ochre hover:bg-ochre hover:text-white px-8 py-4 rounded-2xl font-semibold text-sm font-body transition-all duration-300"
             >
               <IconUsers className="w-5 h-5" />
-              Xem chi tiết đội xe
+              View Vehicle Details
             </button>
           </div>
         </div>
@@ -472,10 +472,10 @@ export default function HomePage() {
             ref={whyTitleRef}
             className={`text-center mb-16 transition-all duration-700 ${whyTitleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
           >
-            <span className="text-ochre text-xs font-semibold tracking-widest uppercase font-body block mb-4">Cam kết</span>
-            <h2 className="font-display font-bold text-navy text-4xl lg:text-5xl tracking-tight mb-4">Vì sao chọn chúng tôi?</h2>
+            <span className="text-ochre text-xs font-semibold tracking-widest uppercase font-body block mb-4">Our Promise</span>
+            <h2 className="font-display font-bold text-navy text-4xl lg:text-5xl tracking-tight mb-4">Why Choose Us?</h2>
             <p className="text-gray-500 text-lg font-body max-w-xl mx-auto leading-relaxed">
-              Hơn 10 năm kinh nghiệm, chúng tôi hiểu hành trình của bạn quan trọng như thế nào
+              With over 10 years of experience, we understand how important your journey is
             </p>
           </div>
 
@@ -489,21 +489,21 @@ export default function HomePage() {
           <div className="mt-16 rounded-3xl bg-gradient-to-r from-navy to-navy-light p-10 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-ochre/10 rounded-full blur-3xl pointer-events-none" />
             <div className="text-center lg:text-left">
-              <h3 className="font-display font-bold text-white text-3xl lg:text-4xl mb-3">Sẵn sàng cho hành trình?</h3>
-              <p className="text-white/60 font-body text-lg">Đặt xe ngay hôm nay và nhận ưu đãi đặc biệt</p>
+              <h3 className="font-display font-bold text-white text-3xl lg:text-4xl mb-3">Ready for Your Journey?</h3>
+              <p className="text-white/60 font-body text-lg">Book today and enjoy special offers</p>
             </div>
             <div className="flex flex-wrap gap-4 shrink-0">
               <a
                 href="tel:+84335966977"
                 className="flex items-center gap-2 border border-white/30 text-white hover:bg-white/10 px-6 py-3.5 rounded-2xl font-semibold text-sm font-body transition-all duration-200"
               >
-                📞 Gọi ngay
+                📞 Call Now
               </a>
               <button
                 onClick={() => navigate('/services')}
                 className="bg-ochre hover:bg-ochre-light text-white px-8 py-3.5 rounded-2xl font-semibold text-sm font-body transition-all duration-200"
               >
-                Xem dịch vụ
+                View Services
               </button>
             </div>
           </div>

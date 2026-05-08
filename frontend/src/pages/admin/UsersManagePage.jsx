@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import AdminLayout from './AdminLayout'
 import api from '../../services/api'
 
-const fmt = (d) => d ? new Date(d).toLocaleDateString('vi-VN') : '—'
+const fmt = (d) => d ? new Date(d).toLocaleDateString('en-GB') : '—'
 
-// ── Modal thêm / sửa tài xế ──────────────────────────────────────────────────
+// ── Add / edit driver modal ──────────────────────────────────────────────────
 function DriverModal({ driver, onClose, onSave }) {
   const isEdit = !!driver
   const [form, setForm] = useState({
@@ -20,7 +20,7 @@ function DriverModal({ driver, onClose, onSave }) {
 
   const handleSubmit = async () => {
     if (!form.full_name || !form.email) { setError('Vui lòng điền đầy đủ họ tên và email'); return }
-    if (!isEdit && !form.password)      { setError('Mật khẩu là bắt buộc khi tạo mới'); return }
+    if (!isEdit && !form.password)      { setError('Password is required when creating a new account'); return }
     setLoading(true); setError('')
     try {
       const payload = { full_name: form.full_name, email: form.email, phone: form.phone, role_id: 3 }
@@ -32,7 +32,7 @@ function DriverModal({ driver, onClose, onSave }) {
       }
       onSave()
     } catch (e) {
-      setError(e.response?.data?.message || 'Có lỗi xảy ra')
+      setError(e.response?.data?.message || 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -45,7 +45,7 @@ function DriverModal({ driver, onClose, onSave }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <h2 className="font-display text-lg font-bold text-navy">
-            {isEdit ? 'Cập nhật tài xế' : 'Thêm tài xế mới'}
+            {isEdit ? 'Update driver' : 'Add new driver'}
           </h2>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
@@ -57,32 +57,32 @@ function DriverModal({ driver, onClose, onSave }) {
             <div className="px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl">{error}</div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Họ và tên <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name <span className="text-red-500">*</span></label>
             <input value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Nguyễn Văn A" className={iCls} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Email <span className="text-red-500">*</span></label>
             <input value={form.email} onChange={e => set('email', e.target.value)} placeholder="taixe@gmail.com" type="email" disabled={isEdit} className={`${iCls} ${isEdit ? 'bg-gray-50 text-gray-400' : ''}`} />
-            {isEdit && <p className="text-xs text-gray-400 mt-1">Email không thể thay đổi</p>}
+            {isEdit && <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Số điện thoại</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone number</label>
             <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="0905 xxx xxx" className={iCls} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              {isEdit ? 'Mật khẩu mới (để trống nếu không đổi)' : 'Mật khẩu *'}
+              {isEdit ? 'New password (leave blank to keep current)' : 'Password *'}
             </label>
-            <input value={form.password} onChange={e => set('password', e.target.value)} placeholder={isEdit ? 'Để trống nếu không đổi' : 'Tối thiểu 6 ký tự'} type="password" className={iCls} />
+            <input value={form.password} onChange={e => set('password', e.target.value)} placeholder={isEdit ? 'Leave blank to keep current' : 'Minimum 6 characters'} type="password" className={iCls} />
           </div>
         </div>
 
         <div className="px-6 pb-6 flex gap-3">
           <button onClick={onClose} className="flex-1 py-2.5 border-2 border-gray-200 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl transition text-sm">
-            Huỷ
+            Cancel
           </button>
           <button onClick={handleSubmit} disabled={loading} className="flex-1 py-2.5 bg-navy hover:bg-navy-light disabled:bg-navy/40 text-white font-semibold rounded-xl transition text-sm">
-            {loading ? 'Đang lưu...' : isEdit ? 'Cập nhật' : 'Thêm tài xế'}
+            {loading ? 'Saving...' : isEdit ? 'Update' : 'Add driver'}
           </button>
         </div>
       </div>
@@ -116,18 +116,18 @@ export default function UsersManagePage() {
   const handleSave = () => {
     setModal(null)
     fetchDrivers()
-    showToast('Đã lưu thành công!')
+    showToast('Saved successfully!')
   }
 
   const handleToggle = async (driver) => {
-    const action = driver.is_active ? 'vô hiệu hóa' : 'kích hoạt'
+    const action = driver.is_active ? 'deactivate' : 'activate'
     if (!confirm(`Bạn có chắc muốn ${action} tài xế "${driver.full_name}"?`)) return
     try {
       await api.patch(`/users/${driver.id}/toggle-active`)
       fetchDrivers()
-      showToast(`Đã ${action} tài xế thành công`)
+      showToast(`Driver ${action}d successfully`)
     } catch (e) {
-      alert(e.response?.data?.message || 'Có lỗi xảy ra')
+      alert(e.response?.data?.message || 'An error occurred')
     }
   }
 
@@ -136,9 +136,9 @@ export default function UsersManagePage() {
     try {
       await api.delete(`/users/${driver.id}`)
       fetchDrivers()
-      showToast('Đã xoá tài xế thành công')
+      showToast('Driver deleted successfully')
     } catch (e) {
-      alert(e.response?.data?.message || 'Có lỗi xảy ra')
+      alert(e.response?.data?.message || 'An error occurred')
     }
   }
 
@@ -152,10 +152,10 @@ export default function UsersManagePage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Quản lý tài xế</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Manage Drivers</h1>
             <p className="text-gray-500 text-sm mt-0.5">
-              {activeCount} đang hoạt động
-              {inactiveCount > 0 && <span className="ml-2 text-red-400">• {inactiveCount} vô hiệu hóa</span>}
+              {activeCount} active
+              {inactiveCount > 0 && <span className="ml-2 text-red-400">• {inactiveCount} inactive</span>}
             </p>
           </div>
           <button
@@ -163,7 +163,7 @@ export default function UsersManagePage() {
             className="flex items-center gap-2 px-5 py-2.5 bg-navy hover:bg-navy-light text-white font-semibold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md text-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4"/></svg>
-            Thêm tài xế
+            Add driver
           </button>
         </div>
 
@@ -184,14 +184,14 @@ export default function UsersManagePage() {
           ) : drivers.length === 0 ? (
             <div className="text-center py-16 text-gray-400">
               <svg className="w-12 h-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
-              Chưa có tài xế nào
+              No drivers found
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
-                    {['#', 'Tài xế', 'Email', 'Số điện thoại', 'Ngày tạo', 'Trạng thái', 'Hành động'].map(h => (
+                    {['#', 'Driver', 'Email', 'Phone', 'Created', 'Status', 'Actions'].map(h => (
                       <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -217,21 +217,21 @@ export default function UsersManagePage() {
                           {active ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">
                               <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                              Hoạt động
+                              Active
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-100 text-red-600 text-xs font-semibold rounded-full border border-red-200">
                               <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                              Vô hiệu hóa
+                              Deactivate
                             </span>
                           )}
                         </td>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-2">
-                            {/* Sửa */}
+                            {/* Edit */}
                             <button onClick={() => setModal(d)}
                               className="px-3 py-1.5 text-xs font-semibold bg-navy/5 hover:bg-navy text-navy hover:text-white border border-navy/20 hover:border-navy rounded-lg transition-all duration-200">
-                              Sửa
+                              Edit
                             </button>
                             {/* Toggle active */}
                             <button onClick={() => handleToggle(d)}
@@ -240,12 +240,12 @@ export default function UsersManagePage() {
                                   ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200'
                                   : 'bg-green-50 hover:bg-green-100 text-green-700 border-green-200'
                               }`}>
-                              {active ? 'Vô hiệu hóa' : 'Kích hoạt'}
+                              {active ? 'Deactivate' : 'Active'}
                             </button>
-                            {/* Xóa */}
+                            {/* Delete */}
                             <button onClick={() => handleDelete(d)}
                               className="px-3 py-1.5 text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg transition-all duration-200">
-                              Xóa
+                              Delete
                             </button>
                           </div>
                         </td>

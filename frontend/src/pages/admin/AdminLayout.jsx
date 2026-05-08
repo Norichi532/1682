@@ -31,19 +31,19 @@ function ProfileModal({ onClose }) {
     e.preventDefault(); setProfileLoading(true); setError(''); setSuccess('')
     try {
       await api.patch('/auth/profile', { full_name: profileForm.full_name, phone: profileForm.phone })
-      setSuccess('Cập nhật hồ sơ thành công!')
-    } catch (err) { setError(err.response?.data?.message || 'Cập nhật thất bại') }
+      setSuccess('Profile updated successfully!')
+    } catch (err) { setError(err.response?.data?.message || 'Update failed') }
     finally { setProfileLoading(false) }
   }
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault(); setPasswordLoading(true); setError(''); setSuccess('')
     try {
-      if (passwordForm.newPassword !== passwordForm.confirmPassword) throw new Error('Mật khẩu mới không khớp')
+      if (passwordForm.newPassword !== passwordForm.confirmPassword) throw new Error('New passwords do not match')
       await api.patch('/auth/change-password', { oldPassword: passwordForm.oldPassword, newPassword: passwordForm.newPassword })
       setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' })
-      setSuccess('Đổi mật khẩu thành công!')
-    } catch (err) { setError(err.response?.data?.message || err.message || 'Đổi mật khẩu thất bại') }
+      setSuccess('Password changed successfully!')
+    } catch (err) { setError(err.response?.data?.message || err.message || 'Failed to change password') }
     finally { setPasswordLoading(false) }
   }
 
@@ -70,43 +70,43 @@ function ProfileModal({ onClose }) {
           {error && <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>}
           {success && <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm">{success}</div>}
 
-          {/* Thông tin cá nhân */}
+          {/* Personal Information */}
           <div>
             <h3 className="text-sm font-bold text-navy mb-3 flex items-center gap-2">
               <svg className="w-4 h-4 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-              Thông tin cá nhân
+              Personal Information
             </h3>
             <form onSubmit={handleProfileSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Họ và tên</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Full name</label>
                 <input type="text" value={profileForm.full_name}
                   onChange={e => setProfileForm(f => ({ ...f, full_name: e.target.value }))} className={iCls} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Số điện thoại</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Phone number</label>
                 <input type="tel" value={profileForm.phone}
                   onChange={e => setProfileForm(f => ({ ...f, phone: e.target.value }))} className={iCls} />
               </div>
               <button type="submit" disabled={profileLoading}
                 className="w-full py-2.5 bg-navy hover:bg-navy-light disabled:bg-navy/50 text-white font-semibold rounded-xl transition text-sm">
-                {profileLoading ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
+                {profileLoading ? 'Updating...' : 'Update Profile'}
               </button>
             </form>
           </div>
 
           <div className="border-t border-dashed border-gray-100" />
 
-          {/* Đổi mật khẩu */}
+          {/* Change Password */}
           <div>
             <h3 className="text-sm font-bold text-navy mb-3 flex items-center gap-2">
               <svg className="w-4 h-4 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-              Đổi mật khẩu
+              Change Password
             </h3>
             <form onSubmit={handlePasswordSubmit} className="space-y-3">
               {[
-                { field: 'oldPassword',     label: 'Mật khẩu hiện tại' },
-                { field: 'newPassword',     label: 'Mật khẩu mới' },
-                { field: 'confirmPassword', label: 'Xác nhận mật khẩu mới' },
+                { field: 'oldPassword',     label: 'Current password' },
+                { field: 'newPassword',     label: 'New Password' },
+                { field: 'confirmPassword', label: 'Confirm New Password' },
               ].map(({ field, label }) => (
                 <div key={field}>
                   <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
@@ -120,7 +120,7 @@ function ProfileModal({ onClose }) {
               ))}
               <button type="submit" disabled={passwordLoading}
                 className="w-full py-2.5 bg-navy hover:bg-navy-light disabled:bg-navy/50 text-white font-semibold rounded-xl transition text-sm">
-                {passwordLoading ? 'Đang cập nhật...' : 'Đổi mật khẩu'}
+                {passwordLoading ? 'Updating...' : 'Change Password'}
               </button>
             </form>
           </div>
@@ -139,21 +139,21 @@ const ADMIN_MENU = [
     )
   },
   {
-    label: 'Đặt xe', href: '/admin/bookings', icon: (
+    label: 'Booking', href: '/admin/bookings', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </svg>
     )
   },
   {
-    label: 'Dịch vụ', href: '/admin/products', icon: (
+    label: 'Services', href: '/admin/products', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
       </svg>
     )
   },
   {
-    label: 'Dòng xe', href: '/admin/car-models', icon: (
+    label: 'Vehicle model', href: '/admin/car-models', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 1h8zm0 0l2 1h3l1-4-5-2" />
@@ -161,7 +161,7 @@ const ADMIN_MENU = [
     )
   },
   {
-    label: 'Quản lý xe', href: '/admin/cars', icon: (
+    label: 'Manage xe', href: '/admin/cars', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <rect x="1" y="3" width="15" height="13" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8h5l2 5v3h-2m-5 0H9m8 0a2 2 0 11-4 0 2 2 0 014 0zM5 21a2 2 0 100-4 2 2 0 000 4z" />
@@ -169,14 +169,14 @@ const ADMIN_MENU = [
     )
   },
   {
-    label: 'Quản lý tài xế', href: '/admin/users', icon: (
+    label: 'Manage Users', href: '/admin/users', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
       </svg>
     )
   },
   {
-    label: 'Lịch điều phối', href: '/admin/calendar', icon: (
+    label: 'Schedule Calendar', href: '/admin/calendar', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
@@ -186,7 +186,7 @@ const ADMIN_MENU = [
 
 const DRIVER_MENU = [
   {
-    label: 'Lịch của tôi', href: '/admin/schedule', icon: (
+    label: 'My Schedule', href: '/admin/schedule', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
@@ -212,7 +212,7 @@ export default function AdminLayout({ children, title }) {
   }
 
   const getInitial = () => user?.full_name?.charAt(0)?.toUpperCase() || 'U'
-  const roleLabel = user?.role_id === 1 ? 'Admin' : 'Tài xế'
+  const roleLabel = user?.role_id === 1 ? 'Admin' : 'Driver'
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -271,13 +271,13 @@ export default function AdminLayout({ children, title }) {
           )}
           <button
             onClick={handleLogout}
-            title={!sidebarOpen ? 'Đăng xuất' : undefined}
+            title={!sidebarOpen ? 'Logout' : undefined}
             className={`w-full flex items-center gap-3 px-3 py-2 text-gray-400 hover:bg-red-600/20 hover:text-red-400 rounded-lg transition text-sm ${!sidebarOpen && 'justify-center'}`}
           >
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            {sidebarOpen && 'Đăng xuất'}
+            {sidebarOpen && 'Logout'}
           </button>
         </div>
       </aside>

@@ -33,7 +33,7 @@ function ModelCard({ model, index, onClick }) {
         }
         <div className="absolute bottom-3 left-3">
           <span className="px-3 py-1 bg-navy/80 text-white text-xs font-semibold rounded-full backdrop-blur-sm">
-            {model.num_seats} chỗ ngồi
+            {model.num_seats} seats
           </span>
         </div>
       </div>
@@ -54,7 +54,7 @@ function ModelCard({ model, index, onClick }) {
           </div>
         )}
         <button className="w-full py-2.5 border-2 border-navy text-navy font-semibold rounded-xl group-hover:bg-navy group-hover:text-white transition-all duration-200">
-          Xem chi tiết
+          View details
         </button>
       </div>
     </div>
@@ -85,15 +85,15 @@ export default function VehiclesPage() {
           </svg>
         </div>
         <div className="relative max-w-5xl mx-auto text-center">
-          <p className="text-ochre font-body text-sm font-semibold uppercase tracking-widest mb-3">Phương tiện</p>
-          <h1 className="font-display text-4xl md:text-5xl font-bold text-white mb-5">Đội xe của chúng tôi</h1>
+          <p className="text-ochre font-body text-sm font-semibold uppercase tracking-widest mb-3">Our Vehicles</p>
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-white mb-5">Our Vehicles</h1>
           <p className="text-white/70 font-body text-lg max-w-2xl mx-auto">
-            Toàn bộ phương tiện đều màu trắng, được bảo dưỡng định kỳ và trang bị đầy đủ tiện nghi để đảm bảo an toàn và thoải mái.
+            All vehicles are clean white, regularly maintained and fully equipped with amenities for safety and comfort.
           </p>
         </div>
       </div>
 
-      {/* Fleet grid */}
+      {/* Vehicles grid */}
       <div className="bg-mist/40">
         <div className="max-w-6xl mx-auto px-4 py-16">
           {loading ? (
@@ -112,11 +112,11 @@ export default function VehiclesPage() {
 
       {/* CTA strip */}
       <div className="bg-navy py-14 px-4 text-center">
-        <h2 className="font-display text-2xl font-bold text-white mb-3">Sẵn sàng di chuyển?</h2>
-        <p className="text-white/60 mb-6">Chọn tuyến đường và dòng xe phù hợp với bạn.</p>
+        <h2 className="font-display text-2xl font-bold text-white mb-3">Ready to travel?</h2>
+        <p className="text-white/60 mb-6">Choose the right route and vehicle for your needs.</p>
         <button onClick={() => navigate('/services')}
           className="px-8 py-3 bg-ochre hover:bg-ochre-light text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg">
-          Xem dịch vụ
+          View Services
         </button>
       </div>
     </PublicLayout>

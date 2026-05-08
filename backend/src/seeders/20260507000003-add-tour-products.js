@@ -1,326 +1,477 @@
 'use strict';
 
+// Tour product IDs:  5, 6, 7, 8  → 1-day tours
+//                    9,10,11,12  → 2-day-1-night tours
+// Car model IDs:  1=Fortuner 7-seat | 2=Transit 16-seat
+//                 3=County 29-seat  | 4=Universe 45-seat
+// Table name:  price_list  (NOT price_lists)
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     const t = new Date();
 
-    // ─── Tour products (id 10–17) ───────────────────────────────────────────
+    // ── PRODUCTS (tour, ids 5–12) ──────────────────────────────────────────
     await queryInterface.bulkInsert('products', [
-      // ── 1 NGÀY ─────────────────────────────────────────────────────────────
+
+      // ══ 1-DAY TOURS ═══════════════════════════════════════════════════════
+
+      // id=5 ─ Da Nang City Tour (1 day)
       {
-        id: 10, category_id: 2,
-        product_name: 'Tour Đà Nẵng City 1 Ngày',
-        description: 'Khám phá thành phố Đà Nẵng trong 1 ngày: Chùa Linh Ứng Sơn Trà, Cầu Tình Yêu, Công viên Apec, Viện Cổ Chàm và Ngũ Hành Sơn.',
-        address: 'Đà Nẵng',
+        id: 5, category_id: 2,
+        product_name: 'Da Nang City Tour – 1 Day',
+        description: 'Explore the highlights of Da Nang in one day: Linh Ung Pagoda on Son Tra Peninsula, Love Lock Bridge, APEC Park, Museum of Cham Sculpture, and Marble Mountains.',
+        address: 'Da Nang',
         image_url: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800',
         num_days: 1,
         itinerary: JSON.stringify([
           {
-            day: 1, label: 'Ngày 1 — Đà Nẵng City Tour',
+            day: 1, label: 'Day 1 — Da Nang City Highlights',
             items: [
-              { time: '07h30', desc: 'Xe và hướng dẫn viên đón khách tại khách sạn, khởi hành tham quan TP Đà Nẵng.' },
-              { time: '08h00', desc: 'Tham quan Chùa Linh Ứng bán đảo Sơn Trà, nơi có tượng Phật Quan Âm cao 67m.' },
-              { time: '09h30', desc: 'Check in Cầu Tình Yêu, tham quan cầu Rồng, ngắm toàn bộ thành phố Đà Nẵng bên dòng Sông Hàn.' },
-              { time: '10h30', desc: 'Tham quan Công viên Apec với biểu tượng hình cánh diều và nhà trưng bày.' },
-              { time: '11h30', desc: 'Viện Cổ Chàm — chứng tích lịch sử với cổ vật từ nền văn hóa Sa Huỳnh và đế quốc Chăm Pa.' },
-              { time: '12h30', desc: 'Dùng bữa trưa tại nhà hàng: Mỳ Quảng, Bánh Tráng Cuốn Thịt Heo.' },
-              { time: '13h30', desc: 'Khởi hành đến Ngũ Hành Sơn. HDV giới thiệu lịch sử kháng chiến tại Đà Nẵng.' },
-              { time: '14h00', desc: 'Tham quan làng đá mỹ nghệ Non Nước với các tác phẩm điêu khắc tinh xảo.' },
-              { time: '14h20', desc: 'Thượng sơn tham quan các ngọn Thượng Thai, Trung Thai, Hạ Thai. Khám phá hang động, viếng chùa Linh Ứng cổ nhất Đà Nẵng.' },
-              { time: '16h15', desc: 'Xe đưa đoàn về điểm đón ban đầu. Kết thúc tour.' }
-            ]
-          }
-        ]),
-        created_at: t, updated_at: t
-      },
-      {
-        id: 11, category_id: 2,
-        product_name: 'Tour Đà Nẵng – Hội An 1 Ngày',
-        description: 'Buổi chiều tham quan Chùa Linh Ứng, Ngũ Hành Sơn; buổi tối dạo phố cổ Hội An, thả đèn hoa đăng trên sông Hoài.',
-        address: 'Đà Nẵng → Hội An',
-        image_url: 'https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=800',
-        num_days: 1,
-        itinerary: JSON.stringify([
-          {
-            day: 1, label: 'Ngày 1 — Đà Nẵng & Hội An',
-            items: [
-              { time: '13h30', desc: 'Xe và HDV đón du khách tại điểm hẹn, khởi hành đi Chùa Linh Ứng Sơn Trà.' },
-              { time: '14h00', desc: 'Tham quan Chùa Linh Ứng lớn nhất Đà Nẵng, chiêm ngưỡng tượng Phật bà Quan Âm lớn nhất Việt Nam.' },
-              { time: '15h30', desc: 'Tham quan danh thắng Ngũ Hành Sơn.' },
-              { time: '16h00', desc: 'Viếng chùa Linh Ứng Non Nước, chùa Tam Thai, khám phá động Huyền Không, động Tàng Chơn.' },
-              { time: '17h00', desc: 'Tham quan làng đá mỹ nghệ Non Nước hơn 300 năm tuổi.' },
-              { time: '17h30', desc: 'Xe đưa đoàn đến Hội An — Di sản văn hóa thế giới.' },
-              { time: '18h00', desc: 'Bách bộ tham quan phố cổ, khám phá Chùa Cầu — biểu tượng của Hội An.' },
-              { time: '18h30', desc: 'Dừng chân ăn tối tại nhà hàng nổi tiếng Hội An.' },
-              { time: '19h00', desc: 'Tham quan nhà cổ Tấn Ký, hội quán Quảng Đông, dạo phố đèn lồng, mua sắm chợ đêm.' },
-              { time: '20h00', desc: 'Xem hát bài chòi, thả đèn hoa đăng trên sông Hoài (chi phí tự túc).' },
-              { time: '21h00', desc: 'Lên xe về lại Đà Nẵng. Kết thúc tour.' }
-            ]
-          }
-        ]),
-        created_at: t, updated_at: t
-      },
-      {
-        id: 12, category_id: 2,
-        product_name: 'Tour Đà Nẵng – Bà Nà Hills 1 Ngày',
-        description: 'Trọn ngày khám phá Bà Nà Hills: Vườn hoa Le Jardin, Cầu Vàng, Lâu Đài Mặt Trăng, Làng Pháp và Fantasy Park.',
-        address: 'Bà Nà Hills, Đà Nẵng',
-        image_url: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
-        num_days: 1,
-        itinerary: JSON.stringify([
-          {
-            day: 1, label: 'Ngày 1 — Bà Nà Hills',
-            items: [
-              { time: '07h30', desc: 'Xe và HDV đón khách tại điểm hẹn nội thành Đà Nẵng, khởi hành đi Bà Nà Hills.' },
-              { time: '08h30', desc: 'Đến cổng khu du lịch. HDV làm thủ tục nhận vé, đưa du khách lên cáp treo.' },
-              { time: '08h45', desc: 'Ngồi cáp treo, chiêm ngưỡng cánh rừng nguyên sinh và cảm nhận sự thay đổi của thời tiết.' },
-              { time: '09h15', desc: 'Tham quan Vườn hoa Le Jardin D\'Amour với các loài hoa trên thế giới.' },
-              { time: '09h45', desc: 'Khám phá Cầu Vàng ở độ cao 1.400m, được nâng đỡ bởi đôi bàn tay rêu phong khổng lồ.' },
-              { time: '10h15', desc: 'Viếng thăm Chùa Linh Ứng trên đỉnh Núi Chúa.' },
-              { time: '10h45', desc: 'Đi tàu hỏa leo núi số 2, tham quan Lâu Đài Mặt Trăng, thưởng thức show nghệ thuật.' },
-              { time: '11h15', desc: 'Bách bộ từ Lâu Đài Mặt Trăng sang Quảng Trường Nhật Thực, chụp ảnh và săn mây.' },
-              { time: '11h45', desc: 'Buffet tại nhà hàng 5 sao lớn nhất Bà Nà Hills (gần 200 món Á – Âu).' },
-              { time: '13h00', desc: 'Tham quan Làng Pháp cổ kính lãng mạn.' },
-              { time: '13h30', desc: 'Trải nghiệm Fantasy Park — khu vui chơi trong nhà lớn nhất Việt Nam.' },
-              { time: '15h00', desc: 'Tự do tham quan, ngắm cảnh và chụp hình kỷ niệm tại Bà Nà Hills.' },
-              { time: '15h30', desc: 'Tập trung lên cabin di chuyển xuống núi. Xe đưa du khách về Đà Nẵng.' },
-              { time: '17h00', desc: 'Trả du khách về điểm hẹn ban đầu. Chào tạm biệt!' }
-            ]
-          }
-        ]),
-        created_at: t, updated_at: t
-      },
-      {
-        id: 13, category_id: 2,
-        product_name: 'Tour Núi Thần Tài 1 Ngày',
-        description: 'Trải nghiệm công viên nước, tắm suối khoáng nóng tự nhiên, hồ luộc trứng và công viên khủng long tại Núi Thần Tài.',
-        address: 'Núi Thần Tài, Đà Nẵng',
-        image_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
-        num_days: 1,
-        itinerary: JSON.stringify([
-          {
-            day: 1, label: 'Ngày 1 — Núi Thần Tài',
-            items: [
-              { time: '07h30', desc: 'Xe và HDV đón khách, khởi hành đến Công viên suối khoáng nóng Núi Thần Tài.' },
-              { time: '08h30', desc: 'Đến cổng khu du lịch, gửi tư trang, bắt đầu khám phá.' },
-              { time: '08h45', desc: 'Xe điện đưa đoàn đến công viên nước, tham gia trò chơi massage tia nước, đường trượt nước.' },
-              { time: '10h00', desc: 'Trải nghiệm sông Lười, khám phá động Long Tiên, thư giãn massage tại hồ Ficus.' },
-              { time: '11h00', desc: 'Ngâm mình tắm khoáng nóng tự nhiên tốt cho sức khỏe.' },
-              { time: '12h00', desc: 'Ăn trưa và nghỉ ngơi tại nhà hàng Rồng Đỏ.' },
-              { time: '13h00', desc: 'Tham quan hồ luộc trứng tự nhiên, trải nghiệm độc đáo chỉ có tại Núi Thần Tài (chi phí tự túc).' },
-              { time: '13h30', desc: 'Công viên khủng long — nhiều khủng long có thể chuyển động và phát ra âm thanh thú vị.' },
-              { time: '14h00', desc: 'Tham quan miếu Sơn Thần, tượng Di Lặc, tượng Long Quy, bồn tắm đá tự nhiên lớn nhất Việt Nam.' },
-              { time: '15h30', desc: 'Tập trung rời khu du lịch. Kết thúc tour Núi Thần Tài 1 ngày.' },
-              { time: '16h30', desc: 'Xe về Đà Nẵng, trả khách tại điểm hẹn. Chào tạm biệt!' }
+              { time: '07:30', desc: 'Driver and guide pick up guests at hotel lobby. Depart for Da Nang city sightseeing.' },
+              { time: '08:00', desc: 'Visit Linh Ung Pagoda on Son Tra Peninsula — home to the 67-metre Lady Buddha statue with panoramic ocean views.' },
+              { time: '09:30', desc: 'Stop at Love Lock Bridge for photos, admire Dragon Bridge and Han River from the bank.' },
+              { time: '10:30', desc: 'Visit APEC Park featuring the iconic kite-shaped sculpture and exhibition hall.' },
+              { time: '11:30', desc: 'Explore the Museum of Cham Sculpture — one of the world\'s finest collections of Champa artefacts and Sa Huynh relics.' },
+              { time: '12:30', desc: 'Lunch at a local restaurant — enjoy Quang Noodles and Pork Roll Rice Paper (Bánh Tráng Cuốn Thịt Heo).' },
+              { time: '13:30', desc: 'Depart for Marble Mountains (Ngu Hanh Son). Guide shares the area\'s wartime history.' },
+              { time: '14:00', desc: 'Stroll through Non Nuoc Stone Carving Village, browse intricate marble sculptures.' },
+              { time: '14:20', desc: 'Climb Thuong Thai, Trung Thai, and Ha Thai peaks. Explore caves and visit the oldest Linh Ung Pagoda in Da Nang.' },
+              { time: '16:15', desc: 'Return to hotel. Tour ends.' }
             ]
           }
         ]),
         created_at: t, updated_at: t
       },
 
-      // ── 2 NGÀY 1 ĐÊM ───────────────────────────────────────────────────────
+      // id=6 ─ Da Nang – Hoi An (1 day, afternoon/evening)
       {
-        id: 14, category_id: 2,
-        product_name: 'Tour Đà Nẵng – Hội An – Bà Nà Hills 2N1Đ',
-        description: 'Ngày 1: Sơn Trà, Ngũ Hành Sơn, phố cổ Hội An về đêm. Ngày 2: Bà Nà Hills – Cầu Vàng – Fantasy Park.',
-        address: 'Đà Nẵng → Hội An → Bà Nà Hills',
+        id: 6, category_id: 2,
+        product_name: 'Da Nang & Hoi An Evening Tour – 1 Day',
+        description: 'An afternoon at Linh Ung Pagoda and Marble Mountains, followed by a magical evening stroll through Hoi An Ancient Town and a lantern-releasing experience on the Hoai River.',
+        address: 'Da Nang → Hoi An',
+        image_url: 'https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=800',
+        num_days: 1,
+        itinerary: JSON.stringify([
+          {
+            day: 1, label: 'Day 1 — Da Nang & Hoi An Ancient Town',
+            items: [
+              { time: '13:30', desc: 'Driver and guide pick up guests at agreed meeting point. Head to Son Tra Peninsula.' },
+              { time: '14:00', desc: 'Visit Linh Ung Pagoda — the largest temple in Da Nang, home to the tallest Lady Buddha statue in Vietnam.' },
+              { time: '15:30', desc: 'Arrive at Marble Mountains (Ngu Hanh Son) — a cluster of five limestone peaks.' },
+              { time: '16:00', desc: 'Visit Linh Ung Non Nuoc Pagoda, Tam Thai Temple, and explore Huyen Khong and Tang Chon caves.' },
+              { time: '17:00', desc: 'Wander through Non Nuoc Stone Carving Village, over 300 years of artisan tradition.' },
+              { time: '17:30', desc: 'Drive to Hoi An Ancient Town — UNESCO World Heritage Site.' },
+              { time: '18:00', desc: 'Evening stroll along the ancient streets; visit Japanese Covered Bridge (Chua Cau) — symbol of Hoi An.' },
+              { time: '18:30', desc: 'Dinner at a renowned Hoi An restaurant (local specialties).' },
+              { time: '19:00', desc: 'Explore Tan Ky Old House, Cantonese Assembly Hall, lantern street, and night market.' },
+              { time: '20:00', desc: 'Optional: bai choi folk singing performance; release flower lanterns on the Hoai River (own expense).' },
+              { time: '21:00', desc: 'Board vehicle back to Da Nang. Tour ends.' }
+            ]
+          }
+        ]),
+        created_at: t, updated_at: t
+      },
+
+      // id=7 ─ Ba Na Hills (1 day)
+      {
+        id: 7, category_id: 2,
+        product_name: 'Ba Na Hills Full-Day Tour – 1 Day',
+        description: 'A full day at Ba Na Hills: Le Jardin D\'Amour flower garden, the iconic Golden Bridge held by giant stone hands, Moon Castle, French Village, and Fantasy Park indoor entertainment.',
+        address: 'Ba Na Hills, Da Nang',
+        image_url: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
+        num_days: 1,
+        itinerary: JSON.stringify([
+          {
+            day: 1, label: 'Day 1 — Ba Na Hills Adventure',
+            items: [
+              { time: '07:30', desc: 'Driver and guide pick up guests from Da Nang hotel. Depart for Ba Na Hills.' },
+              { time: '08:30', desc: 'Arrive at main gate. Guide handles ticketing. Board cable car — a 20-minute scenic ride over pristine rainforest.' },
+              { time: '08:45', desc: 'Enjoy the cable car journey as you feel the temperature drop across altitudinal zones.' },
+              { time: '09:15', desc: 'Visit Le Jardin D\'Amour — a stunning terraced flower garden showcasing blooms from around the world.' },
+              { time: '09:45', desc: 'Walk the famous Golden Bridge at 1,400 m altitude — supported by two giant moss-covered stone hands.' },
+              { time: '10:15', desc: 'Visit Linh Ung Pagoda on the summit of Chua Mountain.' },
+              { time: '10:45', desc: 'Take the cog railway to Moon Castle; enjoy a live artistic performance.' },
+              { time: '11:15', desc: 'Walk from Moon Castle to Eclipse Square — perfect for cloud-chasing photos.' },
+              { time: '11:45', desc: 'Buffet lunch at Ba Na Hills\' 5-star restaurant (nearly 200 Asian and European dishes).' },
+              { time: '13:00', desc: 'Explore the romantic French Village — modelled on 19th-century European architecture.' },
+              { time: '13:30', desc: 'Enter Fantasy Park — Vietnam\'s largest indoor amusement park.' },
+              { time: '15:00', desc: 'Free time to explore the summit and take photos.' },
+              { time: '15:30', desc: 'Board cable car down. Vehicle returns guests to Da Nang.' },
+              { time: '17:00', desc: 'Drop-off at original pick-up point. Tour ends.' }
+            ]
+          }
+        ]),
+        created_at: t, updated_at: t
+      },
+
+      // id=8 ─ Nui Than Tai Hot Spring Park (1 day)
+      {
+        id: 8, category_id: 2,
+        product_name: 'Than Tai Hot Spring Park – 1 Day',
+        description: 'Experience Vietnam\'s largest natural hot-spring water park: wild slides, lazy river, natural mineral pools, an egg-boiling lake, and a dinosaur park — all in one day.',
+        address: 'Than Tai Mountain, Da Nang',
+        image_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        num_days: 1,
+        itinerary: JSON.stringify([
+          {
+            day: 1, label: 'Day 1 — Than Tai Hot Spring Adventure',
+            items: [
+              { time: '07:30', desc: 'Driver and guide pick up guests at hotel. Depart for Than Tai Hot Spring Park.' },
+              { time: '08:30', desc: 'Arrive at park entrance. Store luggage; begin exploration.' },
+              { time: '08:45', desc: 'Electric buggy transfers the group to the water park area. Enjoy water-jet massage pools and exhilarating water slides.' },
+              { time: '10:00', desc: 'Float along the lazy river; explore Long Tien cave; relax in the Ficus massage pool.' },
+              { time: '11:00', desc: 'Soak in natural mineral hot-spring pools — renowned for their health benefits.' },
+              { time: '12:00', desc: 'Lunch and rest at Rong Do Restaurant inside the park.' },
+              { time: '13:00', desc: 'Visit the natural egg-boiling lake — a unique volcanic geo-thermal feature (own expense for eggs).' },
+              { time: '13:30', desc: 'Explore the Dinosaur Park — life-size moving animatronic dinosaurs with realistic sounds.' },
+              { time: '14:00', desc: 'Visit Son Than Temple, the Di Lac Buddha statue, the Long Quy statue, and Vietnam\'s largest natural stone bathtub.' },
+              { time: '15:30', desc: 'Group assembles to exit. Than Tai tour concludes.' },
+              { time: '16:30', desc: 'Return vehicle drops guests at original pick-up point. Farewell!' }
+            ]
+          }
+        ]),
+        created_at: t, updated_at: t
+      },
+
+      // ══ 2-DAY 1-NIGHT TOURS ═══════════════════════════════════════════════
+
+      // id=9 ─ 2D1N Da Nang – Hoi An – Ba Na Hills
+      {
+        id: 9, category_id: 2,
+        product_name: 'Da Nang – Hoi An – Ba Na Hills – 2 Days 1 Night',
+        description: 'Day 1: Son Tra Peninsula, Marble Mountains, Hoi An Ancient Town by night. Day 2: Full-day Ba Na Hills — Golden Bridge, Moon Castle, and Fantasy Park.',
+        address: 'Da Nang → Hoi An → Ba Na Hills',
         image_url: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800',
         num_days: 2,
         itinerary: JSON.stringify([
           {
-            day: 1, label: 'Ngày 1 — Sơn Trà & Ngũ Hành Sơn & Hội An',
+            day: 1, label: 'Day 1 — Son Tra · Marble Mountains · Hoi An',
             items: [
-              { time: '11h00', desc: 'Xe đón du khách tại sân bay, đưa đi ăn trưa (tự túc), về khách sạn nhận phòng.' },
-              { time: '13h30', desc: 'Tham quan Chùa Linh Ứng Sơn Trà, ngắm thành phố Đà Nẵng từ trên cao.' },
-              { time: '15h00', desc: 'Đến Ngũ Hành Sơn, chinh phục 108 bậc cấp ngọn Thủy Sơn, tham quan Chùa Linh Ứng.' },
-              { time: '16h00', desc: 'Tham quan Tháp Xá Lợi, Vọng Hải Đài, chùa Tam Thai, động Tàng Chơn, Động Huyền Không.' },
-              { time: '17h00', desc: 'Bách bộ làng đá mỹ nghệ Non Nước gần 300 năm tuổi.' },
-              { time: '17h30', desc: 'Lên xe vào phố cổ Hội An.' },
-              { time: '18h00', desc: 'Dùng cơm tối tại nhà hàng trong phố cổ.' },
-              { time: '19h00', desc: 'Tham quan Chùa Cầu, Hội Quán Phúc Kiến, Nhà cổ Tấn Ký, dạo phố đèn lồng.' },
-              { time: '20h00', desc: 'Tự do hát bài chòi, thả đèn hoa đăng sông Hoài, mua sắm chợ đêm (tự túc).' },
-              { time: '20h30', desc: 'Đoàn tập trung lên xe về lại Đà Nẵng. Kết thúc lịch trình ngày thứ nhất.' },
-              { time: '21h00', desc: 'Lên xe về Đà Nẵng, nghỉ đêm tại khách sạn.' }
+              { time: '11:00', desc: 'Vehicle picks up guests at Da Nang Airport. Transfer to hotel for check-in (lunch at own expense).' },
+              { time: '13:30', desc: 'Visit Linh Ung Pagoda on Son Tra Peninsula — sweeping views over Da Nang.' },
+              { time: '15:00', desc: 'Marble Mountains: climb 108 stone steps to the summit of Thuy Son peak; visit Linh Ung Pagoda.' },
+              { time: '16:00', desc: 'Explore Xa Loi Tower, Vong Hai Dai, Tam Thai Temple, Tang Chon and Huyen Khong caves.' },
+              { time: '17:00', desc: 'Walk through Non Nuoc Stone Carving Village — nearly 300 years of craftsmanship.' },
+              { time: '17:30', desc: 'Drive to Hoi An Ancient Town.' },
+              { time: '18:00', desc: 'Dinner at an Old Town restaurant (Hoi An specialties).' },
+              { time: '19:00', desc: 'Evening walk: Japanese Covered Bridge, Phuc Kien Assembly Hall, Tan Ky Old House, lantern street.' },
+              { time: '20:00', desc: 'Free time: bai choi folk music, Hoai River lantern release, night market shopping (own expense).' },
+              { time: '20:30', desc: 'Group boards vehicle back to Da Nang for overnight rest.' }
             ]
           },
           {
-            day: 2, label: 'Ngày 2 — Bà Nà Hills',
+            day: 2, label: 'Day 2 — Ba Na Hills',
             items: [
-              { time: '07h00', desc: 'Ăn sáng tại khách sạn. Xe và HDV đón đoàn khởi hành đi Bà Nà Hills.' },
-              { time: '08h45', desc: 'HDV làm thủ tục nhận vé. Du khách đi cáp treo lên núi, ngắm rừng nguyên sinh.' },
-              { time: '09h00', desc: 'Đi tàu hỏa leo núi tham quan Vườn hoa Tình Yêu, Chùa Linh Ứng Bà Nà.' },
-              { time: '10h00', desc: 'Chiêm ngưỡng Cầu Vàng ở độ cao 1.400m.' },
-              { time: '10h30', desc: 'Tham quan Lâu Đài Mặt Trăng và Quảng trường Nhật Thực.' },
-              { time: '12h00', desc: 'Buffet trưa tại nhà hàng 4 sao trên đỉnh núi Chúa.' },
-              { time: '13h30', desc: 'Bách bộ tham quan Làng Pháp cổ kính mang nét đẹp châu Âu thế kỷ 19.' },
-              { time: '14h00', desc: 'Trải nghiệm Fantasy Park với hơn 100 trò chơi cho cả người lớn và trẻ em.' },
-              { time: '16h00', desc: 'Lên cáp xuống núi. Xe đưa du khách ra sân bay. Kết thúc tour 2 ngày 1 đêm.' }
+              { time: '07:00', desc: 'Breakfast at hotel. Vehicle departs for Ba Na Hills with guide.' },
+              { time: '08:45', desc: 'Guide collects tickets. Board cable car — world-record single-wire run over lush rainforest.' },
+              { time: '09:00', desc: 'Ride cog railway; visit Le Jardin D\'Amour and Linh Ung Ba Na Pagoda.' },
+              { time: '10:00', desc: 'Walk the Golden Bridge at 1,400 m — held by giant stone hands for iconic photos.' },
+              { time: '10:30', desc: 'Explore Moon Castle and Eclipse Square.' },
+              { time: '12:00', desc: 'Buffet lunch at the 4-star hilltop restaurant.' },
+              { time: '13:30', desc: 'Stroll through the French Village — charming 19th-century European-style architecture.' },
+              { time: '14:00', desc: 'Enjoy Fantasy Park — over 100 rides and games for all ages.' },
+              { time: '16:00', desc: 'Board cable car down. Vehicle transfers guests to airport. Tour ends.' }
             ]
           }
         ]),
         created_at: t, updated_at: t
       },
+
+      // id=10 ─ 2D1N Da Nang – Hoi An – Than Tai
       {
-        id: 15, category_id: 2,
-        product_name: 'Tour Đà Nẵng – Hội An – Núi Thần Tài 2N1Đ',
-        description: 'Ngày 1: Sơn Trà, Ngũ Hành Sơn, phố cổ Hội An. Ngày 2: Tắm khoáng nóng và khám phá Núi Thần Tài.',
-        address: 'Đà Nẵng → Hội An → Núi Thần Tài',
+        id: 10, category_id: 2,
+        product_name: 'Da Nang – Hoi An – Than Tai Hot Spring – 2 Days 1 Night',
+        description: 'Day 1: Son Tra Peninsula, Marble Mountains, and Hoi An Ancient Town by night. Day 2: Relax in natural mineral hot springs and explore Than Tai Mountain Park.',
+        address: 'Da Nang → Hoi An → Than Tai',
         image_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
         num_days: 2,
         itinerary: JSON.stringify([
           {
-            day: 1, label: 'Ngày 1 — Sơn Trà & Ngũ Hành Sơn & Hội An',
+            day: 1, label: 'Day 1 — Son Tra · Marble Mountains · Hoi An',
             items: [
-              { time: '11h00', desc: 'Xe đón du khách tại sân bay, về khách sạn nhận phòng.' },
-              { time: '13h30', desc: 'Tham quan Chùa Linh Ứng Sơn Trà.' },
-              { time: '15h00', desc: 'Đến Ngũ Hành Sơn, chinh phục 108 bậc cấp ngọn Thủy Sơn.' },
-              { time: '16h00', desc: 'Tham quan Tháp Xá Lợi, chùa Tam Thai, động Tàng Chơn, Động Huyền Không.' },
-              { time: '17h00', desc: 'Tham quan làng đá mỹ nghệ Non Nước.' },
-              { time: '17h30', desc: 'Lên xe vào phố cổ Hội An.' },
-              { time: '18h00', desc: 'Dùng cơm tối tại nhà hàng, thưởng thức đặc sản Hội An.' },
-              { time: '19h00', desc: 'Tham quan Chùa Cầu, Hội Quán Phúc Kiến, dạo phố đèn lồng.' },
-              { time: '20h00', desc: 'Tự do nghe hát bài chòi, thả đèn hoa đăng sông Hoài, mua sắm chợ đêm Nguyễn Hoàng (chi phí tự túc).' },
-              { time: '20h30', desc: 'Đoàn tập trung lên xe về lại Đà Nẵng. Kết thúc lịch trình ngày thứ nhất.' },
-              { time: '21h00', desc: 'Lên xe về Đà Nẵng, nghỉ đêm tại khách sạn.' }
+              { time: '11:00', desc: 'Vehicle picks up guests at Da Nang Airport. Transfer to hotel for check-in.' },
+              { time: '13:30', desc: 'Visit Linh Ung Pagoda on Son Tra Peninsula.' },
+              { time: '15:00', desc: 'Marble Mountains: climb Thuy Son peak (108 stone steps).' },
+              { time: '16:00', desc: 'Visit Xa Loi Tower, Tam Thai Temple, Tang Chon and Huyen Khong caves.' },
+              { time: '17:00', desc: 'Non Nuoc Stone Carving Village walk.' },
+              { time: '17:30', desc: 'Drive to Hoi An Ancient Town.' },
+              { time: '18:00', desc: 'Dinner at a local restaurant featuring Hoi An specialties.' },
+              { time: '19:00', desc: 'Evening stroll: Japanese Covered Bridge, Phuc Kien Assembly Hall, lantern street.' },
+              { time: '20:00', desc: 'Free time: lantern release, night market at Nguyen Hoang Street (own expense).' },
+              { time: '20:30', desc: 'Return to Da Nang for overnight rest.' }
             ]
           },
           {
-            day: 2, label: 'Ngày 2 — Núi Thần Tài',
+            day: 2, label: 'Day 2 — Than Tai Hot Spring Park',
             items: [
-              { time: '08h00', desc: 'Ăn sáng tại khách sạn. Xe đón du khách đi Núi Thần Tài.' },
-              { time: '09h00', desc: 'Đến cổng khu du lịch, gửi hành lý, xe điện đưa đoàn tới khu vực hồ bơi.' },
-              { time: '10h00', desc: 'Trải nghiệm công viên nước, các trò chơi cảm giác mạnh.' },
-              { time: '11h30', desc: 'Buffet trưa tại nhà hàng Rồng Đỏ.' },
-              { time: '13h30', desc: 'Tắm khoáng nước nóng tự nhiên, ngâm mình thư giãn.' },
-              { time: '14h30', desc: 'Tham quan công viên khủng long, đền Di Lặc, miếu Sơn Thần, hồ luộc trứng.' },
-              { time: '16h00', desc: 'Lên xe về Đà Nẵng. Xe đưa du khách ra sân bay/nhà ga. Kết thúc tour.' }
+              { time: '08:00', desc: 'Breakfast at hotel. Vehicle departs for Than Tai Hot Spring Park.' },
+              { time: '09:00', desc: 'Arrive at park; store bags. Electric buggy to water park zone.' },
+              { time: '10:00', desc: 'Water park fun: slides, splash jets, wave pool.' },
+              { time: '11:30', desc: 'Buffet lunch at Rong Do Restaurant.' },
+              { time: '13:30', desc: 'Natural mineral hot-spring soak — therapeutic and relaxing.' },
+              { time: '14:30', desc: 'Dinosaur Park, Di Lac Buddha shrine, Son Than Temple, natural egg-boiling lake.' },
+              { time: '16:00', desc: 'Vehicle returns guests to Da Nang city centre / airport. Tour ends.' }
             ]
           }
         ]),
         created_at: t, updated_at: t
       },
+
+      // id=11 ─ 2D1N Da Nang – Hoi An – Cu Lao Cham Island
       {
-        id: 16, category_id: 2,
-        product_name: 'Tour Đà Nẵng – Hội An – Cù Lao Chàm 2N1Đ',
-        description: 'Ngày 1: Sơn Trà, Ngũ Hành Sơn, phố cổ Hội An. Ngày 2: Khám phá đảo Cù Lao Chàm, lặn ngắm san hô, tắm biển trong xanh.',
-        address: 'Đà Nẵng → Hội An → Đảo Cù Lao Chàm',
+        id: 11, category_id: 2,
+        product_name: 'Da Nang – Hoi An – Cu Lao Cham Island – 2 Days 1 Night',
+        description: 'Day 1: Son Tra Peninsula, Marble Mountains, and Hoi An Ancient Town. Day 2: Speedboat to Cu Lao Cham Marine Reserve — coral reef snorkelling and pristine beach swimming.',
+        address: 'Da Nang → Hoi An → Cu Lao Cham Island',
         image_url: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800',
         num_days: 2,
         itinerary: JSON.stringify([
           {
-            day: 1, label: 'Ngày 1 — Sơn Trà & Ngũ Hành Sơn & Hội An',
+            day: 1, label: 'Day 1 — Son Tra · Marble Mountains · Hoi An',
             items: [
-              { time: '11h00', desc: 'Xe đón du khách tại sân bay, về khách sạn nhận phòng.' },
-              { time: '13h30', desc: 'Tham quan Chùa Linh Ứng Sơn Trà.' },
-              { time: '15h00', desc: 'Đến Ngũ Hành Sơn, chinh phục 108 bậc cấp ngọn Thủy Sơn.' },
-              { time: '16h00', desc: 'Tham quan Tháp Xá Lợi, Vọng Hải Đài, chùa Tam Thai, động Tàng Chơn, Động Huyền Không.' },
-              { time: '17h00', desc: 'Tham quan làng đá mỹ nghệ Non Nước.' },
-              { time: '17h30', desc: 'Lên xe vào phố cổ Hội An.' },
-              { time: '18h00', desc: 'Dùng cơm tối, thưởng thức đặc sản Hội An.' },
-              { time: '19h00', desc: 'Tham quan Chùa Cầu, Hội Quán Phúc Kiến, dạo phố đèn lồng.' },
-              { time: '20h00', desc: 'Tự do nghe hát bài chòi, thả đèn hoa đăng sông Hoài, mua sắm chợ đêm Nguyễn Hoàng (chi phí tự túc).' },
-              { time: '20h30', desc: 'Đoàn tập trung lên xe về lại Đà Nẵng. Kết thúc lịch trình ngày thứ nhất.' },
-              { time: '21h00', desc: 'Lên xe về Đà Nẵng, nghỉ đêm tại khách sạn.' }
+              { time: '11:00', desc: 'Vehicle picks up guests at Da Nang Airport. Hotel check-in (lunch at own expense).' },
+              { time: '13:30', desc: 'Visit Linh Ung Pagoda on Son Tra Peninsula.' },
+              { time: '15:00', desc: 'Marble Mountains (Ngu Hanh Son): climb Thuy Son peak — 108 stone steps.' },
+              { time: '16:00', desc: 'Explore Xa Loi Tower, Vong Hai Dai lookout, Tam Thai Temple, Tang Chon and Huyen Khong caves.' },
+              { time: '17:00', desc: 'Non Nuoc Stone Carving Village.' },
+              { time: '17:30', desc: 'Drive to Hoi An Ancient Town.' },
+              { time: '18:00', desc: 'Dinner; experience Hoi An\'s signature White Rose dumplings and Cao Lau noodles.' },
+              { time: '19:00', desc: 'Evening walk: Japanese Covered Bridge, Phuc Kien Assembly Hall, lantern street stroll.' },
+              { time: '20:00', desc: 'Free time: bai choi folk singing, Hoai River lantern release, Nguyen Hoang night market (own expense).' },
+              { time: '20:30', desc: 'Return to Da Nang for overnight rest.' }
             ]
           },
           {
-            day: 2, label: 'Ngày 2 — Đảo Cù Lao Chàm',
+            day: 2, label: 'Day 2 — Cu Lao Cham Marine Reserve',
             items: [
-              { time: '08h00', desc: 'Ăn sáng tại khách sạn. Xe đón đoàn khởi hành đến cảng Cửa Đại.' },
-              { time: '08h45', desc: 'HDV làm thủ tục xuất bến. Đoàn lên cano ra đảo Cù Lao Chàm.' },
-              { time: '09h00', desc: 'Cano cập bến Bãi Làng. Tham quan Khu bảo tồn biển, Giếng cổ Champa, chùa Hải Tạng.' },
-              { time: '10h30', desc: 'Cano đến khu sinh thái Bãi Ông, thay trang phục tắm biển. Ra Hòn Dài lặn ngắm san hô.' },
-              { time: '11h30', desc: 'Dùng cơm trưa tại nhà hàng với đặc sản Cù Lao Chàm.' },
-              { time: '14h00', desc: 'Tự do tắm biển, chụp ảnh lưu niệm.' },
-              { time: '15h00', desc: 'Cano về cảng. Xe đón trở lại Đà Nẵng, tiễn ra sân bay/nhà ga. Chào tạm biệt!' }
+              { time: '08:00', desc: 'Breakfast at hotel. Vehicle departs for Cua Dai Pier, Hoi An.' },
+              { time: '08:45', desc: 'Guide completes departure formalities. Guests board high-speed speedboat.' },
+              { time: '09:00', desc: 'Speedboat docks at Lang Village Pier. Visit the Marine Conservation Zone, ancient Champa Well, and Hai Tang Pagoda.' },
+              { time: '10:30', desc: 'Speedboat to Bai Ong Eco Zone — change into swimwear and head to Hon Dai for coral reef snorkelling.' },
+              { time: '11:30', desc: 'Lunch at beachside restaurant with fresh Cu Lao Cham seafood specialties.' },
+              { time: '14:00', desc: 'Free time: swimming, beach photography, hammock relaxation.' },
+              { time: '15:00', desc: 'Speedboat returns to Cua Dai Pier. Vehicle takes guests back to Da Nang / airport. Farewell!' }
             ]
           }
         ]),
         created_at: t, updated_at: t
       },
+
+      // id=12 ─ 2D1N Da Nang – Hoi An – Hue Imperial City
       {
-        id: 17, category_id: 2,
-        product_name: 'Tour Đà Nẵng – Hội An – Huế 2N1Đ',
-        description: 'Ngày 1: Sơn Trà, Ngũ Hành Sơn, phố cổ Hội An. Ngày 2: Cố đô Huế — Lăng Khải Định, Đại Nội, Chùa Thiên Mụ.',
-        address: 'Đà Nẵng → Hội An → Huế',
+        id: 12, category_id: 2,
+        product_name: 'Da Nang – Hoi An – Hue Imperial City – 2 Days 1 Night',
+        description: 'Day 1: Son Tra Peninsula, Marble Mountains, and Hoi An Ancient Town by night. Day 2: Journey to the ancient imperial capital of Hue — Khai Dinh Mausoleum, Imperial Citadel, and Thien Mu Pagoda.',
+        address: 'Da Nang → Hoi An → Hue',
         image_url: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800',
         num_days: 2,
         itinerary: JSON.stringify([
           {
-            day: 1, label: 'Ngày 1 — Sơn Trà & Ngũ Hành Sơn & Hội An',
+            day: 1, label: 'Day 1 — Son Tra · Marble Mountains · Hoi An',
             items: [
-              { time: '11h00', desc: 'Xe đón du khách tại sân bay, về khách sạn nhận phòng.' },
-              { time: '13h30', desc: 'Tham quan Chùa Linh Ứng Sơn Trà.' },
-              { time: '15h00', desc: 'Đến Ngũ Hành Sơn, chinh phục 108 bậc cấp ngọn Thủy Sơn.' },
-              { time: '16h00', desc: 'Tham quan Tháp Xá Lợi, Vọng Hải Đài, chùa Tam Thai, động Tàng Chơn, Động Huyền Không.' },
-              { time: '17h00', desc: 'Tham quan làng đá mỹ nghệ Non Nước.' },
-              { time: '17h30', desc: 'Lên xe vào phố cổ Hội An.' },
-              { time: '18h00', desc: 'Dùng cơm tối, thưởng thức đặc sản Hội An.' },
-              { time: '19h00', desc: 'Tham quan Chùa Cầu, Hội Quán Phúc Kiến, dạo phố đèn lồng.' },
-              { time: '20h00', desc: 'Tự do nghe hát bài chòi, thả đèn hoa đăng sông Hoài, mua sắm chợ đêm Nguyễn Hoàng (chi phí tự túc).' },
-              { time: '20h30', desc: 'Đoàn tập trung lên xe về lại Đà Nẵng. Kết thúc lịch trình ngày thứ nhất.' },
-              { time: '21h00', desc: 'Lên xe về Đà Nẵng, nghỉ đêm tại khách sạn.' }
+              { time: '11:00', desc: 'Vehicle picks up guests at Da Nang Airport. Transfer to hotel for check-in.' },
+              { time: '13:30', desc: 'Visit Linh Ung Pagoda on Son Tra Peninsula.' },
+              { time: '15:00', desc: 'Marble Mountains: climb Thuy Son peak (108 stone steps).' },
+              { time: '16:00', desc: 'Visit Xa Loi Tower, Vong Hai Dai, Tam Thai Temple, Tang Chon and Huyen Khong caves.' },
+              { time: '17:00', desc: 'Non Nuoc Stone Carving Village.' },
+              { time: '17:30', desc: 'Drive to Hoi An Ancient Town.' },
+              { time: '18:00', desc: 'Dinner — savour Hoi An\'s most beloved dishes.' },
+              { time: '19:00', desc: 'Evening walk: Japanese Covered Bridge, Phuc Kien Assembly Hall, lantern street.' },
+              { time: '20:00', desc: 'Free time: bai choi folk singing, Hoai River lantern release (own expense).' },
+              { time: '20:30', desc: 'Return to Da Nang for overnight rest.' }
             ]
           },
           {
-            day: 2, label: 'Ngày 2 — Cố Đô Huế',
+            day: 2, label: 'Day 2 — Hue Imperial Capital',
             items: [
-              { time: '07h00', desc: 'Ăn sáng tại khách sạn. Xe đón đoàn khởi hành đến cố đô Huế.' },
-              { time: '09h00', desc: 'Chiêm ngưỡng vịnh Lăng Cô, tham quan khu trưng bày ngọc trai.' },
-              { time: '10h00', desc: 'Tham quan Lăng Khải Định — lăng tẩm đẹp nhất và bề thế nhất triều Nguyễn.' },
-              { time: '11h30', desc: 'Ăn trưa và nghỉ ngơi tại nhà hàng trong thành phố Huế.' },
-              { time: '13h30', desc: 'Xe đến Đại Nội tham quan Cửa Ngọ Môn, Điện Thái Hòa, cung Diên Thọ, Kỳ Đài.' },
-              { time: '15h00', desc: 'Viếng thăm Chùa Thiên Mụ với tháp Phước Duyên, ngắm sông Hương thơ mộng.' },
-              { time: '16h00', desc: 'Xe đưa du khách về Đà Nẵng. Tiễn ra sân bay/ga tàu. Kết thúc tour.' }
+              { time: '07:00', desc: 'Breakfast at hotel. Vehicle departs north along the coast toward Hue.' },
+              { time: '09:00', desc: 'Admire Lang Co Bay from the mountain pass; visit a pearl jewellery exhibition.' },
+              { time: '10:00', desc: 'Khai Dinh Mausoleum — the most elaborate and ornate royal mausoleum of the Nguyen Dynasty.' },
+              { time: '11:30', desc: 'Lunch at a Hue restaurant (try Bun Bo Hue and royal Hue cuisine).' },
+              { time: '13:30', desc: 'Imperial Citadel (Dai Noi): Ngo Mon Gate, Thai Hoa Palace, Dien Tho Palace, Flag Tower.' },
+              { time: '15:00', desc: 'Thien Mu Pagoda — 21-metre Phuoc Duyen tower overlooking the romantic Perfume River.' },
+              { time: '16:00', desc: 'Return journey to Da Nang. Drop-off at airport or hotel. Tour ends.' }
             ]
           }
         ]),
         created_at: t, updated_at: t
       }
+
     ], {});
 
-    // ─── Price lists cho các tour mới ──────────────────────────────────────
-    // model_id: 2=Transit 16 chỗ, 3=County 29 chỗ, 4=Universe 45 chỗ
-    const priceData = [
-      // Tour 1 ngày
-      { product_id: 10, model_id: 2, price: 900000 },
-      { product_id: 10, model_id: 3, price: 1400000 },
-      { product_id: 10, model_id: 4, price: 2200000 },
-      { product_id: 11, model_id: 2, price: 1000000 },
-      { product_id: 11, model_id: 3, price: 1600000 },
-      { product_id: 11, model_id: 4, price: 2500000 },
-      { product_id: 12, model_id: 2, price: 1100000 },
-      { product_id: 12, model_id: 3, price: 1800000 },
-      { product_id: 12, model_id: 4, price: 2800000 },
-      { product_id: 13, model_id: 2, price: 950000 },
-      { product_id: 13, model_id: 3, price: 1500000 },
-      { product_id: 13, model_id: 4, price: 2300000 },
-      // Tour 2 ngày 1 đêm
-      { product_id: 14, model_id: 2, price: 2800000 },
-      { product_id: 14, model_id: 3, price: 4500000 },
-      { product_id: 14, model_id: 4, price: 6500000 },
-      { product_id: 15, model_id: 2, price: 2600000 },
-      { product_id: 15, model_id: 3, price: 4200000 },
-      { product_id: 15, model_id: 4, price: 6200000 },
-      { product_id: 16, model_id: 2, price: 2700000 },
-      { product_id: 16, model_id: 3, price: 4300000 },
-      { product_id: 16, model_id: 4, price: 6300000 },
-      { product_id: 17, model_id: 2, price: 3200000 },
-      { product_id: 17, model_id: 3, price: 5000000 },
-      { product_id: 17, model_id: 4, price: 7500000 },
-    ];
+    // ── PRICE LIST – products 5–12 × all car models 1–4 ──────────────────
+    // Table: price_list (singular, no trailing 's')
+    await queryInterface.bulkInsert('price_list', [
 
-    await queryInterface.bulkInsert('price_lists', priceData.map(p => ({
-      ...p, created_at: t, updated_at: t
-    })), {});
+      // Product 5 – Da Nang City 1D
+      { product_id: 5, model_id: 1, price:  600000, created_at: t, updated_at: t },
+      { product_id: 5, model_id: 2, price:  900000, created_at: t, updated_at: t },
+      { product_id: 5, model_id: 3, price: 1400000, created_at: t, updated_at: t },
+      { product_id: 5, model_id: 4, price: 2200000, created_at: t, updated_at: t },
+
+      // Product 6 – Da Nang & Hoi An Evening 1D
+      { product_id: 6, model_id: 1, price:  700000, created_at: t, updated_at: t },
+      { product_id: 6, model_id: 2, price: 1000000, created_at: t, updated_at: t },
+      { product_id: 6, model_id: 3, price: 1600000, created_at: t, updated_at: t },
+      { product_id: 6, model_id: 4, price: 2500000, created_at: t, updated_at: t },
+
+      // Product 7 – Ba Na Hills 1D
+      { product_id: 7, model_id: 1, price:  750000, created_at: t, updated_at: t },
+      { product_id: 7, model_id: 2, price: 1100000, created_at: t, updated_at: t },
+      { product_id: 7, model_id: 3, price: 1800000, created_at: t, updated_at: t },
+      { product_id: 7, model_id: 4, price: 2800000, created_at: t, updated_at: t },
+
+      // Product 8 – Than Tai Hot Spring 1D
+      { product_id: 8, model_id: 1, price:  650000, created_at: t, updated_at: t },
+      { product_id: 8, model_id: 2, price:  950000, created_at: t, updated_at: t },
+      { product_id: 8, model_id: 3, price: 1500000, created_at: t, updated_at: t },
+      { product_id: 8, model_id: 4, price: 2300000, created_at: t, updated_at: t },
+
+      // Product 9 – Da Nang – Hoi An – Ba Na Hills 2D1N
+      { product_id: 9, model_id: 1, price: 1800000, created_at: t, updated_at: t },
+      { product_id: 9, model_id: 2, price: 2800000, created_at: t, updated_at: t },
+      { product_id: 9, model_id: 3, price: 4500000, created_at: t, updated_at: t },
+      { product_id: 9, model_id: 4, price: 6500000, created_at: t, updated_at: t },
+
+      // Product 10 – Da Nang – Hoi An – Than Tai 2D1N
+      { product_id: 10, model_id: 1, price: 1600000, created_at: t, updated_at: t },
+      { product_id: 10, model_id: 2, price: 2600000, created_at: t, updated_at: t },
+      { product_id: 10, model_id: 3, price: 4200000, created_at: t, updated_at: t },
+      { product_id: 10, model_id: 4, price: 6200000, created_at: t, updated_at: t },
+
+      // Product 11 – Da Nang – Hoi An – Cu Lao Cham 2D1N
+      { product_id: 11, model_id: 1, price: 1700000, created_at: t, updated_at: t },
+      { product_id: 11, model_id: 2, price: 2700000, created_at: t, updated_at: t },
+      { product_id: 11, model_id: 3, price: 4300000, created_at: t, updated_at: t },
+      { product_id: 11, model_id: 4, price: 6300000, created_at: t, updated_at: t },
+
+      // Product 12 – Da Nang – Hoi An – Hue 2D1N
+      { product_id: 12, model_id: 1, price: 2000000, created_at: t, updated_at: t },
+      { product_id: 12, model_id: 2, price: 3200000, created_at: t, updated_at: t },
+      { product_id: 12, model_id: 3, price: 5000000, created_at: t, updated_at: t },
+      { product_id: 12, model_id: 4, price: 7500000, created_at: t, updated_at: t },
+
+    ], {});
+
+    // ── TOUR BOOKINGS ────────────────────────────────────────────────────────
+    const T1 = '10000000-0000-0000-0000-000000000006'; // Ba Na Hills 1D – COMPLETED
+    const T2 = '10000000-0000-0000-0000-000000000007'; // City Tour 1D   – CONFIRMED
+    const T3 = '10000000-0000-0000-0000-000000000008'; // 2D1N Hoi An+BaNa – PENDING
+
+    await queryInterface.bulkInsert('bookings', [
+      // T1 – Nguyễn Văn An | Ba Na Hills 1D | 16-seat Transit | car 1 | COMPLETED
+      {
+        id: T1,
+        customer_id: '00000000-0000-0000-0000-000000000002',
+        product_id: 7, model_id: 2, car_id: 1,
+        driver_id: '00000000-0000-0000-0000-000000000011',
+        start_time: new Date('2026-04-10T07:30:00'),
+        end_time:   new Date('2026-04-10T17:00:00'),
+        total_price: 1100000, status: 'COMPLETED',
+        additional_data: JSON.stringify({
+          pickup_location: 'Novotel Premier Han River Hotel lobby',
+          contact_name: 'Nguyễn Văn An', contact_phone: '0901000002',
+          num_passengers: 14
+        }),
+        created_at: new Date(), updated_at: new Date()
+      },
+      // T2 – Lê Minh Cường | Da Nang City Tour 1D | 16-seat Transit | car 2 | CONFIRMED
+      {
+        id: T2,
+        customer_id: '00000000-0000-0000-0000-000000000004',
+        product_id: 5, model_id: 2, car_id: 2,
+        driver_id: '00000000-0000-0000-0000-000000000012',
+        start_time: new Date('2026-06-10T07:30:00'),
+        end_time:   new Date('2026-06-10T16:30:00'),
+        total_price: 900000, status: 'CONFIRMED',
+        additional_data: JSON.stringify({
+          pickup_location: 'Fusion Suites Da Nang Beach Hotel lobby',
+          contact_name: 'Lê Minh Cường', contact_phone: '0901000004',
+          num_passengers: 13
+        }),
+        created_at: new Date(), updated_at: new Date()
+      },
+      // T3 – Trần Thị Bình | 2D1N Hoi An + Ba Na | 29-seat County | no car yet | PENDING
+      {
+        id: T3,
+        customer_id: '00000000-0000-0000-0000-000000000003',
+        product_id: 9, model_id: 3, car_id: null, driver_id: null,
+        start_time: new Date('2026-06-15T11:00:00'),
+        end_time:   new Date('2026-06-16T16:00:00'),
+        total_price: 4500000, status: 'PENDING',
+        additional_data: JSON.stringify({
+          pickup_location: 'Da Nang International Airport',
+          contact_name: 'Trần Thị Bình', contact_phone: '0901000003',
+          num_passengers: 25
+        }),
+        created_at: new Date(), updated_at: new Date()
+      },
+    ], {});
+
+    // ── TOUR PAYMENTS ────────────────────────────────────────────────────────
+    await queryInterface.bulkInsert('payments', [
+      // T1 completed – 30% of 1,100,000
+      { id: '20000000-0000-0000-0000-000000000005',
+        booking_id: T1, payment_method: 'VNPAY',
+        transaction_code: 'VNPAY-SEED-005', amount: 330000,
+        status: 'SUCCESS', created_at: new Date(), updated_at: new Date() },
+      // T2 confirmed – 30% of 900,000
+      { id: '20000000-0000-0000-0000-000000000006',
+        booking_id: T2, payment_method: 'VNPAY',
+        transaction_code: 'VNPAY-SEED-006', amount: 270000,
+        status: 'SUCCESS', created_at: new Date(), updated_at: new Date() },
+    ], {});
+
+    // ── TOUR REVIEWS (only COMPLETED tour booking) ───────────────────────────
+    await queryInterface.bulkInsert('reviews', [
+      {
+        booking_id: T1,
+        customer_id: '00000000-0000-0000-0000-000000000002',
+        rating: 5,
+        comment: 'Ba Na Hills was absolutely breathtaking! The Golden Bridge views were stunning and the driver was on time. A perfect day out — highly recommended!',
+        created_at: new Date(), updated_at: new Date()
+      },
+    ], {});
+
+    // ── TOUR NOTIFICATIONS ───────────────────────────────────────────────────
+    await queryInterface.bulkInsert('notifications', [
+      {
+        user_id: '00000000-0000-0000-0000-000000000001',
+        content: 'New 2-day tour booking from Trần Thị Bình (Da Nang – Hoi An – Ba Na Hills) is awaiting car assignment.',
+        is_read: false, created_at: new Date(), updated_at: new Date()
+      },
+      {
+        user_id: '00000000-0000-0000-0000-000000000002',
+        content: 'Your Ba Na Hills tour has been completed. We hope you had an amazing experience — please leave us a review!',
+        is_read: true, created_at: new Date(), updated_at: new Date()
+      },
+    ], {});
   },
 
+  // ── DOWN ──────────────────────────────────────────────────────────────────
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('price_lists', {
-      product_id: [10, 11, 12, 13, 14, 15, 16, 17]
-    }, {});
-    await queryInterface.bulkDelete('products', {
-      id: [10, 11, 12, 13, 14, 15, 16, 17]
-    }, {});
+    const tourBookingIds = [
+      '10000000-0000-0000-0000-000000000006',
+      '10000000-0000-0000-0000-000000000007',
+      '10000000-0000-0000-0000-000000000008',
+    ];
+    const tourPaymentIds = [
+      '20000000-0000-0000-0000-000000000005',
+      '20000000-0000-0000-0000-000000000006',
+    ];
+    const tourProductIds = [5, 6, 7, 8, 9, 10, 11, 12];
+
+    await queryInterface.bulkDelete('notifications',
+      { content: { [Sequelize.Op.like]: '%tour%' } }, {});
+    await queryInterface.bulkDelete('reviews',
+      { booking_id: tourBookingIds }, {});
+    await queryInterface.bulkDelete('payments',
+      { id: tourPaymentIds }, {});
+    await queryInterface.bulkDelete('bookings',
+      { id: tourBookingIds }, {});
+    await queryInterface.bulkDelete('price_list',
+      { product_id: tourProductIds }, {});
+    await queryInterface.bulkDelete('products',
+      { id: tourProductIds }, {});
   }
 };

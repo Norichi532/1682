@@ -31,7 +31,7 @@ export default function ProductDetailPage() {
   const handleBooking = () => {
     if (!user) { navigate('/login'); return }
     if (user.role_id !== 2) {
-      alert('Chỉ tài khoản khách hàng mới có thể đặt xe.')
+      alert('Only customer accounts can make bookings.')
       return
     }
     navigate(`/booking/${id}`)
@@ -42,7 +42,7 @@ export default function ProductDetailPage() {
     return Math.min(...product.prices.map(p => parseFloat(p.price)))
   }
 
-  const formatCurrency = (v) => new Intl.NumberFormat('vi-VN').format(v) + ' đ'
+  const formatCurrency = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
 
   const avgRating = reviews.length
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
@@ -59,9 +59,9 @@ export default function ProductDetailPage() {
   if (!product) return (
     <PublicLayout>
       <div className="max-w-5xl mx-auto px-4 py-16 text-center">
-        <p className="text-gray-500 text-lg">Không tìm thấy sản phẩm</p>
+        <p className="text-gray-500 text-lg">Product not found</p>
         <button onClick={() => navigate('/services')} className="mt-4 px-6 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-light transition">
-          Quay lại dịch vụ
+          Back to services
         </button>
       </div>
     </PublicLayout>
@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
         <div className="relative z-10 h-full flex flex-col justify-end pb-10 px-6 max-w-6xl mx-auto">
           <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm mb-4 transition-colors w-fit">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
-            Quay lại
+            Back
           </button>
           {product.category?.category_name && (
             <span className="inline-flex w-fit px-3 py-1 bg-ochre/20 border border-ochre/40 text-ochre text-xs font-semibold rounded-full mb-3">
@@ -113,7 +113,7 @@ export default function ProductDetailPage() {
               {product.category?.id === 2 && product.num_days && (
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-ochre/10 border border-ochre/20 rounded-xl">
                   <span className="text-ochre">🗓</span>
-                  <span className="text-ochre font-semibold text-sm">{product.num_days} ngày</span>
+                  <span className="text-ochre font-semibold text-sm">{product.num_days} days</span>
                 </div>
               )}
               {avgRating && (
@@ -124,7 +124,7 @@ export default function ProductDetailPage() {
                     ))}
                   </div>
                   <span className="font-semibold text-navy">{avgRating}</span>
-                  <span className="text-gray-400 text-sm">({reviews.length} đánh giá)</span>
+                  <span className="text-gray-400 text-sm">({reviews.length} reviews)</span>
                 </div>
               )}
             </div>
@@ -142,20 +142,20 @@ export default function ProductDetailPage() {
             {/* Description */}
             {product.description && (
               <div>
-                <h2 className="font-display text-2xl font-bold text-navy mb-4">Mô tả dịch vụ</h2>
+                <h2 className="font-display text-2xl font-bold text-navy mb-4">Service Description</h2>
                 <p className="text-gray-600 leading-relaxed font-body text-base">{product.description}</p>
               </div>
             )}
 
             {/* Highlights */}
             <div>
-              <h2 className="font-display text-2xl font-bold text-navy mb-5">Điểm nổi bật</h2>
+              <h2 className="font-display text-2xl font-bold text-navy mb-5">Why Choose Us</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { icon: '🛡️', title: 'An toàn', desc: 'Xe được kiểm định định kỳ, tài xế được đào tạo chuyên nghiệp' },
-                  { icon: '⏰', title: 'Đúng giờ', desc: 'Cam kết đón đúng giờ, theo dõi thực tế chuyến đi' },
-                  { icon: '💼', title: 'Tài xế lịch sự', desc: 'Am hiểu địa bàn, thái độ phục vụ chuyên nghiệp' },
-                  { icon: '💰', title: 'Giá minh bạch', desc: 'Không phát sinh chi phí ẩn, thanh toán sau khi đến nơi' },
+                  { icon: '🛡️', title: 'Safe', desc: 'Vehicles are periodically inspected and drivers are professionally trained' },
+                  { icon: '⏰', title: 'On Time', desc: 'We guarantee on-time pickup with real-time trip tracking' },
+                  { icon: '💼', title: 'Courteous Drivers', desc: 'Knowledgeable local drivers with a professional attitude' },
+                  { icon: '💰', title: 'Transparent Pricing', desc: 'No hidden charges — pay upon arrival' },
                 ].map(h => (
                   <div key={h.title} className="flex gap-3 p-4 bg-mist/50 rounded-xl">
                     <span className="text-2xl">{h.icon}</span>
@@ -169,10 +169,10 @@ export default function ProductDetailPage() {
             </div>
 
 
-            {/* Itinerary timeline — chỉ hiện cho Tour (category_id=2) */}
+            {/* Itinerary timeline — shown for Tours only (category_id=2) */}
             {product.category?.id === 2 && Array.isArray(product.itinerary) && product.itinerary.length > 0 && (
               <div>
-                <h2 className="font-display text-2xl font-bold text-navy mb-6">Lịch trình</h2>
+                <h2 className="font-display text-2xl font-bold text-navy mb-6">Itinerary</h2>
                 <div className="space-y-6">
                   {product.itinerary.map((day, di) => (
                     <div key={di} className="relative">
@@ -210,12 +210,12 @@ export default function ProductDetailPage() {
             {/* Reviews */}
             <div>
               <h2 className="font-display text-2xl font-bold text-navy mb-6">
-                Đánh giá khách hàng
+                Customer Reviews
                 {reviews.length > 0 && <span className="ml-2 text-lg text-gray-400 font-normal font-body">({reviews.length})</span>}
               </h2>
               {reviews.length === 0 ? (
                 <div className="bg-mist/50 rounded-2xl p-10 text-center text-gray-400 border border-gray-100">
-                  Chưa có đánh giá nào. Hãy là người đầu tiên!
+                  No reviews yet. Be the first to review!
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -227,8 +227,8 @@ export default function ProductDetailPage() {
                             {review.customer?.full_name?.charAt(0)?.toUpperCase() || 'K'}
                           </div>
                           <div>
-                            <p className="font-semibold text-navy text-sm">{review.customer?.full_name || 'Khách hàng'}</p>
-                            <p className="text-gray-400 text-xs">{new Date(review.created_at).toLocaleDateString('vi-VN')}</p>
+                            <p className="font-semibold text-navy text-sm">{review.customer?.full_name || 'Customer'}</p>
+                            <p className="text-gray-400 text-xs">{new Date(review.created_at).toLocaleDateString('en-GB')}</p>
                           </div>
                         </div>
                         <div className="flex">
@@ -264,9 +264,9 @@ export default function ProductDetailPage() {
               <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
                 {minPrice && (
                   <div className="mb-5">
-                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Giá từ</p>
+                    <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Starting from</p>
                     <p className="font-display text-3xl font-bold text-ochre">{formatCurrency(minPrice)}</p>
-                    <p className="text-gray-400 text-sm mt-0.5">Thanh toán khi đến nơi · Không phụ thu</p>
+                    <p className="text-gray-400 text-sm mt-0.5">Pay on arrival · No surcharges</p>
                   </div>
                 )}
 
@@ -274,20 +274,20 @@ export default function ProductDetailPage() {
                   onClick={handleBooking}
                   className="w-full py-4 bg-ochre hover:bg-ochre-light text-white font-bold text-lg rounded-xl transition-all duration-200 hover:shadow-lg"
                 >
-                  Đặt xe ngay →
+                  Book Now →
                 </button>
 
                 {!user && (
                   <p className="text-center text-xs text-gray-400 mt-3">
-                    Cần <button onClick={() => navigate('/login')} className="text-ochre underline">đăng nhập</button> để đặt xe
+                    Please <button onClick={() => navigate('/login')} className="text-ochre underline">log in</button> to make a booking
                   </p>
                 )}
 
                 <div className="mt-5 pt-5 border-t border-gray-100 space-y-2">
                   {[
-                    'Xác nhận đặt xe trong 30 phút',
-                    'Miễn phí hủy trước 24 giờ',
-                    'Hỗ trợ 24/7 qua điện thoại',
+                    'Booking confirmed within 30 minutes',
+                    'Free cancellation before 24 hours',
+                    '24/7 phone support',
                   ].map(item => (
                     <div key={item} className="flex items-center gap-2 text-sm text-gray-500">
                       <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>

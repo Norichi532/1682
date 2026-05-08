@@ -4,15 +4,15 @@ import api from '../../services/api'
 
 // ─── Constants ─────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  PENDING:     { label: 'Chờ xác nhận',   cls: 'bg-yellow-100 text-yellow-700 border border-yellow-200' },
-  CONFIRMED:   { label: 'Đã xác nhận',    cls: 'bg-blue-100 text-blue-700 border border-blue-200' },
-  IN_PROGRESS: { label: 'Đang thực hiện', cls: 'bg-purple-100 text-purple-700 border border-purple-200' },
-  COMPLETED:   { label: 'Hoàn thành',     cls: 'bg-green-100 text-green-700 border border-green-200' },
-  CANCELLED:   { label: 'Đã hủy',         cls: 'bg-red-100 text-red-700 border border-red-200' },
+  PENDING:     { label: 'Pending',   cls: 'bg-yellow-100 text-yellow-700 border border-yellow-200' },
+  CONFIRMED:   { label: 'Confirmed',    cls: 'bg-blue-100 text-blue-700 border border-blue-200' },
+  IN_PROGRESS: { label: 'In Progress', cls: 'bg-purple-100 text-purple-700 border border-purple-200' },
+  COMPLETED:   { label: 'Completed',     cls: 'bg-green-100 text-green-700 border border-green-200' },
+  CANCELLED:   { label: 'Cancelled',         cls: 'bg-red-100 text-red-700 border border-red-200' },
 }
 const STATUS_TABS = ['all', 'PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
-const fmt   = (v) => new Intl.NumberFormat('vi-VN').format(v) + ' đ'
-const fmtDT = (d) => d ? new Date(d).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+const fmt   = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
+const fmtDT = (d) => d ? new Date(d).toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function DetailRow({ label, value, highlight }) {
@@ -63,8 +63,8 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
   const catId  = booking.product?.category_id || booking.product?.category?.id
 
   const directionLabel = () => {
-    if (catId === 1) return ad.direction === 'from_airport' ? '✈ Sân bay → Khách sạn' : '🏨 Khách sạn → Sân bay'
-    if (catId === 3) return ad.direction === 'to_golf'      ? '🏌 Khách sạn → Sân golf' : '🔄 Sân golf → Khách sạn'
+    if (catId === 1) return ad.direction === 'from_airport' ? '✈ Airport → Hotel' : '🏨 Hotel → Airport'
+    if (catId === 3) return ad.direction === 'to_golf'      ? '🏌 Hotel → Golf Course' : '🔄 Golf Course → Hotel'
     return null
   }
 
@@ -74,22 +74,22 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
       if (useExternal) {
         const { license_plate, driver_name, driver_phone } = extForm
         if (!license_plate || !driver_name || !driver_phone) {
-          setActionError('Biển số xe, tên tài xế và SĐT là bắt buộc'); setAssigning(false); return
+          setActionError('Vehicle license plate, driver name and phone are required'); setAssigning(false); return
         }
         await api.patch(`/bookings/${booking.id}/assign`, { external_car_info: extForm })
       } else {
         if (!assignForm.car_id || !assignForm.driver_id) {
-          setActionError('Vui lòng chọn xe và tài xế'); setAssigning(false); return
+          setActionError('Please select a vehicle and driver'); setAssigning(false); return
         }
         await api.patch(`/bookings/${booking.id}/assign`, {
-          car_id:    parseInt(assignForm.car_id),  // Car ID là integer
-          driver_id: assignForm.driver_id,          // Driver ID là UUID — không parseInt
+          car_id:    parseInt(assignForm.car_id),  // Car ID is an integer
+          driver_id: assignForm.driver_id,          // Driver ID is a UUID — do not parseInt
         })
       }
-      setActionSuccess('Gán xe thành công!')
+      setActionSuccess('Vehicle assigned successfully!')
       setTimeout(() => { onRefresh(); onClose() }, 1200)
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Gán xe thất bại')
+      setActionError(err.response?.data?.message || 'Failed to assign vehicle')
     } finally {
       setAssigning(false)
     }
@@ -99,10 +99,10 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
     setActionError('')
     try {
       await api.patch(`/bookings/${booking.id}/status`, { status: newStatus })
-      setActionSuccess(`Đã cập nhật: ${STATUS_CONFIG[newStatus]?.label}`)
+      setActionSuccess(`Updated: ${STATUS_CONFIG[newStatus]?.label}`)
       setTimeout(() => { onRefresh(); onClose() }, 1200)
     } catch (err) {
-      setActionError(err.response?.data?.message || 'Cập nhật thất bại')
+      setActionError(err.response?.data?.message || 'Update failed')
     }
   }
 
@@ -116,7 +116,7 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
         {/* Header */}
         <div className="flex items-center justify-between px-7 py-5 border-b border-gray-100">
           <div>
-            <h2 className="font-display text-xl font-bold text-navy">Chi tiết đặt xe</h2>
+            <h2 className="font-display text-xl font-bold text-navy">Booking Details</h2>
             <p className="text-gray-400 text-sm mt-0.5">#{booking.id?.toString().slice(0, 8).toUpperCase()}</p>
           </div>
           <div className="flex items-center gap-3">
@@ -129,8 +129,8 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
 
         <div className="px-7 py-5 space-y-6">
 
-          {/* Khách hàng */}
-          <Section title="Thông tin khách hàng" icon="👤">
+          {/* Customer */}
+          <Section title="Customer Information" icon="👤">
             <div className="flex items-center gap-4 mb-3">
               <div className="w-12 h-12 rounded-full bg-navy text-white flex items-center justify-center font-bold text-lg">
                 {booking.customer?.full_name?.charAt(0)?.toUpperCase() || 'K'}
@@ -140,56 +140,56 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
                 <p className="text-gray-400 text-sm">{booking.customer?.email}</p>
               </div>
             </div>
-            <DetailRow label="Số điện thoại"  value={ad.contact_phone || booking.customer?.phone} />
-            <DetailRow label="Họ tên liên hệ" value={ad.contact_name} />
+            <DetailRow label="Phone number"  value={ad.contact_phone || booking.customer?.phone} />
+            <DetailRow label="Contact name" value={ad.contact_name} />
           </Section>
 
-          {/* Dịch vụ & Lịch trình */}
-          <Section title="Dịch vụ & Lịch trình" icon="📋">
-            <DetailRow label="Dịch vụ"       value={booking.product?.product_name} />
-            <DetailRow label="Danh mục"       value={booking.product?.category?.category_name} />
-            <DetailRow label="Dòng xe"        value={booking.car_model?.model_name} />
-            <DetailRow label="Giờ đón"         value={fmtDT(booking.start_time)} />
-            <DetailRow label="Giờ kết thúc (dự kiến)" value={fmtDT(booking.end_time)} />
-            {directionLabel() && <DetailRow label="Chiều đi" value={directionLabel()} />}
-            <DetailRow label="Điểm đón"       value={ad.pickup_location} />
-            {catId === 3 && <DetailRow label="Sân golf"      value={ad.golf_course} />}
-            {catId === 1 && ad.flight_code && <DetailRow label="Mã chuyến bay" value={ad.flight_code} />}
-            <DetailRow label="Số hành khách"  value={ad.passengers ? `${ad.passengers} người` : null} />
-            {catId === 3 && <DetailRow label="Số túi golf"   value={ad.golf_bags != null ? `${ad.golf_bags} túi` : null} />}
-            {catId === 2 && <DetailRow label="Số ngày"       value={ad.days ? `${ad.days} ngày` : null} />}
-            {ad.notes && <DetailRow label="Ghi chú"          value={ad.notes} />}
-            <DetailRow label="Tổng tiền"      value={fmt(booking.total_price)} highlight />
+          {/* Service & Schedule */}
+          <Section title="Service & Schedule" icon="📋">
+            <DetailRow label="Service"       value={booking.product?.product_name} />
+            <DetailRow label="Category"       value={booking.product?.category?.category_name} />
+            <DetailRow label="Vehicle model"        value={booking.car_model?.model_name} />
+            <DetailRow label="Pickup time"         value={fmtDT(booking.start_time)} />
+            <DetailRow label="Estimated end time" value={fmtDT(booking.end_time)} />
+            {directionLabel() && <DetailRow label="Direction" value={directionLabel()} />}
+            <DetailRow label="Pickup location"       value={ad.pickup_location} />
+            {catId === 3 && <DetailRow label="Golf course"      value={ad.golf_course} />}
+            {catId === 1 && ad.flight_code && <DetailRow label="Flight code" value={ad.flight_code} />}
+            <DetailRow label="Passengers"  value={ad.passengers ? `${ad.passengers} people` : null} />
+            {catId === 3 && <DetailRow label="Golf bags"   value={ad.golf_bags != null ? `${ad.golf_bags} bags` : null} />}
+            {catId === 2 && <DetailRow label="Days"       value={ad.days ? `${ad.days} days` : null} />}
+            {ad.notes && <DetailRow label="Notes"          value={ad.notes} />}
+            <DetailRow label="Total"      value={fmt(booking.total_price)} highlight />
           </Section>
 
-          {/* Xe & Tài xế */}
-          <Section title="Xe & Tài xế" icon="🚌">
+          {/* Vehicle & Driver */}
+          <Section title="Vehicle & Driver" icon="🚌">
             {extCar ? (
               <>
                 <div className="mb-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">
-                  🔄 Xe ngoài
+                  🔄 External Vehicle
                 </div>
-                <DetailRow label="Biển số"          value={extCar.license_plate} />
-                <DetailRow label="Loại xe"          value={extCar.car_type} />
-                <DetailRow label="Tài xế"           value={extCar.driver_name} />
-                <DetailRow label="SĐT tài xế"       value={extCar.driver_phone} />
-                <DetailRow label="Đơn vị cho thuê"  value={extCar.vendor} />
+                <DetailRow label="License plate"          value={extCar.license_plate} />
+                <DetailRow label="Vehicle type"          value={extCar.car_type} />
+                <DetailRow label="Driver"           value={extCar.driver_name} />
+                <DetailRow label="Driver phone"       value={extCar.driver_phone} />
+                <DetailRow label="Rental company"  value={extCar.vendor} />
               </>
             ) : booking.assigned_driver ? (
               <>
-                <DetailRow label="Tài xế"     value={booking.assigned_driver.full_name} />
-                <DetailRow label="SĐT tài xế" value={booking.assigned_driver.phone} />
-                <DetailRow label="Biển số xe" value={booking.assigned_car?.license_plate} />
-                <DetailRow label="Màu xe"     value={booking.assigned_car?.color} />
+                <DetailRow label="Driver"     value={booking.assigned_driver.full_name} />
+                <DetailRow label="Driver phone" value={booking.assigned_driver.phone} />
+                <DetailRow label="License plate xe" value={booking.assigned_car?.license_plate} />
+                <DetailRow label="Color"     value={booking.assigned_car?.color} />
               </>
             ) : (
-              <p className="text-gray-400 text-sm py-2">Chưa gán xe và tài xế</p>
+              <p className="text-gray-400 text-sm py-2">No vehicle or driver assigned</p>
             )}
           </Section>
 
           {/* Admin Actions */}
           <div className="border-t-2 border-dashed border-gray-100 pt-5">
-            <h3 className="font-semibold text-navy text-sm uppercase tracking-wider mb-4">Hành động</h3>
+            <h3 className="font-semibold text-navy text-sm uppercase tracking-wider mb-4">Actions</h3>
 
             {actionError && (
               <div className="mb-4 flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
@@ -204,21 +204,21 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
               </div>
             )}
 
-            {/* PENDING — chỉ xem, không gán xe */}
+            {/* PENDING — view only — no assignment */}
             {booking.status === 'PENDING' && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
-                <p className="text-sm text-yellow-700 font-medium">⏳ Chờ khách thanh toán cọc</p>
-                <p className="text-xs text-yellow-500 mt-1">Admin chỉ có thể gán xe sau khi khách đã cọc thành công.</p>
+                <p className="text-sm text-yellow-700 font-medium">⏳ Awaiting customer deposit payment</p>
+                <p className="text-xs text-yellow-500 mt-1">Admin can only assign a vehicle after the customer has paid the deposit.</p>
               </div>
             )}
 
-            {/* CONFIRMED + chưa gán xe — gán xe */}
+            {/* CONFIRMED + unassigned — assign vehicle */}
             {needsAssign && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-amber-700 flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    Cần gán xe và tài xế
+                    Vehicle & driver assignment required
                   </p>
                   <button
                     onClick={() => { setUseExternal(v => !v); setActionError('') }}
@@ -226,15 +226,15 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
                       useExternal ? 'bg-orange-100 text-orange-700 border-orange-300' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    🔄 {useExternal ? 'Đang dùng xe ngoài' : 'Dùng xe ngoài'}
+                    🔄 {useExternal ? 'Using external vehicle' : 'Use external vehicle'}
                   </button>
                 </div>
 
-                {/* Xe nội bộ */}
+                {/* Internal vehicle */}
                 {!useExternal && (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Chọn xe <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Select vehicle <span className="text-red-500">*</span></label>
                       <select
                         value={assignForm.car_id}
                         onChange={e => {
@@ -244,25 +244,25 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
                         }}
                         className={iCls}
                       >
-                        <option value="">-- Chọn xe khả dụng --</option>
+                        <option value="">-- Select available vehicle --</option>
                         {availableCars.map(car => (
                           <option key={car.id} value={car.id}>
-                            {car.license_plate} • {car.color} ({car.model_info?.model_name}) — {car.driver?.full_name || 'Chưa có tài xế'}
+                            {car.license_plate} • {car.color} ({car.model_info?.model_name}) — {car.driver?.full_name || 'No driver assigned'}
                           </option>
                         ))}
                       </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        Tài xế <span className="text-red-500">*</span>
-                        <span className="ml-1 text-xs text-gray-400 font-normal">(có thể đổi tài xế khác)</span>
+                        Driver <span className="text-red-500">*</span>
+                        <span className="ml-1 text-xs text-gray-400 font-normal">(can change driver)</span>
                       </label>
                       <select
                         value={assignForm.driver_id}
                         onChange={e => setAssignForm(f => ({ ...f, driver_id: e.target.value }))}
                         className={iCls}
                       >
-                        <option value="">-- Chọn tài xế đang rảnh --</option>
+                        <option value="">-- Select available driver --</option>
                         {availableDrivers.map(d => (
                           <option key={d.id} value={d.id}>
                             {d.full_name} — {d.phone}
@@ -273,35 +273,35 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
                   </div>
                 )}
 
-                {/* Xe ngoài */}
+                {/* External vehicle */}
                 {useExternal && (
                   <div className="space-y-3 bg-orange-50/60 rounded-xl p-4 border border-orange-100">
-                    <p className="text-xs text-orange-600 font-semibold">Thông tin xe thuê ngoài</p>
+                    <p className="text-xs text-orange-600 font-semibold">External rental vehicle info</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Biển số xe <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">License plate xe <span className="text-red-500">*</span></label>
                         <input value={extForm.license_plate} onChange={e => setExtForm(f => ({ ...f, license_plate: e.target.value }))}
                           placeholder="VD: 43C-005.55" className={iCls} />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Loại xe</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Vehicle type</label>
                         <input value={extForm.car_type} onChange={e => setExtForm(f => ({ ...f, car_type: e.target.value }))}
-                          placeholder="VD: Toyota Hiace 16 chỗ" className={iCls} />
+                          placeholder="VD: Toyota Hiace 16 seats" className={iCls} />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Tên tài xế <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Driver name <span className="text-red-500">*</span></label>
                         <input value={extForm.driver_name} onChange={e => setExtForm(f => ({ ...f, driver_name: e.target.value }))}
-                          placeholder="Họ và tên" className={iCls} />
+                          placeholder="Full name" className={iCls} />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">SĐT tài xế <span className="text-red-500">*</span></label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Driver phone <span className="text-red-500">*</span></label>
                         <input value={extForm.driver_phone} onChange={e => setExtForm(f => ({ ...f, driver_phone: e.target.value }))}
                           placeholder="0905 xxx xxx" className={iCls} />
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Đơn vị cho thuê</label>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Rental company</label>
                         <input value={extForm.vendor} onChange={e => setExtForm(f => ({ ...f, vendor: e.target.value }))}
-                          placeholder="Tên công ty / cá nhân cho thuê xe" className={iCls} />
+                          placeholder="Company or individual vehicle provider" className={iCls} />
                       </div>
                     </div>
                   </div>
@@ -312,16 +312,16 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
                   disabled={assigning}
                   className="w-full py-2.5 bg-navy hover:bg-navy-light disabled:bg-navy/40 text-white font-semibold rounded-xl transition-all duration-200 text-sm"
                 >
-                  {assigning ? 'Đang xử lý...' : useExternal ? '🔄 Gán xe ngoài & Xác nhận' : '✓ Gán xe & Xác nhận đặt xe'}
+                  {assigning ? 'Processing...' : useExternal ? '🔄 Assign External Vehicle & Confirm' : '✓ Assign Vehicle & Confirm Booking'}
                 </button>
               </div>
             )}
 
-            {/* CONFIRMED + đã gán xe — chỉ cho hủy */}
+            {/* CONFIRMED + assigned — only cancel allowed */}
             {booking.status === 'CONFIRMED' && (booking.assigned_driver || booking.additional_data?.external_car) && (
               <button onClick={() => handleStatus('CANCELLED')}
                 className="w-full py-2.5 border-2 border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition text-sm">
-                ✕ Hủy đặt xe
+                ✕ Cancel Booking
               </button>
             )}
 
@@ -330,18 +330,18 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
               <div className="flex gap-3">
                 <button onClick={() => handleStatus('COMPLETED')}
                   className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition text-sm">
-                  ✓ Hoàn thành
+                  ✓ Completed
                 </button>
                 <button onClick={() => handleStatus('CANCELLED')}
                   className="flex-1 py-2.5 border-2 border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition text-sm">
-                  ✕ Hủy
+                  ✕ Cancel
                 </button>
               </div>
             )}
 
             {/* COMPLETED / CANCELLED */}
             {(booking.status === 'COMPLETED' || booking.status === 'CANCELLED') && (
-              <p className="text-gray-400 text-sm text-center py-2">Đơn này đã kết thúc, không thể thay đổi.</p>
+              <p className="text-gray-400 text-sm text-center py-2">This booking has ended and cannot be modified.</p>
             )}
           </div>
         </div>
@@ -383,8 +383,8 @@ export default function BookingsManagePage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Quản lý đặt xe</h1>
-            <p className="text-gray-500 text-sm mt-0.5">{bookings.length} đơn</p>
+            <h1 className="text-2xl font-bold text-gray-900">Manage Bookings</h1>
+            <p className="text-gray-500 text-sm mt-0.5">{bookings.length} bookings</p>
           </div>
         </div>
 
@@ -399,7 +399,7 @@ export default function BookingsManagePage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm whitespace-nowrap transition-all duration-200 ${
                   active ? 'bg-navy text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:border-navy/30'
                 }`}>
-                {s === 'all' ? 'Tất cả' : cfg?.label}
+                {s === 'all' ? 'All' : cfg?.label}
                 {s !== 'all' && count > 0 && (
                   <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`}>
                     {count}
@@ -421,14 +421,14 @@ export default function BookingsManagePage() {
               <svg className="w-12 h-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
               </svg>
-              Không có đơn đặt xe nào
+              No bookings found
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
-                    {['#', 'Khách hàng', 'Dịch vụ', 'Dòng xe', 'Ngày đi', 'Tổng tiền', 'Tài xế / Xe', 'Trạng thái', ''].map(h => (
+                    {['#', 'Customer', 'Service', 'Vehicle model', 'Departure', 'Total', 'Driver / Vehicle', 'Status', ''].map(h => (
                       <th key={h} className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -456,8 +456,8 @@ export default function BookingsManagePage() {
                         </td>
                         <td className="px-5 py-4 text-sm text-gray-600">{b.car_model?.model_name}</td>
                         <td className="px-5 py-4">
-                          <p className="text-sm text-gray-700">{new Date(b.start_time).toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' })}</p>
-                          <p className="text-xs text-gray-400">{new Date(b.start_time).toLocaleDateString('vi-VN')}</p>
+                          <p className="text-sm text-gray-700">{new Date(b.start_time).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })}</p>
+                          <p className="text-xs text-gray-400">{new Date(b.start_time).toLocaleDateString('en-GB')}</p>
                         </td>
                         <td className="px-5 py-4">
                           <span className="text-sm font-bold text-ochre">{fmt(b.total_price)}</span>
@@ -465,7 +465,7 @@ export default function BookingsManagePage() {
                         <td className="px-5 py-4">
                           {extCar ? (
                             <div>
-                              <p className="text-xs font-semibold text-orange-600">🔄 Xe ngoài</p>
+                              <p className="text-xs font-semibold text-orange-600">🔄 External vehicle</p>
                               <p className="text-xs text-gray-400">{extCar.license_plate} — {extCar.driver_name}</p>
                             </div>
                           ) : b.assigned_driver ? (
@@ -474,7 +474,7 @@ export default function BookingsManagePage() {
                               <p className="text-xs text-gray-400">{b.assigned_car?.license_plate}</p>
                             </div>
                           ) : (
-                            <span className="text-xs text-gray-300 italic">Chưa gán</span>
+                            <span className="text-xs text-gray-300 italic">Unassigned</span>
                           )}
                         </td>
                         <td className="px-5 py-4">
@@ -483,7 +483,7 @@ export default function BookingsManagePage() {
                         <td className="px-5 py-4">
                           <button onClick={() => setDetailBooking(b)}
                             className="px-4 py-1.5 bg-navy/5 hover:bg-navy text-navy hover:text-white border border-navy/20 hover:border-navy text-xs font-semibold rounded-lg transition-all duration-200">
-                            Chi tiết
+                            Details
                           </button>
                         </td>
                       </tr>

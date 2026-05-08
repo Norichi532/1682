@@ -17,7 +17,7 @@ export default function ForgotPasswordPage() {
       await api.post('/auth/forgot-password', { email })
       setSuccess(true)
     } catch (err) {
-      setError(err.response?.data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.')
+      setError(err.response?.data?.message || 'An error occurred. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -40,9 +40,9 @@ export default function ForgotPasswordPage() {
             </div>
             <span className="font-display text-2xl font-bold tracking-wide">PhuOng Tourist Car</span>
           </div>
-          <h2 className="font-display text-4xl font-bold leading-tight mb-4">Quên mật khẩu?</h2>
+          <h2 className="font-display text-4xl font-bold leading-tight mb-4">Forgot Password?</h2>
           <p className="text-white/70 text-lg leading-relaxed">
-            Đừng lo — nhập email của bạn và chúng tôi sẽ gửi mật khẩu mới ngay lập tức.
+            No worries — enter your email and we'll send you a new password right away.
           </p>
         </div>
       </div>
@@ -69,19 +69,19 @@ export default function ForgotPasswordPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h1 className="font-display text-2xl font-bold text-navy mb-2">Kiểm tra email của bạn</h1>
+              <h1 className="font-display text-2xl font-bold text-navy mb-2">Check your email</h1>
               <p className="text-gray-500 mb-8">
-                Chúng tôi đã gửi mật khẩu mới đến <span className="font-semibold text-navy">{email}</span>. Vui lòng kiểm tra hộp thư.
+                We have sent a new password to <span className="font-semibold text-navy">{email}</span>. Please check your inbox.
               </p>
               <Link to="/login" className="w-full inline-block py-3 px-4 bg-navy hover:bg-navy-light text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg text-center">
-                Quay lại đăng nhập
+                Back to login
               </Link>
             </div>
           ) : (
             <>
               <div className="mb-8">
-                <h1 className="font-display text-3xl font-bold text-navy">Đặt lại mật khẩu</h1>
-                <p className="text-gray-500 mt-2">Nhập email và chúng tôi sẽ gửi mật khẩu mới</p>
+                <h1 className="font-display text-3xl font-bold text-navy">Reset Password</h1>
+                <p className="text-gray-500 mt-2">Enter your email and we'll send you a new password</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -117,16 +117,16 @@ export default function ForgotPasswordPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Đang gửi...
+                      Sending...
                     </>
-                  ) : 'Gửi mật khẩu mới'}
+                  ) : 'Send new password'}
                 </button>
               </form>
 
               <p className="mt-6 text-center text-gray-500 text-sm">
-                Nhớ mật khẩu rồi?{' '}
+                Remember your password?{' '}
                 <Link to="/login" className="text-ochre font-semibold hover:underline">
-                  Đăng nhập
+                  Login
                 </Link>
               </p>
             </>

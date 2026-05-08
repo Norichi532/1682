@@ -2,7 +2,7 @@
 
 > **Đồ án tốt nghiệp** | Hệ thống đặt xe du lịch trực tuyến  
 > **Sinh viên:** Huỳnh Đoàn Tấn Phát  
-> **Cập nhật lần cuối:** 07/05/2026
+> **Cập nhật lần cuối:** 08/05/2026
 
 ---
 
@@ -10,7 +10,7 @@
 
 **PhuOng Tourist Car** là hệ thống đặt xe du lịch trực tuyến gồm 3 loại dịch vụ:
 - ✈️ Đưa đón sân bay
-- 🗺️ Tour du lịch (nhiều ngày)
+- 🗺️ Tour du lịch (1 ngày và nhiều ngày)
 - ⛳ Đưa đón sân golf
 
 **Công nghệ:**
@@ -23,7 +23,7 @@
 | Thanh toán | VNPay (cổng thanh toán Việt Nam) |
 | Upload ảnh | Cloudinary |
 | Email | Nodemailer (Gmail SMTP) |
-| API docs | Swagger UI |
+| Deploy | Render (backend) + Vercel (frontend) + Supabase (DB) |
 
 ---
 
@@ -39,7 +39,7 @@
 
 ## 🗄️ Cơ sở dữ liệu
 
-**Database:** `phuong_tourist_car` (PostgreSQL)
+**Database:** `phuong_tourist_car` (PostgreSQL / Supabase)
 
 ### Các bảng chính
 
@@ -48,21 +48,45 @@
 | `roles` | Phân quyền (admin/khách/tài xế) |
 | `users` | Tài khoản người dùng |
 | `categories` | Danh mục dịch vụ (sân bay, tour, golf) |
-| `car_models` | Dòng xe (4 chỗ, 7 chỗ, 16 chỗ, 29 chỗ, 45 chỗ) |
+| `car_models` | Dòng xe — có `images` JSONB (gallery nhiều ảnh) |
 | `cars` | Xe cụ thể (biển số, màu, ảnh) |
-| `products` | Sản phẩm/dịch vụ (có `num_days` cho tour) |
+| `products` | Sản phẩm/dịch vụ — có `num_days` và `itinerary` JSONB cho tour |
 | `price_list` | Bảng giá theo product × car_model |
 | `bookings` | Đơn đặt xe |
 | `payments` | Thanh toán VNPay |
 | `notifications` | Thông báo nội bộ |
 | `reviews` | Đánh giá sau chuyến |
 
-### Quan hệ quan trọng
-- `products` → `categories` (mỗi dịch vụ thuộc 1 danh mục)
-- `price_list` → `products` × `car_models` (giá theo từng loại xe)
-- `bookings` → `users` (customer), `products`, `car_models`, `cars`, `users` (driver)
-- `payments` → `bookings` (1-1)
-- `notifications` → `users`
+### Migrations đã chạy
+
+| File | Mô tả |
+|---|---|
+| `20260430230335-init-database.js` | Khởi tạo toàn bộ 11 bảng |
+| `20260505000001-add-is-active-to-users.js` | Thêm `is_active` vào users |
+| `20260505000002-add-is-active-to-cars.js` | Thêm `is_active` vào cars |
+| `20260505000003-add-end-time-to-bookings.js` | Thêm `end_time` vào bookings |
+| `20260506000001-add-num-days-to-products.js` | Thêm `num_days` vào products (cho tour) |
+| `20260507000001-add-images-to-car-models.js` | Thêm `images` JSONB vào car_models (gallery) |
+| `20260507000002-add-itinerary-to-products.js` | Thêm `itinerary` JSONB vào products (lịch trình tour) |
+
+### Cấu trúc `itinerary` JSONB (products)
+```json
+[
+  {
+    "day": 1,
+    "label": "Ngày 1 — Đà Nẵng City Tour",
+    "items": [
+      { "time": "07h30", "desc": "Xe đón khách tại khách sạn..." },
+      { "time": "08h00", "desc": "Tham quan Chùa Linh Ứng Sơn Trà..." }
+    ]
+  },
+  {
+    "day": 2,
+    "label": "Ngày 2 — Bà Nà Hills",
+    "items": [...]
+  }
+]
+```
 
 ---
 
@@ -71,73 +95,73 @@
 ```
 Final/
 ├── backend/
+│   ├── seed-tours.js               ← Script thêm 8 tour từ docx lịch trình
 │   └── src/
 │       ├── config/config.js
 │       ├── controllers/
 │       │   ├── authController.js
-│       │   ├── bookingController.js
+│       │   ├── bookingController.js   ← kiểm tra trùng lịch xe/tài xế
 │       │   ├── carController.js
-│       │   ├── carModelController.js
+│       │   ├── carModelController.js  ← hỗ trợ images gallery
 │       │   ├── categoryController.js
 │       │   ├── notificationController.js
 │       │   ├── paymentController.js
-│       │   ├── productController.js
+│       │   ├── productController.js   ← hỗ trợ itinerary
 │       │   ├── reviewController.js
 │       │   ├── uploadController.js
 │       │   └── userController.js
 │       ├── middleware/
 │       │   ├── authMiddleware.js
-│       │   └── upload.js (Cloudinary multer)
-│       ├── migrations/
-│       │   ├── 20260430230335-init-database.js
-│       │   ├── 20260505000001-add-is-active-to-users.js
-│       │   ├── 20260505000002-add-is-active-to-cars.js
-│       │   ├── 20260505000003-add-end-time-to-bookings.js
-│       │   └── 20260506000001-add-num-days-to-products.js
+│       │   └── upload.js
+│       ├── migrations/             ← 7 migration files
 │       ├── models/
-│       │   ├── booking.js, car.js, carModel.js, category.js
-│       │   ├── notification.js, payment.js, priceList.js
-│       │   ├── product.js, review.js, role.js, user.js
-│       │   └── index.js
+│       │   ├── carModel.js         ← có images JSONB
+│       │   ├── product.js          ← có num_days + itinerary JSONB
+│       │   └── (booking, car, category, notification, payment, priceList, review, role, user, index)
 │       ├── routes/
-│       │   ├── authRoutes.js, bookingRoutes.js, carRoutes.js
-│       │   ├── carModelRoutes.js, categoryRoutes.js
-│       │   ├── notificationRoutes.js, paymentRoutes.js
-│       │   ├── productRoutes.js, reviewRoutes.js
-│       │   ├── uploadRoutes.js, userRoutes.js
 │       ├── seeders/
 │       │   └── 20260501083044-demo-phuongtravel-data.js
 │       ├── utils/
-│       │   ├── mailer.js (Nodemailer)
-│       │   └── socket.js (Socket.IO singleton)
+│       │   ├── mailer.js           ← dùng FRONTEND_URL env (đã fix)
+│       │   └── socket.js
 │       └── server.js
 └── frontend/
+    ├── vercel.json                 ← SPA routing (ở root frontend/, KHÔNG trong public/)
     └── src/
-        ├── App.jsx (routes)
+        ├── App.jsx
         ├── main.jsx
-        ├── services/api.js (axios instance)
+        ├── services/api.js         ← dùng VITE_API_URL env
         ├── context/AuthContext.jsx
         ├── components/
-        │   ├── Footer.jsx
-        │   ├── ImageUpload.jsx (Cloudinary upload)
+        │   ├── Footer.jsx          ← email phuongtouristcar.dev@gmail.com
+        │   ├── ImageUpload.jsx
         │   ├── Navbar.jsx
         │   ├── NotificationBell.jsx
         │   ├── ProtectedRoute.jsx
         │   └── PublicLayout.jsx
         └── pages/
-            ├── (public) HomePage, ServicesPage, CategoryPage
-            ├── (public) ProductDetailPage, VehiclesPage, VehicleDetailPage
-            ├── (public) BookingPage, VNPayReturnPage
-            ├── (public) LoginPage, RegisterPage, ForgotPasswordPage
-            ├── (public) GoogleCallbackPage, ProfilePage
-            ├── (public) MyOrdersPage, AboutPage
+            ├── HomePage.jsx        ← badge clickable → Google Maps popup
+            ├── ServicesPage.jsx
+            ├── CategoryPage.jsx
+            ├── ProductDetailPage.jsx  ← timeline itinerary + badge num_days
+            ├── VehiclesPage.jsx
+            ├── VehicleDetailPage.jsx  ← gallery ảnh + thumbnails (fixed hooks)
+            ├── BookingPage.jsx        ← terminal sân bay, validate >45 khách, golf labels fix
+            ├── VNPayReturnPage.jsx
+            ├── LoginPage.jsx          ← Google OAuth href dùng VITE_API_URL
+            ├── RegisterPage.jsx       ← Google OAuth href dùng VITE_API_URL
+            ├── ForgotPasswordPage.jsx
+            ├── GoogleCallbackPage.jsx
+            ├── ProfilePage.jsx
+            ├── MyOrdersPage.jsx
+            ├── AboutPage.jsx          ← địa chỉ/SĐT/email đã cập nhật
             ├── admin/
-            │   ├── AdminLayout.jsx (sidebar + ProfileModal)
+            │   ├── AdminLayout.jsx    ← xóa nút "Về trang chủ"
             │   ├── DashboardPage.jsx
             │   ├── BookingsManagePage.jsx
-            │   ├── ProductsManagePage.jsx
+            │   ├── ProductsManagePage.jsx  ← tab Lịch trình + ItineraryEditor
             │   ├── CarsManagePage.jsx
-            │   ├── CarModelsManagePage.jsx
+            │   ├── CarModelsManagePage.jsx ← gallery nhiều ảnh
             │   ├── UsersManagePage.jsx
             │   └── CalendarPage.jsx
             └── driver/
@@ -149,36 +173,29 @@ Final/
 ## ⚙️ Biến môi trường (.env)
 
 ```env
-# Server
 PORT=5000
 NODE_ENV=development
 
-# Database
 DB_HOST=localhost
 DB_USER=postgres
 DB_NAME=phuong_tourist_car
 DB_PORT=5432
 DB_PASSWORD=<mật khẩu postgres>
 
-# JWT
 JWT_SECRET=<chuỗi bí mật>
 
-# Google OAuth
 GOOGLE_CLIENT_ID=<từ Google Console>
 GOOGLE_CLIENT_SECRET=<từ Google Console>
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 FRONTEND_URL=http://localhost:5173
 
-# Email (Gmail SMTP)
 MAIL_USER=phuongtouristcar.dev@gmail.com
 MAIL_PASS=<app password>
 
-# Cloudinary
 CLOUDINARY_CLOUD_NAME=<name>
 CLOUDINARY_API_KEY=<key>
 CLOUDINARY_API_SECRET=<secret>
 
-# VNPay
 VNPAY_TMN_CODE=<mã terminal>
 VNPAY_SECURE_SECRET=<hash secret>
 VNPAY_RETURN_URL=http://localhost:5173/vnpay-return
@@ -194,12 +211,13 @@ cd backend
 npm install
 npx sequelize-cli db:migrate
 npx sequelize-cli db:seed:all
-npm run dev          # chạy trên port 5000
+node seed-tours.js      # ← thêm 8 tour với lịch trình đầy đủ
+npm run dev             # port 5000
 
 # 2. Frontend
 cd frontend
 npm install
-npm run dev          # chạy trên port 5173
+npm run dev             # port 5173
 ```
 
 ---
@@ -216,94 +234,77 @@ npm run dev          # chạy trên port 5173
 - `PATCH /change-password` — đổi mật khẩu (kiểm tra mật khẩu cũ)
 - `POST /forgot-password` — sinh mật khẩu ngẫu nhiên gửi qua email
 - `GET /google` — redirect sang Google OAuth
-- `GET /google/callback` — nhận code, tạo/link tài khoản Google, gửi welcome email nếu user mới, trả JWT + `is_google` flag
+- `GET /google/callback` — nhận code, tạo/link tài khoản, gửi welcome email nếu user mới, trả JWT + `is_google` flag
 
 #### Products (`/api/products`)
 - CRUD đầy đủ
-- `num_days` cho tour (chỉ có ý nghĩa với category_id = 2)
+- `num_days` cho tour (category_id = 2)
+- `itinerary` JSONB — lịch trình chi tiết theo ngày/giờ cho tour
 - Kèm bảng giá (`price_list`) theo từng dòng xe
+
+#### Car Models (`/api/car-models`)
+- CRUD đầy đủ
+- `images` JSONB — gallery nhiều ảnh, upload song song qua Cloudinary
 
 #### Bookings (`/api/bookings`)
 - `POST /` — tạo đơn (kiểm tra đặt trước ít nhất 3 ngày)
 - Tính `end_time` tự động: tour dùng `product.num_days`, golf +6h, sân bay +3h
 - `GET /my` — lịch sử đặt xe của khách
-- `GET /admin` — tất cả đơn (dành cho admin)
+- `GET /admin` — tất cả đơn
 - `GET /driver` — lịch chạy của tài xế đang đăng nhập
-- `PATCH /:id/assign` — admin gán xe + tài xế (kiểm tra trùng lịch)
+- `PATCH /:id/assign` — **gán xe + tài xế có kiểm tra trùng lịch** (tính năng chính đồ án)
+  - Overlap condition: `start_time < newEnd AND end_time > newStart`
+  - Kiểm tra cả xe lẫn tài xế riêng biệt
+  - Hỗ trợ gán xe ngoài (external_car_info)
 - `PATCH /:id/status` — admin cập nhật trạng thái
 - `PATCH /:id/driver-status` — tài xế cập nhật (`CONFIRMED→IN_PROGRESS→COMPLETED`)
 
 #### Payments (`/api/payments`)
 - `POST /create-payment-url` — tạo link VNPay (30% cọc)
-- `GET /vnpay-return` — nhận kết quả từ VNPay, xác nhận booking → `CONFIRMED`
-- `POST /cancel/:bookingId` — hủy đơn đã CONFIRMED, tính hoàn tiền:
-  - ≥ 3 ngày trước chuyến: hoàn 100% cọc
+- `GET /vnpay-return` — nhận kết quả từ VNPay → CONFIRMED
+- `POST /cancel/:bookingId` — hủy đơn, chính sách hoàn tiền:
+  - ≥ 3 ngày trước chuyến: hoàn 100%
   - 1–3 ngày: hoàn 50%
   - < 24h: không hoàn
-- Gửi thông báo cho cả khách và tài xế khi hủy
-
-#### Notifications (`/api/notifications`)
-- CRUD thông báo
-- Emit Socket.IO (`new_booking`) khi có đơn mới
-- Emit thông báo realtime khi hủy đơn
 
 #### Các module khác
-- Cars, CarModels, Categories — CRUD đầy đủ
-- Users — CRUD, toggle `is_active` (vô hiệu hóa tài khoản)
-- Reviews — đánh giá sau khi hoàn thành chuyến
+- Cars, Categories — CRUD đầy đủ
+- Users — CRUD, toggle `is_active`
+- Reviews — đánh giá sau chuyến
 - Upload — ảnh lên Cloudinary
 - Reports — thống kê doanh thu, đơn hàng
+- Notifications + Socket.IO realtime
 
 ---
 
 ### 🎨 Frontend
 
-#### Trang công khai (khách chưa đăng nhập)
-- **HomePage** — banner, giới thiệu dịch vụ, xe nổi bật
-- **ServicesPage** — danh sách dịch vụ
-- **CategoryPage** — dịch vụ theo danh mục
-- **ProductDetailPage** — chi tiết dịch vụ + bảng giá
-- **VehiclesPage / VehicleDetailPage** — danh sách xe
-- **AboutPage** — giới thiệu công ty + Google Maps nhúng
-- **LoginPage** — đăng nhập, logo công ty, nút quay về trang chủ
-- **RegisterPage** — đăng ký tài khoản
-- **ForgotPasswordPage** — quên mật khẩu
-- **GoogleCallbackPage** — xử lý callback Google OAuth
+#### Trang công khai
+- **HomePage** — badge "Đà Nẵng City" clickable → popup Google Maps (địa chỉ 09 Tiên Sơn 06), ochre line trên chữ ĐÀ NẴNG
+- **ServicesPage** — danh sách dịch vụ theo tab
+- **ProductDetailPage** — chi tiết + **timeline lịch trình** cho tour + badge số ngày
+- **VehicleDetailPage** — gallery ảnh lớn có thumbnails, description bên dưới
+- **AboutPage** — địa chỉ: 09 Tiên Sơn 06, Đà Nẵng | SĐT: 0335 966 977 | Email: phuongtouristcar.dev@gmail.com
+- **LoginPage / RegisterPage** — Google OAuth href dùng `VITE_API_URL`
 
-#### Trang khách hàng (role_id = 2)
-- **BookingPage** — đặt xe 3 bước (lịch trình → chọn xe → xác nhận)
-  - Tour: hiển thị số ngày cố định từ product (không cho khách tự nhập)
-  - Sân bay: chọn chiều đi/đến, mã chuyến bay
-  - Golf: chọn sân, số túi golf
-  - Thanh toán VNPay 30% cọc
-- **VNPayReturnPage** — trang kết quả thanh toán
-- **MyOrdersPage** — lịch sử đơn đặt, xem trạng thái, đánh giá
-- **ProfilePage** — thông tin cá nhân + đổi mật khẩu (ẩn đổi mật khẩu nếu đăng nhập bằng Google)
+#### Trang khách hàng
+- **BookingPage** — đặt xe 3 bước:
+  - Sân bay: chọn **nhà ga Quốc tế / Nội địa**, mã chuyến bay không bắt buộc
+  - Golf: labels pickup/dropoff đúng theo chiều đi (`from_golf` / `to_golf`)
+  - Validate: cảnh báo khi >45 hành khách, hiển thị hotline 0335 966 977
+  - Bước 2: lọc xe theo sức chứa thực (trừ số túi golf)
+- **MyOrdersPage** — lịch sử đơn, đánh giá
+- **ProfilePage** — ẩn đổi mật khẩu nếu tài khoản Google
 
-#### Trang Admin (role_id = 1)
-- **DashboardPage** — thống kê tổng quan, doanh thu, cảnh báo đơn chưa gán xe
-- **BookingsManagePage** — quản lý đơn đặt xe
-  - PENDING: hiện thông tin, chờ khách thanh toán
-  - CONFIRMED + chưa gán: hiện form gán xe + tài xế (kiểm tra trùng lịch)
-  - CONFIRMED + đã gán: nút hủy đơn
-- **ProductsManagePage** — quản lý dịch vụ + bảng giá (có ô Số ngày cho Tour)
-- **CarsManagePage** — quản lý xe (ảnh, biển số, màu, tình trạng)
-- **CarModelsManagePage** — quản lý dòng xe
-- **UsersManagePage** — quản lý tài khoản, toggle khóa/mở tài khoản
-- **CalendarPage** — lịch hiển thị các chuyến đã xác nhận
+#### Trang Admin
+- **ProductsManagePage** — **2 tab: Thông tin chung + Lịch trình** (ItineraryEditor theo ngày/giờ/mô tả)
+- **CarModelsManagePage** — **upload gallery nhiều ảnh**, xem/xóa từng ảnh
+- **BookingsManagePage** — gán xe/tài xế có conflict detection
+- **AdminLayout** — đã xóa nút "Về trang chủ"
+- Dashboard, CalendarPage, CarsManagePage, UsersManagePage
 
-#### Trang Tài xế (role_id = 3)
-- **SchedulePage** — lịch chạy xe cá nhân
-  - Hiển thị đơn CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED
-  - Nút "Bắt đầu chuyến" (CONFIRMED → IN_PROGRESS)
-  - Nút "Hoàn thành chuyến" (IN_PROGRESS → COMPLETED)
-  - Thông tin khách hàng, loại xe, số hiệu bay, túi golf
-
-#### Components dùng chung
-- **Navbar** — logo, menu, icon đơn hàng, chuông thông báo, dropdown user
-- **AdminLayout** — sidebar với ProfileModal (click avatar để mở)
-- **NotificationBell** — chuông thông báo realtime (Socket.IO)
-- **ImageUpload** — upload ảnh lên Cloudinary
+#### Trang Tài xế
+- **SchedulePage** — lịch chạy, cập nhật trạng thái CONFIRMED→IN_PROGRESS→COMPLETED
 
 ---
 
@@ -311,32 +312,35 @@ npm run dev          # chạy trên port 5173
 
 ### Đặt xe và thanh toán
 ```
-Khách chọn dịch vụ
-  → BookingPage (3 bước)
-  → Tạo booking (status: PENDING)
+Khách chọn dịch vụ → BookingPage (3 bước)
+  → Tạo booking (PENDING)
   → Thanh toán VNPay 30% cọc
-  → VNPay redirect về /vnpay-return
-  → Backend xác nhận → status: CONFIRMED
-  → Admin nhận thông báo (Socket.IO)
+  → Backend xác nhận → CONFIRMED
+  → Admin nhận thông báo realtime (Socket.IO)
 ```
 
-### Gán xe và thực hiện chuyến
+### Gán xe — tính năng chính đồ án
 ```
 Admin vào BookingsManagePage
   → Thấy đơn CONFIRMED chưa gán xe
-  → Chọn xe + tài xế (hệ thống kiểm tra trùng lịch)
-  → Tài xế nhận thông báo
-  → Tài xế vào SchedulePage → bấm "Bắt đầu chuyến" → IN_PROGRESS
-  → Tài xế bấm "Hoàn thành chuyến" → COMPLETED
-  → Khách nhận thông báo + email xác nhận hoàn thành
+  → Chọn xe + tài xế
+  → Backend kiểm tra overlap: start < newEnd AND end > newStart
+  → Nếu trùng → 400 + thông báo thời gian bị trùng cụ thể
+  → Nếu OK → gán, status CONFIRMED, tài xế nhận notification
+```
+
+### Thực hiện chuyến
+```
+Tài xế → SchedulePage → "Bắt đầu chuyến" → IN_PROGRESS
+  → "Hoàn thành chuyến" → COMPLETED
+  → Khách nhận notification + email
 ```
 
 ### Hủy đơn
 ```
 Admin hủy đơn CONFIRMED
-  → Tính % hoàn tiền dựa vào ngày chuyến
-  → Gửi thông báo cho khách (kèm thông tin hoàn tiền)
-  → Gửi thông báo cho tài xế (nếu đã gán)
+  → Tính % hoàn tiền theo ngày chuyến
+  → Notification cho khách + tài xế
   → status: CANCELLED
 ```
 
@@ -346,172 +350,78 @@ Admin hủy đơn CONFIRMED
 
 | Vấn đề | Giải pháp |
 |---|---|
+| Google OAuth redirect về localhost khi deploy | LoginPage/RegisterPage: đổi href hardcode → `VITE_API_URL` env |
+| 404 NOT_FOUND khi callback Google OAuth trên Vercel | `vercel.json` đặt sai trong `public/` → chuyển ra `frontend/vercel.json` |
+| DEPLOYMENT_NOT_FOUND khi VNPay return | `FRONTEND_URL` + `VNPAY_RETURN_URL` trên Render còn trỏ domain cũ |
+| Đăng ký/Google OAuth không nhận email chào | `mailer.js` hardcode `localhost:5173` → đổi sang `FRONTEND_URL` env |
+| VehicleDetailPage trắng xóa | `useState(0)` gọi sau early returns → vi phạm React Rules of Hooks → di chuyển lên đầu component |
+| Ảnh xe bị crop trong gallery | `object-cover` → đổi sang `object-contain` với `bg-gray-900` |
+| Golf summary hiển thị sai chiều (hotel ↔ sân golf) | direction value là `from_golf` không phải `golf_to_hotel` → fix labels |
 | Tour: khách tự nhập số ngày | Thêm `num_days` vào Product, backend tự lấy khi tạo booking |
 | Gán xe cho đơn PENDING (chưa cọc) | Chỉ hiện form gán xe khi status = CONFIRMED |
-| Google user thấy nút "Đổi mật khẩu" | Backend trả `is_google` flag, frontend ẩn nút nếu `user.is_google = true` |
-| Google user mới không nhận email chào | Thêm `sendWelcomeEmail` trong googleCallback khi `isNewUser = true` |
-| Thông báo hủy hiện % hoàn tiền dạng số | Đổi sang câu chữ tự nhiên thay vì "Hoàn 50%" |
-| Tài xế không nhận thông báo khi đơn bị hủy | Thêm `Notification.create` cho driver trong paymentController |
-| ProfilePage trắng xóa | Lỗi JSX: thiếu đóng ngoặc `}` sau `&&` block, đã sửa |
-| BookingPage trắng xóa (sau thêm num_days) | `product` không phải prop của `Step1Schedule`, đã đổi sang truyền `numDays` |
-| BookingPage blank cho tất cả trang | Lỗi do thêm PublicRoute redirect nhầm, đã revert |
-| Supabase ENOTFOUND (deploy) | Direct connection dùng IPv6, không hỗ trợ IPv4 → đổi sang Session Pooler port 5432 |
-| Render: SequelizeConnectionRefusedError | `config.js` dùng `url:` thay vì `use_env_variable:` → Sequelize không đọc được DB_URL |
-| Frontend deploy xong không có dữ liệu | `api.js` hardcode localhost → đổi sang `import.meta.env.VITE_API_URL` |
-| React Router 404 trên Vercel | Thiếu `vercel.json` với rewrites SPA → thêm file `frontend/public/vercel.json` |
+| Google user thấy nút "Đổi mật khẩu" | Backend trả `is_google` flag, frontend ẩn nút nếu true |
+| Supabase ENOTFOUND khi deploy | Direct connection dùng IPv6 → đổi sang Session Pooler port 5432 |
+| Render: SequelizeConnectionRefusedError | `config.js` dùng `url:` → đổi sang `use_env_variable: 'DB_URL'` |
+| Frontend deploy không có dữ liệu | `api.js` hardcode localhost → đổi sang `import.meta.env.VITE_API_URL` |
 
 ---
 
 ## 🌐 Triển khai (Deployment)
 
-### Kiến trúc deploy
-
+### Kiến trúc
 ```
 GitHub (monorepo)
-├── backend/   → Render (Web Service)
-└── frontend/  → Vercel (Static Site)
-                          ↕
-              Supabase (PostgreSQL cloud)
+├── backend/   → Render (Web Service, auto-deploy on push)
+└── frontend/  → Vercel (Static Site, auto-deploy on push)
+                         ↕
+             Supabase (PostgreSQL — Session Pooler port 5432)
 ```
 
-### 1. Database — Supabase
-
-| Thông tin | Giá trị |
+### Domain
+| Service | URL |
 |---|---|
-| Provider | Supabase (free tier) |
-| Region | Southeast Asia (Singapore) |
-| Kết nối | Session Pooler — port 5432 (IPv4 compatible) |
-| Biến môi trường | `DB_URL` (connection string đầy đủ) |
+| Frontend | https://phuongtourist.vercel.app |
+| Backend | https://phuong-tourist-backend.onrender.com |
+| DB | Supabase (aws-1-us-east-1) |
 
-**Lưu ý quan trọng:**
-- Direct connection dùng IPv6 → không hoạt động trên máy không hỗ trợ IPv6
-- Session Pooler (port 5432) dùng IPv4 → tương thích với Sequelize và Render
-- Transaction Pooler (port 6543) không tương thích với Sequelize (cần prepared statements)
-
-**Sau khi tạo project trên Supabase:**
-```bash
-DB_URL=postgresql://postgres.[project-ref]:[password]@aws-1-us-east-1.pooler.supabase.com:5432/postgres
-```
-
-**Chạy migration và seed trên Supabase:**
-```bash
-cd backend
-DB_URL=<connection_string> npx sequelize-cli db:migrate
-DB_URL=<connection_string> npx sequelize-cli db:seed:all
-```
-
-### 2. Backend — Render
-
-| Thông tin | Giá trị |
-|---|---|
-| Provider | Render (free tier — Web Service) |
-| Region | Oregon (US West) |
-| Root Directory | `backend` |
-| Build Command | `npm install` |
-| Start Command | `npm start` |
-| URL | `https://phuong-tourist-backend.onrender.com` |
-
-**Environment Variables trên Render:**
-```
-NODE_ENV=production
-DB_URL=<Supabase Session Pooler connection string>
-JWT_SECRET=<chuỗi bí mật>
-GOOGLE_CLIENT_ID=<từ Google Console>
-GOOGLE_CLIENT_SECRET=<từ Google Console>
-GOOGLE_CALLBACK_URL=https://phuong-tourist-backend.onrender.com/api/auth/google/callback
-FRONTEND_URL=https://phuong-tourist-frontend.vercel.app
-MAIL_USER=phuongtouristcar.dev@gmail.com
-MAIL_PASS=<app password>
-CLOUDINARY_CLOUD_NAME=<name>
-CLOUDINARY_API_KEY=<key>
-CLOUDINARY_API_SECRET=<secret>
-VNPAY_TMN_CODE=<mã terminal>
-VNPAY_SECURE_SECRET=<hash secret>
-VNPAY_RETURN_URL=https://phuong-tourist-frontend.vercel.app/vnpay-return
-```
-
-**Fix quan trọng — `config/config.js` production:**
-```js
-production: {
-  use_env_variable: 'DB_URL',   // <-- phải dùng use_env_variable, không dùng url:
-  dialect: 'postgres',
-  dialectOptions: {
-    ssl: { require: true, rejectUnauthorized: false }
-  },
-  logging: false
-}
-```
-`models/index.js` đọc `config.use_env_variable` để lấy connection string. Nếu dùng `url:` thì Sequelize sẽ không nhận.
-
-### 3. Frontend — Vercel
-
-| Thông tin | Giá trị |
-|---|---|
-| Provider | Vercel (free tier) |
-| Framework | Vite |
-| Root Directory | `frontend` |
-| Build Command | `npm run build` |
-| Output Directory | `dist` |
-| URL | `https://phuong-tourist-frontend.vercel.app` |
-
-**Environment Variables trên Vercel:**
-```
-VITE_API_URL=https://phuong-tourist-backend.onrender.com/api
-```
-
-**`frontend/public/vercel.json`** — bắt buộc để React Router hoạt động (SPA routing):
-```json
-{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
-```
-
-**`frontend/src/services/api.js`** — sử dụng biến môi trường Vite:
-```js
-baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-```
-
-### 4. GitHub — Monorepo
-
-Một repo duy nhất chứa cả `backend/` và `frontend/`:
-```bash
-git init
-git remote add origin https://github.com/<user>/phuong-tourist.git
-git add .
-git commit -m "initial commit"
-git push -u origin main
-```
-- Render tự động redeploy khi có push vào nhánh main (Root Dir: `backend`)
-- Vercel tự động redeploy khi có push vào nhánh main (Root Dir: `frontend`)
-
-### 5. Sau khi deploy — việc cần làm thêm
-
-- [ ] Cập nhật Google OAuth Authorized redirect URI trong Google Console:
-  ```
-  https://phuong-tourist-backend.onrender.com/api/auth/google/callback
-  ```
-- [ ] Test full flow: đăng ký → đặt xe → thanh toán VNPay → admin gán xe
-- [ ] Cập nhật `VNPAY_RETURN_URL` trên VNPay merchant portal sang domain thật
+### Lưu ý quan trọng về config
+- `vercel.json` phải ở `frontend/vercel.json` (không phải `frontend/public/`)
+- Sequelize production: dùng `use_env_variable: 'DB_URL'` (không phải `url:`)
+- Supabase: dùng **Session Pooler** port 5432 (không phải Direct/Transaction Pooler)
+- Google OAuth: cập nhật Authorized redirect URI trong Google Console mỗi khi đổi domain
 
 ---
 
-## 📌 Cần làm thêm (nếu có thời gian)
+## 📌 Còn cần làm (nếu có thời gian)
 
-- [ ] Redis caching cho các API thường xuyên gọi
-- [ ] Trang đánh giá sau chuyến (UI hoàn chỉnh)
-- [ ] Thuật toán gợi ý xe thông minh (Greedy)
-- [ ] Dịch toàn bộ giao diện sang tiếng Anh
+- [ ] Chạy `node seed-tours.js` trên production sau khi deploy
+- [ ] Cập nhật `FRONTEND_URL` và `VNPAY_RETURN_URL` trên Render → `phuongtourist.vercel.app`
+- [ ] Test full flow: đăng ký → đặt tour → VNPay → admin gán xe → tài xế hoàn thành
+- [ ] Trang đánh giá sau chuyến (UI hoàn chỉnh hơn)
+- [ ] Dịch giao diện sang tiếng Anh
 
 ---
 
 ## 🗒️ Ghi chú kỹ thuật
 
-**VNPay trên localhost hoạt động được vì:**  
-VNPay dùng browser redirect (không phải IPN server-to-server). Khi thanh toán xong, VNPay redirect trình duyệt của user về `VNPAY_RETURN_URL` → trình duyệt tự gọi về localhost. Khi deploy chỉ cần đổi `VNPAY_RETURN_URL` sang domain thật.
+**Conflict detection logic (`bookingController.js → assignCarAndDriver`):**
+```js
+WHERE car_id = :carId
+  AND status IN ('CONFIRMED', 'IN_PROGRESS')
+  AND id != :currentBookingId
+  AND start_time < :newEndTime
+  AND (end_time > :newStartTime OR end_time IS NULL)
+```
+Kiểm tra tương tự cho `driver_id`. Trả lỗi 400 kèm thời gian xung đột cụ thể.
+
+**VNPay hoạt động trên localhost:**  
+VNPay dùng browser redirect (không phải IPN webhook). User browser tự gọi về `VNPAY_RETURN_URL` → hoạt động ngay cả khi là localhost.
 
 **Google OAuth flow:**  
-`/api/auth/google` → redirect Google → Google gọi về `/api/auth/google/callback` → backend tạo JWT → redirect về `FRONTEND_URL/auth/google/callback?token=...&user=...` → `GoogleCallbackPage` lưu vào localStorage.
+`/api/auth/google` → Google → `/api/auth/google/callback` → backend tạo JWT → redirect `FRONTEND_URL/auth/google/callback?token=...&user=...` → `GoogleCallbackPage` lưu localStorage.
 
-**Socket.IO:**  
-Dùng singleton pattern (`utils/socket.js`) để tránh circular import. Controllers gọi `getIo()` để emit sự kiện mà không cần import server trực tiếp.
+**Socket.IO singleton pattern:**  
+`utils/socket.js` export `getIo()` để tránh circular import. Controllers dùng `getIo().emit(...)`.
 
-**Kiểm tra trùng lịch xe/tài xế:**  
-Khi gán xe/tài xế, backend tìm các booking khác có `start_time < end_time_mới` AND `end_time > start_time_mới`. Nếu có overlap → báo lỗi kèm thông tin booking xung đột.
+**Cloudinary upload:**  
+`/api/upload` nhận `multipart/form-data`, trả về `{ url }`. Frontend gọi song song nhiều file bằng `Promise.all`.
