@@ -13,7 +13,6 @@ const { setIo } = require('./utils/socket');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// HTTP server + Socket.IO
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: process.env.FRONTEND_URL || 'http://localhost:5173' }
@@ -31,12 +30,11 @@ io.use((socket, next) => {
   }
 });
 
-// Khi client kết nối thành công → join đúng room
+// Join room theo user + role
 io.on('connection', (socket) => {
   const { id, role_id } = socket.user;
-  socket.join(`user_${id}`);          // room riêng của từng user
-  if (role_id === 1) socket.join('admin'); // admin join thêm room admin
-  socket.on('disconnect', () => {});
+  socket.join(`user_${id}`);
+  if (role_id === 1) socket.join('admin');
 });
 
 setIo(io);
@@ -124,4 +122,14 @@ app.get('/api', (req, res) => {
     message: '✅ PhuOng Tourist Car API đang hoạt động!',
     version: '1.0.0',
     docs: `http://localhost:${PORT}/api-docs`,
-    e
+    endpoints: [
+      '/api/auth',
+      '/api/products',
+      '/api/categories',
+      '/api/bookings',
+      '/api/cars',
+      '/api/notifications',
+    ]
+  });
+});
+

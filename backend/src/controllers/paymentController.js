@@ -125,7 +125,7 @@ const vnpayReturn = async (req, res) => {
           })
         ));
 
-        // Realtime: báo admin + khách hàng ngay lập tức
+        // Emit socket
         const io = getIo();
         if (io) {
           io.to('admin').emit('payment_confirmed', { booking_id: booking.id });
@@ -275,4 +275,9 @@ const getPaymentByBooking = async (req, res) => {
       order: [['created_at', 'DESC']]
     });
     res.json({ data: payment });
-  } catch (e) {
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+module.exports = { createPaymentUrl, vnpayReturn, vnpayIpn, cancelBooking, getPaymentByBooking };
