@@ -147,4 +147,55 @@ export default function AboutPage() {
       </div>
 
       {/* Contact info */}
-      <div className="max-w
+      <div className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Address */}
+        <AnimatedCard delay={0}>
+          <div className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-sm hover-lift">
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-ochre uppercase tracking-wide mb-1 font-semibold">Địa chỉ</p>
+              <p className="font-semibold text-navy text-sm">09 Tiên Sơn 06, Đà Nẵng</p>
+            </div>
+          </div>
+        </AnimatedCard>
+
+        {/* Phone */}
+        <AnimatedCard delay={80}>
+          <div className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-sm hover-lift">
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12 19.79 19.79 0 0 1 1.07 3.4 2 2 0 0 1 3.07 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.95 5.95l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-ochre uppercase tracking-wide mb-1 font-semibold">Hotline</p>
+              <p className="font-semibold text-navy text-sm">0335 966 977</p>
+            </div>
+          </div>
+        </AnimatedCard>
+
+        {/* Email – click to copy */}
+        <AnimatedCard delay={160}>
+          <CopyEmailCard />
+        </AnimatedCard>
+      </div>
+
+
+      {/* CTA */}
+      <div className="bg-navy py-16 px-4 text-center">
+        <h2 className="font-display text-3xl font-bold text-white mb-4">Ready to Book?</h2>
+        <p className="text-white/60 font-body mb-8">Browse our services and choose the right route for you.</p>
+        <button
+          onClick={() => navigate('/services')}
+          className="px-10 py-3.5 bg-ochre hover:bg-ochre-light text-white font-bold rounded-xl transition-all duration-200 hover:shadow-lg"
+        >
+          View Services →
+        </button>
+      </div>
+    </PublicLayout>
+  )
+}

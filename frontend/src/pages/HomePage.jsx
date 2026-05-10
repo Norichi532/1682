@@ -501,4 +501,15 @@ export default function HomePage() {
               </a>
               <button
                 onClick={() => navigate('/services')}
-                className="bg-ochre hover:bg-ochre-light text-white px-8 py-3.5 rounded-2xl font-semibold text-sm f
+                className="bg-ochre hover:bg-ochre-light text-white px-8 py-3.5 rounded-2xl font-semibold text-sm font-body transition-all duration-200"
+              >
+                View Services
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </PublicLayout>
+  )
+}

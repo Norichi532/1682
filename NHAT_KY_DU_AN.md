@@ -419,4 +419,177 @@ GitHub (monorepo)
 #### Frontend — Kết nối Socket.IO thật sự
 
 **`frontend/package.json`**
-- Thêm dependen
+- Thêm dependency `"socket.io-client": "^4.8.3"` → chạy `npm install` để cài
+
+**`frontend/src/utils/socket.js`** *(file mới)*
+- Helper singleton: `connectSocket(token)`, `getSocket()`, `disconnectSocket()`
+- Kết nối tới base URL (tự bỏ `/api` suffix), gửi token qua `auth: { token }`
+- `reconnectionAttempts: 5`, transport WebSocket
+
+**`frontend/src/components/NotificationBell.jsx`**
+- Import `connectSocket` từ `utils/socket`
+- Thêm `useEffect` riêng: kết nối socket với token từ localStorage
+- Lắng nghe `new_booking` và `payment_confirmed` → gọi `fetchNotifications()` ngay lập tức
+- Cleanup: `socket.off(...)` khi component unmount
+
+**Kết quả luồng realtime:**
+```
+Khách đặt xe → backend emit 'new_booking' → room 'admin'
+  → NotificationBell admin nhận ngay → fetchNotifications() → số đỏ tăng tức thì
+Khách thanh toán VNPay → backend emit 'payment_confirmed' → room 'admin' + room 'user_<id>'
+  → Cả admin lẫn khách đó đều thấy chuông rung ngay, không chờ 30 giây polling
+```
+
+#### Frontend — Tour booking lấy thời gian từ lịch trình
+
+**`frontend/src/pages/BookingPage.jsx`**
+- Thêm helper `parseItineraryTime(t)`: chuyển `"07h30"` → `"07:30"` cho input time
+- Cập nhật `Step1Schedule` — nhận thêm prop `itinerary`:
+  - **Tour (catId === 2)**: ẩn input giờ tự do, thay bằng 3 phần:
+    1. Date picker chọn ngày bắt đầu tour
+    2. Badge cam hiển thị giờ đón cố định lấy từ `itinerary[0].items[0].time`
+    3. Bảng preview lịch trình từng ngày (label + giờ khởi hành + mô tả đầu tiên)
+  - **Airport / Golf**: giữ nguyên grid date + time tự chọn như cũ
+- Trong `BookingPage` useEffect load product: nếu là tour thì auto-set `data.time` từ itinerary ngay khi product load
+- Truyền `itinerary={product?.itinerary}` vào `Step1Schedule`
+- Nếu tour không có itinerary → graceful fallback, không lỗi (dùng optional chaining)
+
+### 10/05/2026 (lần 2) — Rà soát & dọn dead code
+
+#### Phân tích code
+- Rà soát toàn bộ codebase (backend + frontend), xác định các vấn đề tiềm ẩn khi phát triển thêm
+- Kết luận: Socket.IO được setup ở backend nhưng frontend **không lắng nghe bất kỳ socket event nào** — `NotificationBell.jsx` dùng REST API polling (30s) thay thế → các `io.emit()` chạy nhưng vô dụng
+- Thông báo vẫn **an toàn, đúng per-user** vì đi qua `/api/notifications` có filter `WHERE user_id = req.user.id`
+
+#### Xóa dead code — Backend
+
+**`backend/src/controllers/bookingController.js`**
+- Xóa `const { getIo } = require('../utils/socket')`
+- Xóa block "Emit socket tới admin" (`getIo()` + `io.emit('new_booking', ...)`)
+
+**`backend/src/controllers/paymentController.js`**
+- Xóa `const { getIo } = require('../utils/socket')`
+- Xóa block "Emit socket" (`getIo()` + `io.emit('payment_confirmed', ...)`) trong `vnpayReturn`
+
+**`backend/src/server.js`**
+- Xóa `const { Server } = require('socket.io')`
+- Xóa `const { setIo } = require('./utils/socket')`
+- Xóa `const http = require('http')` và `http.createServer(app)` → đổi lại `app.listen()` trực tiếp
+- Xóa `const io = new Server(...)` + `setIo(io)`
+- Xóa block `io.on('connection', ...)` (chỉ log connect/disconnect, không có logic)
+- Xóa `module.exports = { io }` ở cuối file (không nơi nào import)
+
+**`backend/src/utils/socket.js`** *(đã xóa file)*
+- Toàn bộ file helper singleton `getIo/setIo` không còn được dùng → xóa
+
+#### Xóa dead code — Frontend
+
+**`frontend/src/assets/react.svg`** *(đã xóa file)*  
+**`frontend/src/assets/vite.svg`** *(đã xóa file)*
+- Hai file asset mặc định từ template Vite, không có component nào import
+
+### 10/05/2026
+
+#### Backend
+
+**`backend/src/utils/mailer.js`**
+- Chuyển `transporter` từ module-level sang lazy-init `getTransporter()` — tránh lỗi khi biến môi trường chưa load khi module được import
+- Thêm hàm `sendConfirmationEmail(toEmail, customerName, productName, startTime, driverName, driverPhone, licensePlate)` — gửi email xác nhận cho khách khi admin gán xe, kèm bảng thông tin: dịch vụ, giờ đón, tên/SĐT tài xế, biển số xe
+- Fix `MAIL_PASS` trong `.env`: xóa khoảng trắng thừa trong App Password Gmail (phải là 16 ký tự liền không có dấu cách)
+
+**`backend/src/controllers/bookingController.js`**
+- Cập nhật hàm `assignCarAndDriver`: sau khi gán xe thành công, fetch đầy đủ thông tin booking (customer, driver, car, product) rồi:
+  - Tạo Notification cho khách hàng (đã xác nhận xe + tài xế)
+  - Gọi `sendConfirmationEmail` gửi email xác nhận cho khách
+
+**`backend/src/seeders/20260507000003-add-tour-products.js`**
+- Hoàn thiện seeder tour: sản phẩm 5–12 (4 tour 1 ngày + 4 tour 2 ngày 1 đêm), toàn bộ tên/mô tả/lịch trình dịch sang tiếng Anh
+- Bảng giá `price_list` (đã sửa tên bảng đúng, không phải `price_lists`) cho tất cả products × 4 dòng xe
+- Thêm 3 booking mẫu cho tour (1 COMPLETED + 1 CONFIRMED + 1 PENDING), payment 30% cọc, 1 review
+- Hàm `down()` xóa đúng thứ tự: notifications → reviews → payments → bookings → price_list → products
+
+#### Frontend
+
+**`frontend/src/components/FloatingContact.jsx`** *(file mới)*
+- Component nút nổi góc dưới phải, bấm toggle mở/đóng danh sách liên hệ nhanh
+- 3 action: **Hotline** (`tel:0335966977`), **Zalo** (`zalo.me/0335966977`), **WhatsApp** (`wa.me/84335966977`)
+- Icon SVG inline, không dùng thư viện ngoài (tránh lỗi `lucide-react` chưa cài)
+- Animation fade + slide khi mở/đóng
+
+**`frontend/src/components/PublicLayout.jsx`**
+- Import và mount `<FloatingContact />` vào layout chung — xuất hiện trên toàn bộ trang public
+
+**`frontend/src/pages/AboutPage.jsx`**
+- Thay emoji icon (📍📞✉️) bằng SVG có màu thống nhất: địa chỉ (cam), hotline (xanh lá), email (xanh dương)
+- Thêm component `CopyEmailCard`: bấm vào card email → copy địa chỉ vào clipboard, hiện "✓ Đã sao chép!" 2 giây
+- Fix tràn chữ email dài: thêm `truncate` + `min-w-0`
+
+**`frontend/src/components/Footer.jsx`**
+- Chuyển layout từ 3 cột sang **4 cột**: Brand | Quick Links | Contact | Vị trí (Google Map)
+- Thêm Google Map iframe nhúng trực tiếp vào footer, bo góc, border nhẹ
+- Thêm link "About" vào Quick Links
+
+**`frontend/src/pages/HomePage.jsx`** + **`Footer.jsx`**
+- Cập nhật URL Google Maps từ `q=` (tìm kiếm — hiện nhiều điểm) sang `embed?pb=...` (tọa độ chính xác — chỉ 1 điểm ghim tại 09 Tiên Sơn 06, Đà Nẵng)
+
+#### Hướng dẫn redeploy Supabase
+```bash
+cd backend
+NODE_ENV=production npx sequelize-cli db:seed:undo:all   # xóa data cũ
+NODE_ENV=production npx sequelize-cli db:migrate:undo:all # xóa schema (nếu cần)
+NODE_ENV=production npx sequelize-cli db:migrate          # tạo lại schema
+NODE_ENV=production npx sequelize-cli db:seed:all         # seed data mới
+```
+
+---
+
+## 📌 Còn cần làm (nếu có thời gian)
+
+- [ ] Chạy `node seed-tours.js` trên production sau khi deploy
+- [ ] Cập nhật `FRONTEND_URL` và `VNPAY_RETURN_URL` trên Render → `phuongtourist.vercel.app`
+- [ ] Test full flow: đăng ký → đặt tour → VNPay → admin gán xe → tài xế hoàn thành
+- [ ] Trang đánh giá sau chuyến (UI hoàn chỉnh hơn)
+- [ ] Dịch giao diện sang tiếng Anh
+
+---
+
+## 🗒️ Ghi chú kỹ thuật
+
+**Conflict detection logic (`bookingController.js → assignCarAndDriver`):**
+```js
+WHERE car_id = :carId
+  AND status IN ('CONFIRMED', 'IN_PROGRESS')
+  AND id != :currentBookingId
+  AND start_time < :newEndTime
+  AND (end_time > :newStartTime OR end_time IS NULL)
+```
+Kiểm tra tương tự cho `driver_id`. Trả lỗi 400 kèm thời gian xung đột cụ thể.
+
+**VNPay hoạt động trên localhost:**  
+VNPay dùng browser redirect (không phải IPN webhook). User browser tự gọi về `VNPAY_RETURN_URL` → hoạt động ngay cả khi là localhost.
+
+**Google OAuth flow:**  
+`/api/auth/google` → Google → `/api/auth/google/callback` → backend tạo JWT → redirect `FRONTEND_URL/auth/google/callback?token=...&user=...` → `GoogleCallbackPage` lưu localStorage.
+
+**Cloudinary upload:**  
+`/api/upload` nhận `multipart/form-data`, trả về `{ url }`. Frontend gọi song song nhiều file bằng `Promise.all`.
+
+**Socket.IO room pattern:**
+```
+Client kết nối → gửi JWT trong handshake.auth.token
+Server xác thực → socket.user = { id, role_id }
+Mọi user → socket.join(`user_${id}`)
+Admin (role_id=1) → socket.join('admin') thêm
+
+Emit có chọn lọc:
+  io.to('admin').emit('new_booking', ...)         // chỉ admin
+  io.to(`user_${id}`).emit('payment_confirmed')   // đúng khách đó
+```
+
+**Tour booking time logic:**
+```
+product.itinerary[0].items[0].time  →  "07h30"
+parseItineraryTime("07h30")         →  "07:30"   (dùng cho input[type=time])
+data.time auto-set khi load product (useEffect)
+data.time reset lại mỗi khi đổi ngày (onChange date)
+```
