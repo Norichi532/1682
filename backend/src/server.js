@@ -134,6 +134,9 @@ app.get('/api', (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log('=================================');
+  console.log('\u001b[32m\u{1F680}\u001b[0m Server running on port ' + PORT);
+  console.log('API:     http://localhost:' + PORT + '/api');
+  console.log('Swagger: http://localhost:' + PORT + '/api-docs');
+  console.log('=================================');
 });
-
