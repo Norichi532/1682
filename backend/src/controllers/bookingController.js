@@ -1,5 +1,5 @@
 const { Booking, Product, Category, CarModel, Car, User, PriceList, Notification } = require('../models');
-const { sendCompletionEmail } = require('../utils/mailer');
+const { sendCompletionEmail, sendConfirmationEmail } = require('../utils/mailer');
 const { Op } = require('sequelize');
 const { getIo } = require('../utils/socket');
 
@@ -60,12 +60,9 @@ const createBooking = async (req, res) => {
       content: `Đơn đặt xe mới #${booking.id.slice(0, 8)} đang chờ xác nhận`
     });
 
-    // Emit socket tới admin
+    // Báo admin realtime — chỉ gửi tới room 'admin'
     const io = getIo();
-    if (io) io.emit('new_booking', {
-      id: booking.id, customer_id, product_id, model_id, start_time,
-      status: booking.status, total_price: booking.total_price
-    });
+    if (io) io.to('admin').emit('new_booking', { booking_id: booking.id });
 
     res.status(201).json({ message: 'Đặt xe thành công!', data: booking });
   } catch (error) {
@@ -241,18 +238,48 @@ const assignCarAndDriver = async (req, res) => {
     booking.status = 'CONFIRMED';
     await booking.save();
 
-    // Thông báo cho tài xế được gán
+    // Lấy thông tin đầy đủ để gửi thông báo
     try {
       const fullBooking = await Booking.findByPk(booking.id, {
-        include: [{ model: Product, as: 'product', attributes: ['product_name'] }]
+        include: [
+          { model: Product, as: 'product', attributes: ['product_name'] },
+          { model: User, as: 'customer', attributes: ['id', 'full_name', 'email'] },
+          { model: User, as: 'assigned_driver', attributes: ['full_name', 'phone'] },
+          { model: Car, as: 'assigned_car', attributes: ['license_plate'] },
+        ]
       });
-      const startStr = new Date(booking.start_time).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const startStr = new Date(booking.start_time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const productName = fullBooking?.product?.product_name || 'Dịch vụ';
+      const driverName  = fullBooking?.assigned_driver?.full_name || 'Tài xế';
+      const driverPhone = fullBooking?.assigned_driver?.phone || '';
+      const plate       = fullBooking?.assigned_car?.license_plate || '';
+
+      // Notification cho tài xế
       await Notification.create({
         user_id: driver_id,
-        content: `Bạn được phân công chuyến "${fullBooking?.product?.product_name || 'Dịch vụ'}" lúc ${startStr}.`
+        content: `Bạn được phân công chuyến "${productName}" lúc ${startStr}.`
       });
+
+      // Notification cho khách
+      if (fullBooking?.customer) {
+        await Notification.create({
+          user_id: fullBooking.customer.id,
+          content: `Đơn của bạn đã được xác nhận! Tài xế ${driverName} (${driverPhone}) sẽ đón bạn lúc ${startStr}.`
+        });
+
+        // Email xác nhận cho khách
+        sendConfirmationEmail(
+          fullBooking.customer.email,
+          fullBooking.customer.full_name,
+          productName,
+          booking.start_time,
+          driverName,
+          driverPhone,
+          plate
+        ).catch(e => console.error('Confirmation email error:', e.message));
+      }
     } catch (e) {
-      console.error('Driver notification error:', e.message);
+      console.error('Notification/email error after assign:', e.message);
     }
 
     res.json({ message: 'Gán xe và tài xế thành công', data: booking });
@@ -309,35 +336,4 @@ const driverUpdateStatus = async (req, res) => {
       return res.status(400).json({ message: 'Chỉ có thể hoàn thành khi đang IN_PROGRESS' });
     }
 
-    booking.status = status;
-    await booking.save();
-
-    // Khi tài xế đánh dấu hoàn thành → gửi email cho khách
-    if (status === 'COMPLETED') {
-      const fullBooking = await Booking.findByPk(booking.id, {
-        include: [
-          { model: User, as: 'customer', attributes: ['id', 'full_name', 'email'] },
-          { model: Product, as: 'product', attributes: ['product_name'] }
-        ]
-      });
-      if (fullBooking?.customer) {
-        await Notification.create({
-          user_id: fullBooking.customer.id,
-          content: `Chuyến xe "${fullBooking.product?.product_name}" đã hoàn thành. Hãy để lại đánh giá! 🌟`
-        });
-        sendCompletionEmail(fullBooking.customer.email, fullBooking.customer.full_name, fullBooking.product?.product_name)
-          .catch(e => console.error('Email error:', e.message));
-      }
-    }
-
-    res.json({ message: 'Cập nhật trạng thái thành công', data: booking });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-module.exports = {
-  createBooking, getMyBookings, getAllBookings,
-  updateBookingStatus, assignCarAndDriver,
-  getDriverBookings, driverUpdateStatus
-};
+    booking.status = 

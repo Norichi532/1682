@@ -309,7 +309,7 @@ export default function HomePage() {
                   </div>
                   <iframe
                     title="PhuOng Tourist Car Location"
-                    src="https://maps.google.com/maps?q=09+Tiên+Sơn+06,+Đà+Nẵng,+Việt+Nam&output=embed&hl=en"
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15338.458848133352!2d108.219678!3d16.03356!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314219ec293e0f41%3A0x330d92c67b97833d!2zMDkgVGnDqm4gU8ahbiA2LCBIw7JhIEPGsOG7nW5nLCDEkMOgIE7hur1uZywgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2sus!4v1778403459070!5m2!1svi!2sus"
                     width="320"
                     height="200"
                     style={{ border: 0, display: 'block' }}
@@ -501,15 +501,4 @@ export default function HomePage() {
               </a>
               <button
                 onClick={() => navigate('/services')}
-                className="bg-ochre hover:bg-ochre-light text-white px-8 py-3.5 rounded-2xl font-semibold text-sm font-body transition-all duration-200"
-              >
-                View Services
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </PublicLayout>
-  )
-}
+                className="bg-ochre hover:bg-ochre-light text-white px-8 py-3.5 rounded-2xl font-semibold text-sm f

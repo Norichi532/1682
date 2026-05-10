@@ -5,7 +5,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const now = new Date();
     const salt  = await bcrypt.genSalt(10);
-    const pw    = await bcrypt.hash('123456', salt);
+    const pw    = await bcrypt.hash('Pass@123', salt);
 
     // ── 1. ROLES ──────────────────────────────────────────────────────────────
     await queryInterface.bulkInsert('roles', [

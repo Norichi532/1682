@@ -1,15 +1,18 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
+// Lazy-init: create a fresh transporter each call so env vars are always
+// read at send-time, not at module-load time (important on cloud deployments).
+const getTransporter = () =>
+  nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS, // must be a 16-char Gmail App Password (no spaces)
+    },
+  });
 
 const sendNewPassword = async (toEmail, newPassword) => {
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
     to: toEmail,
     subject: 'Your new password — PhuOng Tourist Car',
@@ -27,7 +30,7 @@ const sendNewPassword = async (toEmail, newPassword) => {
 };
 
 const sendCompletionEmail = async (toEmail, customerName, productName) => {
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
     to: toEmail,
     subject: 'Chuyến xe của bạn đã hoàn thành — PhuOng Tourist Car',
@@ -48,7 +51,7 @@ const sendCompletionEmail = async (toEmail, customerName, productName) => {
 };
 
 const sendWelcomeEmail = async (toEmail, fullName) => {
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
     to: toEmail,
     subject: 'Chao mung ban den voi PhuOng Tourist Car!',
@@ -92,7 +95,7 @@ const sendWelcomeEmail = async (toEmail, fullName) => {
 
 const sendDepositEmail = async (toEmail, customerName, productName, depositAmount, bookingId) => {
   const fmt = (v) => new Intl.NumberFormat('vi-VN').format(v) + 'đ';
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
     to: toEmail,
     subject: 'Đặt cọc thành công — PhuOng Tourist Car',
@@ -130,7 +133,7 @@ const sendCancelEmail = async (toEmail, customerName, productName, refundAmount,
     : `Hoàn <strong>${refundPercent}%</strong> tiền cọc — <strong>${fmt(refundAmount)}</strong> sẽ được hoàn vào tài khoản trong 5–10 ngày làm việc.`;
   const color = refundPercent === 100 ? '#16a34a' : refundPercent === 50 ? '#d97706' : '#dc2626';
 
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
     to: toEmail,
     subject: 'Xác nhận hủy đơn — PhuOng Tourist Car',
@@ -149,11 +152,4 @@ const sendCancelEmail = async (toEmail, customerName, productName, refundAmount,
           <a href="${process.env.FRONTEND_URL}/services" style="display:block;text-align:center;background:#1d4ed8;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:20px;">Đặt xe mới</a>
         </div>
         <div style="background:#f9fafb;padding:14px 32px;text-align:center;border-top:1px solid #e5e7eb;">
-          <p style="color:#9ca3af;font-size:12px;margin:0;">PhuOng Tourist Car — Đà Nẵng, Việt Nam</p>
-        </div>
-      </div>
-    `,
-  });
-};
-
-module.exports = { sendNewPassword, sendCompletionEmail, sendWelcomeEmail, sendDepositEmail, sendCancelEmail };
+          <p style=

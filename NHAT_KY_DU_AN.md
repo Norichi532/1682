@@ -2,7 +2,7 @@
 
 > **Đồ án tốt nghiệp** | Hệ thống đặt xe du lịch trực tuyến  
 > **Sinh viên:** Huỳnh Đoàn Tấn Phát  
-> **Cập nhật lần cuối:** 08/05/2026
+> **Cập nhật lần cuối:** 10/05/2026 (Socket.IO realtime + Tour booking từ lịch trình)
 
 ---
 
@@ -18,7 +18,7 @@
 |---|---|
 | Backend | Node.js, Express, Sequelize ORM, PostgreSQL |
 | Frontend | React + Vite, Tailwind CSS, React Router |
-| Realtime | Socket.IO |
+| Realtime | Socket.IO (JWT-authenticated rooms) |
 | Auth | JWT, Google OAuth 2.0 |
 | Thanh toán | VNPay (cổng thanh toán Việt Nam) |
 | Upload ảnh | Cloudinary |
@@ -122,8 +122,7 @@ Final/
 │       ├── seeders/
 │       │   └── 20260501083044-demo-phuongtravel-data.js
 │       ├── utils/
-│       │   ├── mailer.js           ← dùng FRONTEND_URL env (đã fix)
-│       │   └── socket.js
+│       │   └── mailer.js           ← dùng FRONTEND_URL env (đã fix)
 │       └── server.js
 └── frontend/
     ├── vercel.json                 ← SPA routing (ở root frontend/, KHÔNG trong public/)
@@ -131,6 +130,7 @@ Final/
         ├── App.jsx
         ├── main.jsx
         ├── services/api.js         ← dùng VITE_API_URL env
+        ├── utils/socket.js         ← Socket.IO client singleton (connectSocket / getSocket / disconnectSocket)
         ├── context/AuthContext.jsx
         ├── components/
         │   ├── Footer.jsx          ← email phuongtouristcar.dev@gmail.com
@@ -273,7 +273,7 @@ npm run dev             # port 5173
 - Reviews — đánh giá sau chuyến
 - Upload — ảnh lên Cloudinary
 - Reports — thống kê doanh thu, đơn hàng
-- Notifications + Socket.IO realtime
+- Notifications (polling REST API mỗi 30 giây)
 
 ---
 
@@ -316,7 +316,7 @@ Khách chọn dịch vụ → BookingPage (3 bước)
   → Tạo booking (PENDING)
   → Thanh toán VNPay 30% cọc
   → Backend xác nhận → CONFIRMED
-  → Admin nhận thông báo realtime (Socket.IO)
+  → Admin nhận thông báo qua Notification (polling)
 ```
 
 ### Gán xe — tính năng chính đồ án
@@ -392,36 +392,31 @@ GitHub (monorepo)
 
 ---
 
-## 📌 Còn cần làm (nếu có thời gian)
+## 🗓️ Nhật ký thay đổi
 
-- [ ] Chạy `node seed-tours.js` trên production sau khi deploy
-- [ ] Cập nhật `FRONTEND_URL` và `VNPAY_RETURN_URL` trên Render → `phuongtourist.vercel.app`
-- [ ] Test full flow: đăng ký → đặt tour → VNPay → admin gán xe → tài xế hoàn thành
-- [ ] Trang đánh giá sau chuyến (UI hoàn chỉnh hơn)
-- [ ] Dịch giao diện sang tiếng Anh
+### 10/05/2026 (lần 3) — Socket.IO realtime + Tour booking từ lịch trình
 
----
+#### Backend — Khôi phục & nâng cấp Socket.IO (đúng cách)
 
-## 🗒️ Ghi chú kỹ thuật
+**`backend/src/utils/socket.js`** *(tạo lại)*
+- Singleton `getIo / setIo` — giữ instance Socket.IO để các controller dùng
 
-**Conflict detection logic (`bookingController.js → assignCarAndDriver`):**
-```js
-WHERE car_id = :carId
-  AND status IN ('CONFIRMED', 'IN_PROGRESS')
-  AND id != :currentBookingId
-  AND start_time < :newEndTime
-  AND (end_time > :newStartTime OR end_time IS NULL)
-```
-Kiểm tra tương tự cho `driver_id`. Trả lỗi 400 kèm thời gian xung đột cụ thể.
+**`backend/src/server.js`**
+- Thêm lại `http.createServer(app)` + `socket.io Server`
+- **JWT auth middleware tại handshake**: `io.use(...)` xác thực token trước khi cho kết nối, gắn `socket.user`
+- **Room-based**: mỗi user join `user_<id>`, admin join thêm room `admin`
+- CORS socket chỉ cho phép `FRONTEND_URL` (không còn `origin: '*'`)
+- `server.listen()` thay cho `app.listen()`
 
-**VNPay hoạt động trên localhost:**  
-VNPay dùng browser redirect (không phải IPN webhook). User browser tự gọi về `VNPAY_RETURN_URL` → hoạt động ngay cả khi là localhost.
+**`backend/src/controllers/bookingController.js`**
+- Thêm lại `const { getIo } = require('../utils/socket')`
+- Sau khi tạo booking: `io.to('admin').emit('new_booking', { booking_id })` — chỉ emit tới room admin, không broadcast tất cả
 
-**Google OAuth flow:**  
-`/api/auth/google` → Google → `/api/auth/google/callback` → backend tạo JWT → redirect `FRONTEND_URL/auth/google/callback?token=...&user=...` → `GoogleCallbackPage` lưu localStorage.
+**`backend/src/controllers/paymentController.js`**
+- Thêm lại `const { getIo } = require('../utils/socket')`
+- Sau khi VNPay xác nhận thành công: `io.to('admin').emit(...)` + `io.to('user_<id>').emit(...)` — admin và đúng khách hàng đó nhận thông báo ngay
 
-**Socket.IO singleton pattern:**  
-`utils/socket.js` export `getIo()` để tránh circular import. Controllers dùng `getIo().emit(...)`.
+#### Frontend — Kết nối Socket.IO thật sự
 
-**Cloudinary upload:**  
-`/api/upload` nhận `multipart/form-data`, trả về `{ url }`. Frontend gọi song song nhiều file bằng `Promise.all`.
+**`frontend/package.json`**
+- Thêm dependen

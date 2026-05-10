@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { connectSocket, disconnectSocket } from '../utils/socket'
 
 export default function NotificationBell() {
   const { user } = useAuth()
@@ -16,6 +17,23 @@ export default function NotificationBell() {
       setNotifications(res.data.data || [])
     } catch { /* silent */ }
   }
+
+  // Kết nối Socket.IO và lắng nghe realtime
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    const socket = connectSocket(token)
+
+    const handleRefresh = () => fetchNotifications()
+    socket.on('new_booking', handleRefresh)
+    socket.on('payment_confirmed', handleRefresh)
+
+    return () => {
+      socket.off('new_booking', handleRefresh)
+      socket.off('payment_confirmed', handleRefresh)
+    }
+  }, [])
 
   useEffect(() => {
     fetchNotifications()
@@ -105,20 +123,4 @@ export default function NotificationBell() {
                   className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition ${!n.is_read ? 'bg-blue-50/60' : ''}`}
                 >
                   <div className="flex gap-3 items-start">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.is_read ? 'bg-blue-500' : 'bg-gray-200'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm leading-snug ${!n.is_read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
-                        {n.content}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">{formatTime(n.created_at)}</p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.is_read ? '

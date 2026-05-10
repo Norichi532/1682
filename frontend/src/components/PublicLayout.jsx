@@ -1,5 +1,6 @@
 import Navbar from './Navbar'
 import Footer from './Footer'
+import FloatingContact from './FloatingContact'
 
 export default function PublicLayout({ children }) {
   return (
@@ -9,6 +10,7 @@ export default function PublicLayout({ children }) {
         {children}
       </main>
       <Footer />
+      <FloatingContact />
     </div>
   )
 }

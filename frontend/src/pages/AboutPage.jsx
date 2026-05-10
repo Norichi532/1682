@@ -2,6 +2,40 @@ import { useEffect, useRef, useState } from 'react'
 import PublicLayout from '../components/PublicLayout'
 import { useNavigate } from 'react-router-dom'
 
+const EMAIL = 'phuongtouristcar.dev@gmail.com'
+
+function CopyEmailCard() {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = () => {
+    navigator.clipboard.writeText(EMAIL).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+  return (
+    <button
+      onClick={handleCopy}
+      className="w-full flex items-start gap-4 p-6 bg-white rounded-2xl shadow-sm hover-lift text-left cursor-pointer border-none"
+      style={{ outline: 'none' }}
+      title="Bấm để sao chép email"
+    >
+      <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-ochre uppercase tracking-wide mb-1 font-semibold">Email</p>
+        <p className="font-semibold text-navy text-sm truncate">{EMAIL}</p>
+        <p className="text-xs mt-1" style={{ color: copied ? '#22c55e' : '#9ca3af' }}>
+          {copied ? '✓ Đã sao chép!' : 'Bấm để sao chép'}
+        </p>
+      </div>
+    </button>
+  )
+}
+
 const STATS = [
   { value: '5+', label: 'Years of experience' },
   { value: '50+', label: 'Trips per month' },
@@ -113,36 +147,4 @@ export default function AboutPage() {
       </div>
 
       {/* Contact info */}
-      <div className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { icon: '📍', label: 'Address', value: '09 Tiên Sơn 06, Đà Nẵng' },
-          { icon: '📞', label: 'Phone', value: '0335 966 977' },
-          { icon: '✉️', label: 'Email', value: 'phuongtouristcar.dev@gmail.com' },
-        ].map((c, i) => (
-          <AnimatedCard key={c.label} delay={i * 80}>
-            <div className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-sm hover-lift">
-              <span className="text-3xl">{c.icon}</span>
-              <div>
-                <p className="text-xs text-ochre uppercase tracking-wide mb-1 font-semibold">{c.label}</p>
-                <p className="font-semibold text-navy">{c.value}</p>
-              </div>
-            </div>
-          </AnimatedCard>
-        ))}
-      </div>
-
-
-      {/* CTA */}
-      <div className="bg-navy py-16 px-4 text-center">
-        <h2 className="font-display text-3xl font-bold text-white mb-4">Ready to Book?</h2>
-        <p className="text-white/60 font-body mb-8">Browse our services and choose the right route for you.</p>
-        <button
-          onClick={() => navigate('/services')}
-          className="px-10 py-3.5 bg-ochre hover:bg-ochre-light text-white font-bold rounded-xl transition-all duration-200 hover:shadow-lg"
-        >
-          View Services →
-        </button>
-      </div>
-    </PublicLayout>
-  )
-}
+      <div className="max-w
