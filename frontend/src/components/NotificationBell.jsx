@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
-import { connectSocket, disconnectSocket } from '../utils/socket'
+import { connectSocket } from '../utils/socket'
 
 export default function NotificationBell() {
   const { user } = useAuth()
@@ -18,17 +18,13 @@ export default function NotificationBell() {
     } catch { /* silent */ }
   }
 
-  // Kết nối Socket.IO và lắng nghe realtime
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) return
-
     const socket = connectSocket(token)
-
     const handleRefresh = () => fetchNotifications()
     socket.on('new_booking', handleRefresh)
     socket.on('payment_confirmed', handleRefresh)
-
     return () => {
       socket.off('new_booking', handleRefresh)
       socket.off('payment_confirmed', handleRefresh)
@@ -37,11 +33,10 @@ export default function NotificationBell() {
 
   useEffect(() => {
     fetchNotifications()
-    const interval = setInterval(fetchNotifications, 30000) // poll 30s
+    const interval = setInterval(fetchNotifications, 30000)
     return () => clearInterval(interval)
   }, [])
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
     document.addEventListener('mousedown', handler)
@@ -51,14 +46,12 @@ export default function NotificationBell() {
   const unreadCount = notifications.filter(n => !n.is_read).length
 
   const handleClick = async (n) => {
-    // Mark as read
     if (!n.is_read) {
       try {
         await api.patch(`/notifications/${n.id}/read`)
         setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x))
       } catch { /* silent */ }
     }
-    // Navigate by role
     setOpen(false)
     if (user?.role_id === 2) navigate('/my-orders')
     else if (user?.role_id === 1) navigate('/admin/bookings')
@@ -82,7 +75,6 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={ref}>
-      {/* Bell button */}
       <button
         onClick={() => { setOpen(!open); if (!open) fetchNotifications() }}
         className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition"
@@ -98,10 +90,8 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div className="absolute right-0 top-10 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <span className="font-semibold text-gray-800 text-sm">Notifications</span>
             {unreadCount > 0 && (
@@ -110,8 +100,6 @@ export default function NotificationBell() {
               </button>
             )}
           </div>
-
-          {/* List */}
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="py-10 text-center text-gray-400 text-sm">No notifications yet</div>
@@ -123,4 +111,20 @@ export default function NotificationBell() {
                   className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition ${!n.is_read ? 'bg-blue-50/60' : ''}`}
                 >
                   <div className="flex gap-3 items-start">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.is_read ? '
+                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.is_read ? 'bg-blue-500' : 'bg-gray-200'}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm leading-snug ${!n.is_read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+                        {n.content}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">{formatTime(n.created_at)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
