@@ -294,7 +294,6 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
               <div className="divide-y divide-gray-50">
                 {itinerary.map(day => {
                   const firstItem = day.items?.[0]
-                  const lastItem = day.items?.[day.items.length - 1]
                   return (
                     <div key={day.day} className="flex items-start gap-3 px-4 py-3">
                       <div className="w-14 flex-shrink-0">
@@ -522,7 +521,6 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
 function Step3Confirm({ product, data, onChange, error }) {
   const catId = product?.category?.id
   const inp = "w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-ochre/40 focus:border-ochre focus:outline-none transition text-navy font-body text-sm"
-  const readOnly = "w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 text-gray-600 text-sm font-body"
 
   return (
     <div className="space-y-5">
@@ -811,85 +809,4 @@ export default function BookingPage() {
 
       setSuccess('Redirecting to VNPay payment gateway...')
       // Redirect to VNPay
-      setTimeout(() => { window.location.href = paymentUrl }, 800)
-    } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Booking failed. Please try again.')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  if (loading) return (
-    <PublicLayout>
-      <div className="flex justify-center py-24">
-        <div className="w-10 h-10 border-4 border-navy/20 border-t-ochre rounded-full animate-spin" />
-      </div>
-    </PublicLayout>
-  )
-
-  if (!product) return (
-    <PublicLayout>
-      <div className="text-center py-24">
-        <p className="text-gray-500 mb-4">Service not found.</p>
-        <button onClick={() => navigate('/services')} className="px-6 py-2.5 bg-navy text-white rounded-xl">Back</button>
-      </div>
-    </PublicLayout>
-  )
-
-  return (
-    <PublicLayout>
-      {/* Header */}
-      <div className="bg-navy py-10 px-4 text-center">
-        <h1 className="font-display text-3xl font-bold text-white mb-1">Book Now</h1>
-        <p className="text-white/50 text-sm">Fill in the details to book your trip</p>
-      </div>
-
-      <div className="bg-mist/30 min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 py-10">
-          <ProgressBar step={step} />
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main content */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7">
-                {step === 1 && <Step1Schedule catId={catId} data={data} onChange={onChange} error={error} numDays={product?.num_days} itinerary={product?.itinerary} />}
-                {step === 2 && <Step2Vehicle pricesByModel={pricesByModel} data={data} onChange={onChange} error={error} catId={catId} />}
-                {step === 3 && <Step3Confirm product={product} data={data} onChange={onChange} error={error} />}
-                {step === 4 && <Step4Payment data={data} submitting={submitting} onSubmit={handleSubmit} error={error} success={success} />}
-
-                {/* Navigation */}
-                {step < 4 && (
-                  <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
-                    <button onClick={step === 1 ? () => navigate(`/services/${productId}`) : handleBack}
-                      className="flex items-center gap-2 px-5 py-2.5 text-gray-500 hover:text-navy transition font-medium">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
-                      Back
-                    </button>
-                    <button onClick={handleNext}
-                      className="flex items-center gap-2 px-8 py-2.5 bg-navy hover:bg-navy-light text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg">
-                      Next
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                  </div>
-                )}
-
-                {step === 4 && !success && (
-                  <button onClick={handleBack}
-                    className="flex items-center gap-2 mt-4 text-gray-400 hover:text-navy transition text-sm">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
-                    Back to edit
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <BookingSummary product={product} data={data} step={step} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </PublicLayout>
-  )
-}
+      setTimeout(() => { window.loc
