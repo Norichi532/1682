@@ -97,10 +97,55 @@ router.patch('/profile', verifyToken, authController.updateProfile);
  *       200: { description: Password changed }
  */
 router.patch('/change-password', verifyToken, authController.changePassword);
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Quen mat khau - gui mat khau moi qua email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, example: vana@gmail.com }
+ *     responses:
+ *       200: { description: Mat khau moi da duoc gui qua email }
+ *       404: { description: Email khong ton tai }
+ */
 router.post('/forgot-password', authController.forgotPassword);
 
-module.exports = router;
+// Google OAuth
+/**
+ * @swagger
+ * /api/auth/google:
+ *   get:
+ *     summary: Bat dau dang nhap bang Google OAuth
+ *     tags: [Auth]
+ *     responses:
+ *       302: { description: Redirect den trang xac thuc Google }
+ */
+router.get('/google', authController.googleAuth);
 
-// ── Google OAuth ─────────────────────────────────────────────────────────────
-router.get('/google',          authController.googleAuth);
+/**
+ * @swagger
+ * /api/auth/google/callback:
+ *   get:
+ *     summary: Callback sau khi Google xac thuc thanh cong
+ *     tags: [Auth]
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         schema: { type: string }
+ *         description: Authorization code tu Google
+ *     responses:
+ *       302: { description: Redirect ve frontend kem JWT token }
+ *       401: { description: Xac thuc Google that bai }
+ */
 router.get('/google/callback', authController.googleCallback);
+
+module.exports = router;
