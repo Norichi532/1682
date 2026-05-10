@@ -152,4 +152,50 @@ const sendCancelEmail = async (toEmail, customerName, productName, refundAmount,
           <a href="${process.env.FRONTEND_URL}/services" style="display:block;text-align:center;background:#1d4ed8;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:20px;">Đặt xe mới</a>
         </div>
         <div style="background:#f9fafb;padding:14px 32px;text-align:center;border-top:1px solid #e5e7eb;">
-          <p style=
+          <p style="color:#9ca3af;font-size:12px;margin:0;">PhuOng Tourist Car — Đà Nẵng, Việt Nam</p>
+        </div>
+      </div>
+    `,
+  });
+};
+
+const sendConfirmationEmail = async (toEmail, customerName, productName, startTime, driverName, driverPhone, licensePlate) => {
+  const fmt = (d) => new Date(d).toLocaleString('vi-VN', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+  await getTransporter().sendMail({
+    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+    to: toEmail,
+    subject: 'Your booking is confirmed — PhuOng Tourist Car',
+    html: `
+      <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+        <div style="background:linear-gradient(135deg,#16a34a,#15803d);padding:28px 32px;">
+          <h1 style="color:white;margin:0;font-size:22px;">PhuOng Tourist Car</h1>
+          <p style="color:#bbf7d0;margin:6px 0 0;font-size:13px;">Booking Confirmed ✓</p>
+        </div>
+        <div style="padding:28px 32px;background:#fff;">
+          <p style="color:#374151;">Hello <strong>${customerName}</strong>,</p>
+          <p style="color:#374151;">Great news! Your booking has been confirmed and a driver has been assigned.</p>
+          <div style="background:#f0fdf4;border-radius:10px;padding:20px;margin:20px 0;">
+            <p style="margin:0 0 12px;color:#15803d;font-weight:bold;font-size:15px;">Booking Details</p>
+            <table style="width:100%;font-size:14px;color:#374151;border-collapse:collapse;">
+              <tr><td style="padding:4px 0;color:#6b7280;width:40%;">Service</td><td style="padding:4px 0;font-weight:bold;">${productName}</td></tr>
+              <tr><td style="padding:4px 0;color:#6b7280;">Pickup time</td><td style="padding:4px 0;font-weight:bold;">${fmt(startTime)}</td></tr>
+              <tr><td style="padding:4px 0;color:#6b7280;">Driver</td><td style="padding:4px 0;font-weight:bold;">${driverName}</td></tr>
+              <tr><td style="padding:4px 0;color:#6b7280;">Driver phone</td><td style="padding:4px 0;font-weight:bold;">${driverPhone}</td></tr>
+              <tr><td style="padding:4px 0;color:#6b7280;">Vehicle plate</td><td style="padding:4px 0;font-weight:bold;">${licensePlate}</td></tr>
+            </table>
+          </div>
+          <p style="color:#374151;font-size:14px;">If you have any questions, feel free to contact your driver directly or reach us via our support line.</p>
+          <a href="${process.env.FRONTEND_URL}/my-orders" style="display:block;text-align:center;background:#16a34a;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:20px;">View My Booking</a>
+        </div>
+        <div style="background:#f9fafb;padding:14px 32px;text-align:center;border-top:1px solid #e5e7eb;">
+          <p style="color:#9ca3af;font-size:12px;margin:0;">PhuOng Tourist Car — Da Nang, Vietnam</p>
+        </div>
+      </div>
+    `,
+  });
+};
+
+module.exports = { sendNewPassword, sendCompletionEmail, sendWelcomeEmail, sendDepositEmail, sendCancelEmail, sendConfirmationEmail };
