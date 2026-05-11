@@ -54,7 +54,7 @@ export default function ProfilePage() {
       await api.patch('/auth/change-password', { oldPassword: passwordForm.oldPassword, newPassword: passwordForm.newPassword })
       setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' })
       setSuccess('Password changed successfully!')
-      setShowPasswordSection(false)
+      setActiveSection('edit')
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to change password')
     } finally { setPasswordSubmitting(false) }

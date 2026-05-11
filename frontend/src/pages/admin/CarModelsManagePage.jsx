@@ -17,8 +17,6 @@ export default function CarModelsManagePage() {
   const [uploadingGallery, setUploadingGallery] = useState(false)
   const galleryInputRef = useRef()
 
-  useEffect(() => { fetchModels() }, [])
-
   const fetchModels = async () => {
     try {
       setLoading(true)
@@ -27,6 +25,15 @@ export default function CarModelsManagePage() {
     } catch { setError('Failed to load data') }
     finally { setLoading(false) }
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+  const loadModels = async () => {
+    await fetchModels()
+  }
+
+  loadModels()
+}, [])
 
   const openCreate = () => { setEditModel(null); setForm(EMPTY_FORM); setError(''); setModalOpen(true) }
   const openEdit = (m) => {

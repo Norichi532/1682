@@ -139,7 +139,7 @@ const ADMIN_MENU = [
     )
   },
   {
-    label: 'Booking', href: '/admin/bookings', icon: (
+    label: 'Bookings', href: '/admin/bookings', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </svg>
@@ -153,7 +153,7 @@ const ADMIN_MENU = [
     )
   },
   {
-    label: 'Vehicle model', href: '/admin/car-models', icon: (
+    label: 'Vehicles model', href: '/admin/car-models', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 1h8zm0 0l2 1h3l1-4-5-2" />
@@ -161,7 +161,7 @@ const ADMIN_MENU = [
     )
   },
   {
-    label: 'Manage xe', href: '/admin/cars', icon: (
+    label: 'Manage Cars', href: '/admin/cars', icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <rect x="1" y="3" width="15" height="13" rx="2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8h5l2 5v3h-2m-5 0H9m8 0a2 2 0 11-4 0 2 2 0 014 0zM5 21a2 2 0 100-4 2 2 0 000 4z" />

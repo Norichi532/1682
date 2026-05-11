@@ -186,7 +186,7 @@ const login = async (req, res) => {
     }
 
     if (user.is_active === false) {
-      return res.status(403).json({ message: 'Tài khoản đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.' });
+      return res.status(403).json({ message: 'Your account has been disabled. Please contact the administrator.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -213,7 +213,7 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Forgot password error:', error);
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login', error: error.message });
   }
 };
@@ -331,7 +331,7 @@ const forgotPassword = async (req, res) => {
     user.password = await bcrypt.hash(newPass, salt);
     await user.save();
 
-    await sendNewPassword(email, newPass);
+    sendNewPassword(email, newPass).catch(err => console.error('Send new password email error:', err.message));
 
     res.status(200).json({ message: 'A new password has been sent to your email.' });
   } catch (error) {

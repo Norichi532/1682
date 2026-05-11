@@ -97,8 +97,6 @@ export default function UsersManagePage() {
   const [modal,    setModal]    = useState(null)   // null | 'add' | driver object
   const [toast,    setToast]    = useState('')
 
-  useEffect(() => { fetchDrivers() }, [])
-
   const fetchDrivers = async () => {
     setLoading(true)
     try {
@@ -107,6 +105,15 @@ export default function UsersManagePage() {
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+  const loadDrivers = async () => {
+    await fetchDrivers()
+  }
+
+  loadDrivers()
+}, [])
 
   const showToast = (msg) => {
     setToast(msg)

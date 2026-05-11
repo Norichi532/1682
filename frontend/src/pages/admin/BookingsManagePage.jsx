@@ -51,10 +51,19 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
 
   useEffect(() => {
     if (needsAssign) {
-      const modelId = booking.car_model?.id
-      const carUrl  = modelId ? `/cars/available?model_id=${modelId}` : '/cars/available'
+      const modelId   = booking.car_model?.id
+      const startTime = booking.start_time ? encodeURIComponent(booking.start_time) : ''
+      const endTime   = booking.end_time   ? encodeURIComponent(booking.end_time)   : ''
+      const bookingId = booking.id         ? encodeURIComponent(booking.id)         : ''
+
+      // Truyền start_time, end_time, booking_id để backend lọc overlap đúng theo giờ
+      const timeParams = `start_time=${startTime}&end_time=${endTime}&booking_id=${bookingId}`
+      const carUrl = modelId
+        ? `/cars/available?model_id=${modelId}&${timeParams}`
+        : `/cars/available?${timeParams}`
+
       api.get(carUrl).then(r => setAvailableCars(r.data.data || [])).catch(console.error)
-      api.get('/users/available-drivers').then(r => setAvailableDrivers(r.data.data || [])).catch(console.error)
+      api.get(`/users/available-drivers?${timeParams}`).then(r => setAvailableDrivers(r.data.data || [])).catch(console.error)
     }
   }, [booking])
 
@@ -358,14 +367,11 @@ export default function BookingsManagePage() {
   const [detailBooking,  setDetailBooking]  = useState(null)
   const [allCounts,      setAllCounts]      = useState({})
 
-  useEffect(() => { fetchBookings() }, [selectedStatus])
-
   const fetchBookings = async () => {
     setLoading(true)
     try {
       const res  = await api.get('/bookings')
       const data = res.data.data || []
-      // Counts always from full list
       const counts = data.reduce((acc, b) => { acc[b.status] = (acc[b.status] || 0) + 1; return acc }, {})
       setAllCounts(counts)
       setBookings(selectedStatus === 'all' ? data : data.filter(b => b.status === selectedStatus))
@@ -375,6 +381,15 @@ export default function BookingsManagePage() {
       setLoading(false)
     }
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
+  const loadData = async () => {
+    await fetchBookings()
+  }
+
+  loadData()
+}, [selectedStatus])
 
   return (
     <AdminLayout>

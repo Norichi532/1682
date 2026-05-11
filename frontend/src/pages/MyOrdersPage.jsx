@@ -68,7 +68,13 @@ export default function MyOrdersPage() {
     }
   }
 
-  useEffect(() => { fetchBookings() }, [])
+useEffect(() => {
+  const loadBookings = async () => {
+    await fetchBookings()
+  }
+
+  loadBookings()
+}, [])
 
   const openReview = (booking) => {
     setReviewModal({ booking_id: booking.id, product_name: booking.product?.product_name })
@@ -113,7 +119,9 @@ export default function MyOrdersPage() {
   const retryPayment = async (booking) => {
     try {
       const res = await api.post('/payments/create-payment-url', { booking_id: booking.id })
-      if (res.data.paymentUrl) window.location.href = res.data.paymentUrl
+      if (res.data.paymentUrl) {
+        window.location.assign(res.data.paymentUrl)
+        }
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to create payment link')
     }

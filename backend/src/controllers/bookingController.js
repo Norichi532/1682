@@ -1,5 +1,5 @@
 const { Booking, Product, Category, CarModel, Car, User, PriceList, Notification } = require('../models');
-const { sendCompletionEmail } = require('../utils/mailer');
+const { sendCompletionEmail, sendConfirmationEmail } = require('../utils/mailer');
 const { Op } = require('sequelize');
 const { getIo } = require('../utils/socket');
 
@@ -10,7 +10,7 @@ const createBooking = async (req, res) => {
     const customer_id = req.user.id;
 
     if (!product_id || !model_id || !start_time) {
-      return res.status(400).json({ message: 'product_id, model_id, start_time là bắt buộc' });
+      return res.status(400).json({ message: 'product_id, model_id, start_time are required.' });
     }
 
     // Kiểm tra đặt xe trước ít nhất 3 ngày
@@ -18,12 +18,12 @@ const createBooking = async (req, res) => {
     minTime.setDate(minTime.getDate() + 3);
     minTime.setHours(0, 0, 0, 0);
     if (new Date(start_time) < minTime) {
-      return res.status(400).json({ message: 'Ngày đi phải cách hôm nay ít nhất 3 ngày.' });
+      return res.status(400).json({ message: 'The departure date must be at least 3 days before today.' });
     }
 
     const priceRecord = await PriceList.findOne({ where: { product_id, model_id } });
     if (!priceRecord) {
-      return res.status(404).json({ message: 'Không tìm thấy giá cho sản phẩm và dòng xe này' });
+      return res.status(404).json({ message: 'No prices were found for this product and model.' });
     }
 
     // Lấy product để biết category và num_days (tour)
@@ -57,14 +57,14 @@ const createBooking = async (req, res) => {
     // Lưu notification cho admin
     await Notification.create({
       user_id: customer_id,
-      content: `Đơn đặt xe mới #${booking.id.slice(0, 8)} đang chờ xác nhận`
+      content: `New booking #${booking.id.slice(0, 8)} is awaiting confirmation.`
     });
 
     // Emit socket tới admin
     const io = getIo();
     if (io) io.to('admin').emit('new_booking', { booking_id: booking.id });
 
-    res.status(201).json({ message: 'Đặt xe thành công!', data: booking });
+    res.status(201).json({ message: 'Booking created successfully!', data: booking });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -127,17 +127,19 @@ const updateBookingStatus = async (req, res) => {
 
     const validStatuses = ['CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: `Trạng thái không hợp lệ. Cho phép: ${validStatuses.join(', ')}` });
+      return res.status(400).json({ message: `Invalid status. Allowed values: ${validStatuses.join(', ')}` });
     }
 
     const booking = await Booking.findByPk(id);
-    if (!booking) return res.status(404).json({ message: 'Không tìm thấy đơn' });
+    if (!booking) return res.status(404).json({ message: 'Booking not found.' });
 
+    const previousStatus = booking.status;
     booking.status = status;
     await booking.save();
 
     // Khi hoàn thành: gửi email + notification cho khách
-    if (status === 'COMPLETED') {
+    // Guard previousStatus !== 'COMPLETED' để tránh gửi email trùng nếu admin set lại
+    if (status === 'COMPLETED' && previousStatus !== 'COMPLETED') {
       const fullBooking = await Booking.findByPk(booking.id, {
         include: [
           { model: User, as: 'customer', attributes: ['id', 'full_name', 'email'] },
@@ -147,13 +149,13 @@ const updateBookingStatus = async (req, res) => {
       if (fullBooking?.customer) {
         await Notification.create({
           user_id: fullBooking.customer.id,
-          content: `Chuyến xe "${fullBooking.product?.product_name}" đã hoàn thành. Hãy để lại đánh giá! 🌟`
+          content: `Your trip "${fullBooking.product?.product_name}" has been completed. Leave a review! 🌟`
         });
         sendCompletionEmail(fullBooking.customer.email, fullBooking.customer.full_name, fullBooking.product?.product_name).catch(e => console.error('Email error:', e.message));
       }
     }
 
-    res.json({ message: 'Cập nhật trạng thái thành công', data: booking });
+    res.json({ message: 'Status updated successfully.', data: booking });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -166,13 +168,13 @@ const assignCarAndDriver = async (req, res) => {
     const { car_id, driver_id, external_car_info } = req.body;
 
     const booking = await Booking.findByPk(id);
-    if (!booking) return res.status(404).json({ message: 'Không tìm thấy đơn' });
+    if (!booking) return res.status(404).json({ message: 'Booking not found.' });
 
     // ── Trường hợp xe ngoài ──────────────────────────────────────
     if (external_car_info) {
       const { license_plate, car_type, driver_name, driver_phone, vendor } = external_car_info;
       if (!license_plate || !driver_name || !driver_phone) {
-        return res.status(400).json({ message: 'Biển số xe, tên tài xế và SĐT là bắt buộc' });
+        return res.status(400).json({ message: 'License plate, driver name and phone number are required.' });
       }
       const existingAd = booking.additional_data || {};
       booking.additional_data = { ...existingAd, external_car: { license_plate, car_type, driver_name, driver_phone, vendor } };
@@ -180,12 +182,41 @@ const assignCarAndDriver = async (req, res) => {
       booking.driver_id = null;
       booking.status = 'CONFIRMED';
       await booking.save();
-      return res.json({ message: 'Gán xe ngoài thành công', data: booking });
+
+      // Gửi email xác nhận + notification cho khách (xe ngoài)
+      try {
+        const fullBooking = await Booking.findByPk(id, {
+          include: [
+            { model: User, as: 'customer', attributes: ['id', 'full_name', 'email'] },
+            { model: Product, as: 'product', attributes: ['product_name'] }
+          ]
+        });
+        if (fullBooking?.customer) {
+          const productName = fullBooking.product?.product_name || 'Service';
+          await Notification.create({
+            user_id: fullBooking.customer.id,
+            content: `Booking "${productName}" confirmed. Driver: ${driver_name} - ${driver_phone} - ${license_plate}`
+          });
+          sendConfirmationEmail(
+            fullBooking.customer.email,
+            fullBooking.customer.full_name,
+            productName,
+            booking.start_time,
+            driver_name,
+            driver_phone,
+            license_plate
+          ).catch(e => console.error('Confirmation email error (external):', e.message));
+        }
+      } catch (e) {
+        console.error('Customer confirmation notification error (external):', e.message);
+      }
+
+      return res.json({ message: 'External vehicle assigned successfully.', data: booking });
     }
 
     // ── Trường hợp xe nội bộ ────────────────────────────────────
     if (!car_id || !driver_id) {
-      return res.status(400).json({ message: 'car_id và driver_id là bắt buộc' });
+      return res.status(400).json({ message: 'car_id and driver_id are required.' });
     }
 
     // Lấy thông tin thời gian của booking hiện tại
@@ -211,7 +242,7 @@ const assignCarAndDriver = async (req, res) => {
       const cfStart = new Date(conflictingCar.start_time).toLocaleString('vi-VN');
       const cfEnd = conflictingCar.end_time ? new Date(conflictingCar.end_time).toLocaleString('vi-VN') : '?';
       return res.status(400).json({
-        message: `Xe này đã được gán cho chuyến khác từ ${cfStart} đến ${cfEnd}. Vui lòng chọn xe khác.`
+        message: `This vehicle is already assigned to another trip from ${cfStart} to ${cfEnd}. Please choose a different vehicle.`
       });
     }
 
@@ -223,7 +254,7 @@ const assignCarAndDriver = async (req, res) => {
       const cfStart = new Date(conflictingDriver.start_time).toLocaleString('vi-VN');
       const cfEnd = conflictingDriver.end_time ? new Date(conflictingDriver.end_time).toLocaleString('vi-VN') : '?';
       return res.status(400).json({
-        message: `Tài xế này đã có lịch chuyến khác từ ${cfStart} đến ${cfEnd}. Vui lòng chọn tài xế khác.`
+        message: `This driver already has another trip from ${cfStart} to ${cfEnd}. Please choose a different driver.`
       });
     }
 
@@ -238,21 +269,48 @@ const assignCarAndDriver = async (req, res) => {
     booking.status = 'CONFIRMED';
     await booking.save();
 
-    // Thông báo cho tài xế được gán
+    // Thông báo cho tài xế được gán + gửi email xác nhận cho khách
     try {
       const fullBooking = await Booking.findByPk(booking.id, {
-        include: [{ model: Product, as: 'product', attributes: ['product_name'] }]
+        include: [
+          { model: Product, as: 'product', attributes: ['product_name'] },
+          { model: User, as: 'customer', attributes: ['id', 'full_name', 'email'] },
+          { model: User, as: 'assigned_driver', attributes: ['id', 'full_name', 'phone'] },
+          { model: Car, as: 'assigned_car', attributes: ['id', 'license_plate'] }
+        ]
       });
       const startStr = new Date(booking.start_time).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const productName = fullBooking?.product?.product_name || 'Service';
+
+      // Notification cho tài xế
       await Notification.create({
         user_id: driver_id,
-        content: `Bạn được phân công chuyến "${fullBooking?.product?.product_name || 'Dịch vụ'}" lúc ${startStr}.`
+        content: `You have been assigned to trip "${productName}" at ${startStr}.`
       });
+
+      // Email xác nhận + notification cho khách
+      if (fullBooking?.customer) {
+        const driverInfo = fullBooking.assigned_driver;
+        const carInfo = fullBooking.assigned_car;
+        await Notification.create({
+          user_id: fullBooking.customer.id,
+          content: `Booking "${productName}" confirmed. Driver: ${driverInfo?.full_name || 'N/A'} - ${driverInfo?.phone || 'N/A'} - ${carInfo?.license_plate || 'N/A'}`
+        });
+        sendConfirmationEmail(
+          fullBooking.customer.email,
+          fullBooking.customer.full_name,
+          productName,
+          booking.start_time,
+          driverInfo?.full_name || 'N/A',
+          driverInfo?.phone || 'N/A',
+          carInfo?.license_plate || 'N/A'
+        ).catch(e => console.error('Confirmation email error (internal):', e.message));
+      }
     } catch (e) {
       console.error('Driver notification error:', e.message);
     }
 
-    res.json({ message: 'Gán xe và tài xế thành công', data: booking });
+    res.json({ message: 'Vehicle and driver assigned successfully.', data: booking });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -291,19 +349,19 @@ const driverUpdateStatus = async (req, res) => {
     // Tài xế chỉ được chuyển sang 2 trạng thái này
     const allowedStatuses = ['IN_PROGRESS', 'COMPLETED'];
     if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({ message: 'Tài xế chỉ được cập nhật: IN_PROGRESS hoặc COMPLETED' });
+      return res.status(400).json({ message: 'Driver can only update to: IN_PROGRESS or COMPLETED.' });
     }
 
     // Chỉ được cập nhật chuyến được gán cho mình
     const booking = await Booking.findOne({ where: { id, driver_id } });
-    if (!booking) return res.status(404).json({ message: 'Không tìm thấy chuyến hoặc bạn không có quyền' });
+    if (!booking) return res.status(404).json({ message: 'Trip not found or you do not have permission.' });
 
     // Validate workflow: CONFIRMED → IN_PROGRESS → COMPLETED
     if (status === 'IN_PROGRESS' && booking.status !== 'CONFIRMED') {
-      return res.status(400).json({ message: 'Chỉ có thể bắt đầu chuyến khi đã CONFIRMED' });
+      return res.status(400).json({ message: 'Trip can only be started when status is CONFIRMED.' });
     }
     if (status === 'COMPLETED' && booking.status !== 'IN_PROGRESS') {
-      return res.status(400).json({ message: 'Chỉ có thể hoàn thành khi đang IN_PROGRESS' });
+      return res.status(400).json({ message: 'Trip can only be completed when status is IN_PROGRESS.' });
     }
 
     booking.status = status;
@@ -320,14 +378,14 @@ const driverUpdateStatus = async (req, res) => {
       if (fullBooking?.customer) {
         await Notification.create({
           user_id: fullBooking.customer.id,
-          content: `Chuyến xe "${fullBooking.product?.product_name}" đã hoàn thành. Hãy để lại đánh giá! 🌟`
+          content: `Your trip "${fullBooking.product?.product_name}" has been completed. Leave a review! 🌟`
         });
         sendCompletionEmail(fullBooking.customer.email, fullBooking.customer.full_name, fullBooking.product?.product_name)
           .catch(e => console.error('Email error:', e.message));
       }
     }
 
-    res.json({ message: 'Cập nhật trạng thái thành công', data: booking });
+    res.json({ message: 'Status updated successfully.', data: booking });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

@@ -38,14 +38,14 @@ const createPaymentUrl = async (req, res) => {
     const booking = await Booking.findOne({
       where: { id: booking_id, customer_id: customerId, status: 'PENDING' }
     });
-    if (!booking) return res.status(404).json({ message: 'Không tìm thấy đơn hoặc đơn không hợp lệ' });
+    if (!booking) return res.status(404).json({ message: 'Booking not found or invalid.' });
 
     // Kiểm tra chưa có payment pending
     const existing = await Payment.findOne({
       where: { booking_id, status: { [Op.in]: ['PENDING', 'SUCCESS'] } }
     });
     if (existing?.status === 'SUCCESS') {
-      return res.status(400).json({ message: 'Đơn này đã được thanh toán cọc rồi' });
+      return res.status(400).json({ message: 'This booking has already been paid.' });
     }
 
     const depositAmount = Math.floor(parseFloat(booking.total_price) * 0.3);
@@ -84,7 +84,7 @@ const vnpayReturn = async (req, res) => {
   try {
     const verify = vnpay.verifyReturnUrl(req.query);
     if (!verify.isVerified || !verify.isSuccess) {
-      return res.json({ success: false, message: 'Thanh toán thất bại hoặc bị hủy' });
+      return res.json({ success: false, message: 'Payment failed or was cancelled.' });
     }
 
     // Cập nhật DB (phòng khi IPN chưa gọi được — localhost dev)
@@ -109,7 +109,7 @@ const vnpayReturn = async (req, res) => {
         if (customer) {
           await Notification.create({
             user_id: customer.id,
-            content: `Đặt cọc ${fmt(payment.amount)} cho đơn "${productName}" thành công. Đơn đang chờ xếp xe.`
+            content: `Deposit of ${fmt(payment.amount)} for booking "${productName}" successful. Your booking is awaiting vehicle assignment.`
           });
           // Email cho khách
           sendDepositEmail(customer.email, customer.full_name, productName, payment.amount, booking.id)
@@ -121,7 +121,7 @@ const vnpayReturn = async (req, res) => {
         await Promise.all(admins.map(admin =>
           Notification.create({
             user_id: admin.id,
-            content: `Đơn #${booking.id.slice(0,8).toUpperCase()} đã được thanh toán cọc ${fmt(payment.amount)}.`
+            content: `Booking #${booking.id.slice(0,8).toUpperCase()} has been deposited with ${fmt(payment.amount)}.`
           })
         ));
 
@@ -134,7 +134,7 @@ const vnpayReturn = async (req, res) => {
       }
     }
 
-    res.json({ success: true, message: 'Thanh toán cọc thành công! Đơn của bạn đã được xác nhận.' });
+    res.json({ success: true, message: 'Deposit payment successful! Your booking has been confirmed.' });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
@@ -185,7 +185,7 @@ const cancelBooking = async (req, res) => {
         status: { [Op.in]: ['PENDING', 'CONFIRMED'] }
       }
     });
-    if (!booking) return res.status(404).json({ message: 'Không tìm thấy đơn hoặc không thể hủy' });
+    if (!booking) return res.status(404).json({ message: 'Booking not found or cannot be cancelled.' });
 
     const payment = await Payment.findOne({
       where: { booking_id: bookingId, status: 'SUCCESS' }
@@ -225,9 +225,9 @@ const cancelBooking = async (req, res) => {
 
     const msg = refundInfo
       ? refundInfo.refundPercent > 0
-        ? `Đã hủy đơn. Tiền cọc sẽ được hoàn lại trong 5-10 ngày làm việc.`
-        : 'Đã hủy đơn. Tiền cọc không được hoàn do hủy trong vòng 24 giờ trước chuyến đi.'
-        : 'Đã hủy đơn thành công.';
+        ? `Booking cancelled. The deposit will be refunded within 5–10 business days.`
+        : 'Booking cancelled. The deposit is non-refundable as the cancellation was within 24 hours of the trip.'
+        : 'Booking cancelled successfully.';
 
     // Thông báo + email cho khách + tài xế
     try {
@@ -243,8 +243,8 @@ const cancelBooking = async (req, res) => {
         const ra = refundInfo?.refundAmount || 0;
         const rp = refundInfo?.refundPercent || 0;
         const notifContent = rp > 0
-          ? `Đơn "${productName}" đã hủy. Tiền cọc sẽ được hoàn lại trong 5-10 ngày làm việc.`
-          : `Đơn "${productName}" đã hủy. ${rp === 0 && refundInfo ? 'Tiền cọc không được hoàn do hủy trong 24 giờ.' : ''}`;
+          ? `Booking "${productName}" cancelled. The deposit will be refunded within 5–10 business days.`
+          : `Booking "${productName}" cancelled. ${rp === 0 && refundInfo ? 'The deposit is non-refundable due to cancellation within 24 hours.' : ''}`;
         await Notification.create({ user_id: fullBooking.customer.id, content: notifContent });
         sendCancelEmail(fullBooking.customer.email, fullBooking.customer.full_name, productName, ra, rp)
           .catch(e => console.error('Cancel email error:', e.message));
@@ -253,7 +253,7 @@ const cancelBooking = async (req, res) => {
         if (fullBooking.assigned_driver) {
           await Notification.create({
             user_id: fullBooking.assigned_driver.id,
-            content: `Chuyến "${productName}" đã bị hủy bởi khách hàng.`
+            content: `Trip "${productName}" has been cancelled by the customer.`
           });
         }
       }

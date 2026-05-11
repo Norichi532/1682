@@ -22,7 +22,7 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const p = await Product.findByPk(req.params.id, { include: productIncludes });
-    if (!p) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+    if (!p) return res.status(404).json({ message: 'Product not found.' });
     res.json({ message: 'OK', data: p });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
@@ -30,7 +30,7 @@ const getProductById = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     const { category_id, product_name, description, address, image_url, prices, num_days, itinerary } = req.body;
-    if (!category_id || !product_name) return res.status(400).json({ message: 'category_id và product_name là bắt buộc' });
+    if (!category_id || !product_name) return res.status(400).json({ message: 'category_id and product_name are required.' });
     // num_days và itinerary chỉ dùng cho Tour (category_id = 2)
     const isTour = parseInt(category_id) === 2;
     const parsedNumDays = isTour && num_days ? parseInt(num_days) : null;
@@ -42,14 +42,14 @@ const createProduct = async (req, res) => {
       await PriceList.bulkCreate(priceRows);
     }
     const full = await Product.findByPk(p.id, { include: productIncludes });
-    res.status(201).json({ message: 'Tạo sản phẩm thành công', data: full });
+    res.status(201).json({ message: 'Product created successfully.', data: full });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
 
 const updateProduct = async (req, res) => {
   try {
     const p = await Product.findByPk(req.params.id);
-    if (!p) return res.status(404).json({ message: 'Không tìm thấy' });
+    if (!p) return res.status(404).json({ message: 'Product not found.' });
     const { category_id, product_name, description, address, image_url, prices, num_days, itinerary } = req.body;
     const isTour = parseInt(category_id) === 2;
     const parsedNumDays = isTour && num_days ? parseInt(num_days) : null;
@@ -62,17 +62,17 @@ const updateProduct = async (req, res) => {
       await PriceList.bulkCreate(priceRows);
     }
     const full = await Product.findByPk(p.id, { include: productIncludes });
-    res.json({ message: 'Cập nhật thành công', data: full });
+    res.json({ message: 'Product updated successfully.', data: full });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
 
 const deleteProduct = async (req, res) => {
   try {
     const p = await Product.findByPk(req.params.id);
-    if (!p) return res.status(404).json({ message: 'Không tìm thấy' });
+    if (!p) return res.status(404).json({ message: 'Product not found.' });
     await PriceList.destroy({ where: { product_id: p.id } });
     await p.destroy();
-    res.json({ message: 'Xóa thành công' });
+    res.json({ message: 'Product deleted successfully.' });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
 

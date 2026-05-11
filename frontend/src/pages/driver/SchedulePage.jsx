@@ -26,8 +26,6 @@ export default function SchedulePage() {
   const [updating, setUpdating] = useState(null)
   const [confirmModal, setConfirmModal] = useState(null)
 
-  useEffect(() => { fetchSchedule() }, [])
-
   const fetchSchedule = async () => {
     try {
       setLoading(true)
@@ -36,6 +34,15 @@ export default function SchedulePage() {
     } catch { setError('Failed to load schedule') }
     finally { setLoading(false) }
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+  const loadSchedule = async () => {
+    await fetchSchedule()
+  }
+
+  loadSchedule()
+}, [])
 
   const handleUpdateStatus = async () => {
     if (!confirmModal) return
