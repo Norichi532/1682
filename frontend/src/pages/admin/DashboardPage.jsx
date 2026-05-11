@@ -3,7 +3,7 @@ import AdminLayout from './AdminLayout'
 import api from '../../services/api'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, LineChart, Line
+  PieChart, Pie, Cell
 } from 'recharts'
 
 const fmt = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
@@ -81,7 +81,6 @@ export default function DashboardPage() {
   const total     = bookings.length
   const pending   = bookings.filter(b => b.status === 'PENDING').length
   const completed = bookings.filter(b => b.status === 'COMPLETED').length
-  const cancelled = bookings.filter(b => b.status === 'CANCELLED').length
   const revenue   = bookings.filter(b => b.status === 'COMPLETED')
                             .reduce((s, b) => s + parseFloat(b.total_price || 0), 0)
 

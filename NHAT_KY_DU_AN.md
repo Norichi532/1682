@@ -2,7 +2,7 @@
 
 > **Đồ án tốt nghiệp** | Hệ thống đặt xe du lịch trực tuyến  
 > **Sinh viên:** Huỳnh Đoàn Tấn Phát  
-> **Cập nhật lần cuối:** 10/05/2026 (lần 4) — Swagger đầy đủ + fix Gmail SMTP timeout
+> **Cập nhật lần cuối:** 11/05/2026 — Chuyển email provider từ Nodemailer/Gmail SMTP sang SendGrid
 
 ---
 
@@ -22,7 +22,7 @@
 | Auth | JWT, Google OAuth 2.0 |
 | Thanh toán | VNPay (cổng thanh toán Việt Nam) |
 | Upload ảnh | Cloudinary |
-| Email | Nodemailer (Gmail SMTP) |
+| Email | SendGrid (`@sendgrid/mail`) |
 | Deploy | Render (backend) + Vercel (frontend) + Supabase (DB) |
 
 ---
@@ -122,7 +122,7 @@ Final/
 │       ├── seeders/
 │       │   └── 20260501083044-demo-phuongtravel-data.js
 │       ├── utils/
-│       │   └── mailer.js           ← dùng FRONTEND_URL env (đã fix)
+│       │   └── mailer.js           ← dùng SendGrid (@sendgrid/mail) + FRONTEND_URL env
 │       └── server.js
 └── frontend/
     ├── vercel.json                 ← SPA routing (ở root frontend/, KHÔNG trong public/)
@@ -146,7 +146,7 @@ Final/
             ├── ProductDetailPage.jsx  ← timeline itinerary + badge num_days
             ├── VehiclesPage.jsx
             ├── VehicleDetailPage.jsx  ← gallery ảnh + thumbnails (fixed hooks)
-            ├── BookingPage.jsx        ← terminal sân bay, validate >45 khách, golf labels fix
+            ├── BookingPage.jsx        ← terminal sân bay, validate >45 khách, Golf Transfer tối ưu (AmPmTimePicker, NumericInput, auto golf_course, pickup/dropoff logic)
             ├── VNPayReturnPage.jsx
             ├── LoginPage.jsx          ← Google OAuth href dùng VITE_API_URL
             ├── RegisterPage.jsx       ← Google OAuth href dùng VITE_API_URL
@@ -190,7 +190,8 @@ GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 FRONTEND_URL=http://localhost:5173
 
 MAIL_USER=phuongtouristcar.dev@gmail.com
-MAIL_PASS=<app password>
+SENDGRID_API_KEY=<sendgrid api key>
+# MAIL_PASS không còn cần thiết (đã chuyển sang SendGrid)
 
 CLOUDINARY_CLOUD_NAME=<name>
 CLOUDINARY_API_KEY=<key>
@@ -394,6 +395,83 @@ GitHub (monorepo)
 ---
 
 ## 🗓️ Nhật ký thay đổi
+
+### 11/05/2026 (lần 2) — Chuyển email provider sang SendGrid
+
+#### `backend/package.json`
+- Thay thế `"nodemailer": "^8.0.7"` → `"@sendgrid/mail": "^8.1.4"`
+
+#### `backend/src/utils/mailer.js`
+- **Xóa hoàn toàn** cấu hình Nodemailer + Gmail SMTP (`createTransport`, `host`, `port`, `MAIL_PASS`)
+- Thay bằng `@sendgrid/mail`: khởi tạo một lần qua `sgMail.setApiKey(process.env.SENDGRID_API_KEY)`
+- Hằng số `FROM_EMAIL` dùng `process.env.MAIL_USER` (email `phuongtouristcar.dev@gmail.com` đã verify trên SendGrid Sender Authentication)
+- Toàn bộ 6 hàm giữ nguyên logic và HTML template, chỉ đổi từ `getTransporter().sendMail({...})` sang `sgMail.send({...})`
+  - `sendNewPassword` — gửi mật khẩu mới khi reset
+  - `sendCompletionEmail` — thông báo chuyến xe hoàn thành
+  - `sendWelcomeEmail` — chào mừng đăng ký tài khoản mới
+  - `sendDepositEmail` — xác nhận đặt cọc 30%
+  - `sendCancelEmail` — xác nhận hủy booking + hoàn tiền
+  - `sendConfirmationEmail` — xác nhận booking kèm thông tin tài xế/xe
+
+**Lý do chuyển sang SendGrid:** SendGrid là dịch vụ email chuyên nghiệp, deliverability cao hơn Gmail SMTP, không bị block cổng trên các nền tảng cloud (Render, Railway…), phù hợp cho production.
+
+**Biến môi trường cần có:**
+```
+SENDGRID_API_KEY=SG.xxxx...   ← thay cho MAIL_PASS
+MAIL_USER=phuongtouristcar.dev@gmail.com  ← giữ nguyên (sender đã verify)
+```
+
+**Sau khi pull code:** chạy `npm install` trong thư mục `backend/` để cài `@sendgrid/mail`.
+
+---
+
+### 11/05/2026 — Tối ưu BookingPage Golf Transfer + fix bug NumericInput
+
+#### `frontend/src/pages/BookingPage.jsx`
+
+**1. Bỏ dropdown chọn sân golf → hiển thị tĩnh từ tên product**
+
+- Xóa hằng số `GOLF_COURSES` (mảng 5 sân golf hardcode)
+- Xóa `<select>` dropdown "Select golf course" trong `Step1Schedule`
+- Thêm logic auto-set `data.golf_course` trong `useEffect` load product: trích xuất tên sân golf từ `product.product_name` bằng regex `replace(/^Golf Transfer\s*[–\-]\s*/i, '')` → ví dụ `"Golf Transfer – BRG Da Nang Golf Resort"` → `"BRG Da Nang Golf Resort"`
+- Xóa validation check `if (catId === 3 && !data.golf_course)` (không cần vì đã auto-set)
+
+**2. Service name trong Sidebar Summary chỉ hiển thị "Golf Transfer"**
+
+- `BookingSummary`: đổi `value={product?.product_name}` → `value={catId === 3 ? 'Golf Transfer' : product?.product_name}` để tránh hiện tên đầy đủ (vd: "Golf Transfer – BRG Da Nang Golf Resort") trong sidebar
+
+**3. Logic Pick-up / Drop-off Golf — đồng nhất với Airport**
+
+- **Sidebar Summary**: label drop-off Golf không còn bị đổi thành "Golf Course" — thống nhất `label="Drop-off"` cho mọi hướng
+- **Step 3 – Review (Step3Confirm)**: cập nhật logic Pickup/Drop-off cho Golf:
+  - `to_golf` (Hotel → Golf): Pickup = địa chỉ khách sạn, Drop-off = tên sân golf
+  - `from_golf` (Golf → Hotel): Pickup = tên sân golf, Drop-off = địa chỉ khách sạn
+  - Xóa dòng `<InfoRow label="Golf course" value={data.golf_course} />` riêng lẻ (thông tin này đã nằm trong Pickup/Drop-off)
+
+**4. Xóa trường "Golf course" trong Schedule & Location**
+
+- Xóa block hiển thị tĩnh ⛳ tên sân golf khỏi `Step1Schedule` (yêu cầu: tên sân đã hiện qua logic Pickup/Drop-off phía trên, không cần lặp lại)
+
+**5. Time Picker AM/PM tiếng Anh — component `AmPmTimePicker`**
+
+- Thêm component `AmPmTimePicker({ value, onChange })` ngay trước `Step1Schedule`
+- UI: `[HH] : [MM] [AM] [PM]` — dùng `<input type="number">` cho giờ/phút + 2 nút toggle AM/PM
+- Lưu nội bộ theo 24h (`HH:MM`), convert khi render và khi emit `onChange`
+- Styled giống các field khác: container `border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-ochre/40`
+- Thay `<input type="time">` (phụ thuộc locale OS → hiện "SA/CH" tiếng Việt) bằng `<AmPmTimePicker>` → luôn hiện "AM/PM" tiếng Anh
+
+**6. Fix bug Passengers & Golf Bags bị chèn số sai — component `NumericInput`**
+
+- **Root cause:** React controlled `<input type="number">` có bug cursor bị reset về position 0 sau mỗi re-render → khi user gõ `1` → `1` → `2` liên tiếp, "2" được insert ở đầu → ra `"211"` hoặc `"112"` tùy browser
+- **Giải pháp:** Thêm component `NumericInput({ value, min, onChange, className })`:
+  - Dùng **local `string` state** (`raw`) để quản lý raw text trên input — React không override cursor
+  - `type="text" inputMode="numeric" pattern="[0-9]*"` — tránh hoàn toàn bug cursor của `type="number"`, bàn phím số vẫn hiện trên mobile
+  - `onFocus={e => e.target.select()}` — tự chọn hết nội dung khi focus → user gõ số mới sẽ thay thế ngay, không bị nối thêm
+  - `onBlur`: nếu xóa trắng hoặc nhập < min → reset về `min` (passengers → 1, golf_bags → 0)
+  - `useEffect` đồng bộ `raw` khi `value` thay đổi từ bên ngoài (reset form)
+- Thay `<input type="number" min="1" max="45">` (passengers) và `<input type="number" min="0" max="20">` (golf bags) bằng `<NumericInput>`
+
+---
 
 ### 10/05/2026 (lần 4) — Swagger đầy đủ + fix Gmail SMTP timeout
 

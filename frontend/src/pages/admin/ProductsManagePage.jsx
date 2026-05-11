@@ -114,12 +114,7 @@ export default function ProductsManagePage() {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [modalTab, setModalTab] = useState('basic')
 
-  useEffect(() => {
-    fetchAll()
-    api.get('/categories').then(r => setCategories(r.data.data || []))
-    api.get('/car-models').then(r => setCarModels(r.data.data || []))
-  }, [])
-
+  // Fetch chỉ products — dùng lại sau khi save/delete
   const fetchAll = async () => {
     try {
       setLoading(true)
@@ -128,6 +123,28 @@ export default function ProductsManagePage() {
     } catch { setError('Failed to load data') }
     finally { setLoading(false) }
   }
+
+  // Fetch tất cả dữ liệu ban đầu song song, loading chỉ tắt khi TẤT CẢ xong
+  useEffect(() => {
+    const initData = async () => {
+      try {
+        setLoading(true)
+        const [resProducts, resCategories, resModels] = await Promise.all([
+          api.get('/products'),
+          api.get('/categories'),
+          api.get('/car-models')
+        ])
+        setProducts(resProducts.data.data || [])
+        setCategories(resCategories.data.data || [])
+        setCarModels(resModels.data.data || [])
+      } catch {
+        setError('Failed to load initial data')
+      } finally {
+        setLoading(false)
+      }
+    }
+    initData()
+  }, [])
 
   const initPrices = (models, existingPrices = []) =>
     models.map(m => ({ model_id: m.id, model_name: m.model_name, num_seats: m.num_seats, price: existingPrices.find(p => p.model_id === m.id)?.price || '' }))

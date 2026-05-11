@@ -1,25 +1,15 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-// Lazy-init: create a fresh transporter each call so env vars are always
-// read at send-time, not at module-load time (important on cloud deployments).
-const getTransporter = () =>
-  nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // STARTTLS (port 587)
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS, // 16-char Gmail App Password, no spaces
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-  });
+// Khởi tạo SendGrid với API key từ biến môi trường
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+// Địa chỉ người gửi (phải được verify trên SendGrid Sender Authentication)
+const FROM_EMAIL = `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`;
 
 const sendNewPassword = async (toEmail, newPassword) => {
-  await getTransporter().sendMail({
-    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+  await sgMail.send({
     to: toEmail,
+    from: FROM_EMAIL,
     subject: 'Your new password — PhuOng Tourist Car',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; border: 1px solid #e5e7eb; border-radius: 12px;">
@@ -35,9 +25,9 @@ const sendNewPassword = async (toEmail, newPassword) => {
 };
 
 const sendCompletionEmail = async (toEmail, customerName, productName) => {
-  await getTransporter().sendMail({
-    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+  await sgMail.send({
     to: toEmail,
+    from: FROM_EMAIL,
     subject: 'Chuyến xe của bạn đã hoàn thành — PhuOng Tourist Car',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; border: 1px solid #e5e7eb; border-radius: 12px;">
@@ -56,9 +46,9 @@ const sendCompletionEmail = async (toEmail, customerName, productName) => {
 };
 
 const sendWelcomeEmail = async (toEmail, fullName) => {
-  await getTransporter().sendMail({
-    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+  await sgMail.send({
     to: toEmail,
+    from: FROM_EMAIL,
     subject: 'Welcome to PhuOng Tourist Car!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb;">
@@ -100,9 +90,9 @@ const sendWelcomeEmail = async (toEmail, fullName) => {
 
 const sendDepositEmail = async (toEmail, customerName, productName, depositAmount, bookingId) => {
   const fmt = (v) => new Intl.NumberFormat('vi-VN').format(v) + 'đ';
-  await getTransporter().sendMail({
-    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+  await sgMail.send({
     to: toEmail,
+    from: FROM_EMAIL,
     subject: 'Deposit Successful — PhuOng Tourist Car',
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
@@ -138,9 +128,9 @@ const sendCancelEmail = async (toEmail, customerName, productName, refundAmount,
     : `Refund <strong>${refundPercent}%</strong> of the deposit — <strong>${fmt(refundAmount)}</strong> will be credited to your account within 5–10 business days.`;
   const color = refundPercent === 100 ? '#16a34a' : refundPercent === 50 ? '#d97706' : '#dc2626';
 
-  await getTransporter().sendMail({
-    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+  await sgMail.send({
     to: toEmail,
+    from: FROM_EMAIL,
     subject: 'Cancellation Confirmation — PhuOng Tourist Car',
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
@@ -169,9 +159,9 @@ const sendConfirmationEmail = async (toEmail, customerName, productName, startTi
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit'
   });
-  await getTransporter().sendMail({
-    from: `"PhuOng Tourist Car" <${process.env.MAIL_USER}>`,
+  await sgMail.send({
     to: toEmail,
+    from: FROM_EMAIL,
     subject: 'Your booking is confirmed — PhuOng Tourist Car',
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">

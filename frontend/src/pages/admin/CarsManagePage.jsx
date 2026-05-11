@@ -23,20 +23,37 @@ export default function CarsManagePage() {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    fetchAll()
-    api.get('/car-models').then(r => setCarModels(r.data.data || []))
-    api.get('/users/drivers').then(r => setDrivers(r.data.data || []))
-  }, [])
-
+  // Fetch chỉ cars — dùng lại sau khi save/delete
   const fetchAll = async () => {
     try {
       setLoading(true)
       const res = await api.get('/cars')
       setCars(res.data.data || [])
-    } catch (e) { setError('Failed to load vehicles') }
+    } catch { setError('Failed to load vehicles') }
     finally { setLoading(false) }
   }
+
+  // Fetch tất cả dữ liệu ban đầu song song, loading chỉ tắt khi TẤT CẢ xong
+  useEffect(() => {
+    const initData = async () => {
+      try {
+        setLoading(true)
+        const [resCars, resModels, resDrivers] = await Promise.all([
+          api.get('/cars'),
+          api.get('/car-models'),
+          api.get('/users/drivers')
+        ])
+        setCars(resCars.data.data || [])
+        setCarModels(resModels.data.data || [])
+        setDrivers(resDrivers.data.data || [])
+      } catch {
+        setError('Failed to load initial data')
+      } finally {
+        setLoading(false)
+      }
+    }
+    initData()
+  }, [])
 
   const openCreate = () => { setEditCar(null); setForm(EMPTY_FORM); setError(''); setModalOpen(true) }
   const openEdit = (c) => {

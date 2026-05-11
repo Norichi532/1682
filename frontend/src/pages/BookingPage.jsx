@@ -12,13 +12,6 @@ const STEPS = [
   { id: 4, label: 'Payment' },
 ]
 
-const GOLF_COURSES = [
-  'BRG Da Nang Golf Resort',
-  'Montgomerie Links Da Nang',
-  'Ba Na Hills Golf Club',
-  'Danang Golf Club',
-  'Laguna Golf Lang Co',
-]
 
 const fmt = (v) => new Intl.NumberFormat('en-GB').format(v) + ' VND'
 const fmtDT = (date, time) => {
@@ -78,7 +71,7 @@ function BookingSummary({ product, data, step }) {
       <h3 className="text-ochre font-semibold text-xs uppercase tracking-widest mb-5">Booking Summary</h3>
       <div className="space-y-4">
 
-        <SummaryRow icon={icon} label="Service" value={product?.product_name} always />
+        <SummaryRow icon={icon} label="Service" value={catId === 3 ? 'Golf Transfer' : product?.product_name} always />
 
         {pickupLabel && (
           <SummaryRow icon="📍" label="Pickup" value={pickupLabel} />
@@ -86,7 +79,7 @@ function BookingSummary({ product, data, step }) {
         {dropLabel && (
           <SummaryRow
             icon={catId === 3 ? (data.direction === 'from_golf' ? '🏨' : '⛳') : '🏁'}
-            label={catId === 3 ? (data.direction === 'from_golf' ? 'Drop-off' : 'Golf Course') : 'Drop-off'}
+            label="Drop-off"
             value={dropLabel}
           />
         )}
@@ -132,6 +125,125 @@ function SummaryRow({ icon, label, value, always }) {
 
 // Chuyển "07h30" → "07:30" cho input[type=time]
 const parseItineraryTime = (t) => t ? t.replace('h', ':') : ''
+
+// ─── AmPmTimePicker ───────────────────────────────────────────────────────────
+function AmPmTimePicker({ value, onChange }) {
+  // Parse "HH:MM" (24h) → { h: 1–12, m: 0–59, ampm: 'AM'|'PM' }
+  const parse24 = (v) => {
+    if (!v) return { h: '', m: '', ampm: 'AM' }
+    const [hStr, mStr] = v.split(':')
+    const hh = parseInt(hStr) || 0
+    const mm = parseInt(mStr) || 0
+    const ampm = hh < 12 ? 'AM' : 'PM'
+    const h = hh % 12 === 0 ? 12 : hh % 12
+    return { h, m: mm, ampm }
+  }
+  // Build "HH:MM" (24h) từ 12h parts
+  const to24h = (h, m, ampm) => {
+    let hh = parseInt(h) || 0
+    if (ampm === 'AM') { if (hh === 12) hh = 0 }
+    else { if (hh !== 12) hh = hh + 12 }
+    return `${String(hh).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`
+  }
+
+  const { h, m, ampm } = parse24(value)
+
+  const handleH = (e) => {
+    const newH = parseInt(e.target.value)
+    if (isNaN(newH)) return
+    const clamped = Math.min(12, Math.max(1, newH))
+    onChange(to24h(clamped, m === '' ? 0 : m, ampm))
+  }
+  const handleM = (e) => {
+    const newM = parseInt(e.target.value)
+    if (isNaN(newM)) return
+    const clamped = Math.min(59, Math.max(0, newM))
+    onChange(to24h(h === '' ? 12 : h, clamped, ampm))
+  }
+  const handleAmPm = (ap) => {
+    onChange(to24h(h === '' ? 12 : h, m === '' ? 0 : m, ap))
+  }
+
+  const numInp = "w-14 px-2 py-3 border-0 focus:ring-0 focus:outline-none text-center text-navy font-body text-sm bg-transparent"
+
+  return (
+    <div className="flex items-center w-full px-2 py-0 rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-ochre/40 focus-within:border-ochre transition bg-white">
+      <input
+        type="number" min="1" max="12"
+        value={h === '' ? '' : h}
+        onChange={handleH}
+        placeholder="HH"
+        className={numInp}
+      />
+      <span className="text-navy font-bold text-base select-none">:</span>
+      <input
+        type="number" min="0" max="59"
+        value={m === '' ? '' : String(m).padStart(2, '0')}
+        onChange={handleM}
+        placeholder="MM"
+        className={numInp}
+      />
+      <div className="flex gap-1 ml-1 mr-1">
+        {['AM', 'PM'].map(ap => (
+          <button
+            key={ap}
+            type="button"
+            onClick={() => handleAmPm(ap)}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${
+              ampm === ap
+                ? 'bg-ochre text-white shadow-sm'
+                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+            }`}
+          >
+            {ap}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── NumericInput ─────────────────────────────────────────────────────────────
+// Dùng local state (string) để tránh bug cursor bị reset khi dùng type="number" controlled
+function NumericInput({ value, min = 0, onChange, className }) {
+  // 1. Khởi tạo state ban đầu
+  const [raw, setRaw] = useState(String(value ?? ''));
+  const [prevValue, setPrevValue] = useState(value);
+
+  // 2. ĐỒNG BỘ TRỰC TIẾP TRONG RENDER
+  // Nếu 'value' từ prop thay đổi, cập nhật 'raw' ngay lập tức mà không cần useEffect
+  if (value !== prevValue) {
+    setRaw(String(value ?? ''));
+    setPrevValue(value);
+  }
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={raw}
+      onFocus={e => e.target.select()}
+      onChange={e => {
+        const cleaned = e.target.value.replace(/[^0-9]/g, '');
+        setRaw(cleaned);
+        
+        if (cleaned !== '') {
+          const num = parseInt(cleaned);
+          if (!isNaN(num)) onChange(num);
+        }
+      }}
+      onBlur={() => {
+        const num = parseInt(raw);
+        const finalValue = (isNaN(num) || num < min) ? min : num;
+        
+        setRaw(String(finalValue));
+        onChange(finalValue);
+      }}
+      className={className}
+    />
+  );
+}
 
 // ─── Step 1: Schedule ───────────────────────────────────────────────────────
 function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
@@ -241,17 +353,6 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
         </div>
       )}
 
-      {/* Golf course selector */}
-      {catId === 3 && (
-        <div>
-          <label className="block text-sm font-medium text-navy mb-1.5">Select golf course <span className="text-red-500">*</span></label>
-          <select value={data.golf_course} onChange={e => onChange('golf_course', e.target.value)} className={inp}>
-            <option value="">-- Select golf course --</option>
-            {GOLF_COURSES.map(g => <option key={g} value={g}>{g}</option>)}
-          </select>
-        </div>
-      )}
-
       {/* Date + Time */}
       {catId === 2 ? (
         /* Tour: chỉ chọn ngày, giờ lấy tự động từ lịch trình */
@@ -326,7 +427,7 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-navy mb-1.5">Pickup time <span className="text-red-500">*</span></label>
-            <input type="time" value={data.time} onChange={e => onChange('time', e.target.value)} className={inp} />
+            <AmPmTimePicker value={data.time} onChange={v => onChange('time', v)} />
           </div>
         </div>
       )}
@@ -335,8 +436,7 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">Passengers</label>
-          <input type="number" min="1" max="45" value={data.passengers}
-            onChange={e => onChange('passengers', parseInt(e.target.value) || 1)} className={inp} />
+          <NumericInput value={data.passengers} min={1} onChange={v => onChange('passengers', v)} className={inp} />
           {data.passengers > 45 && (
             <p className="text-red-500 text-xs mt-1.5 font-medium">
               ⚠️ Groups over 45 passengers please contact our hotline <strong>0335 966 977</strong> for special booking assistance.
@@ -380,8 +480,7 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
         {catId === 3 && (
           <div>
             <label className="block text-sm font-medium text-navy mb-1.5">Golf bags</label>
-            <input type="number" min="0" max="20" value={data.golf_bags}
-              onChange={e => onChange('golf_bags', parseInt(e.target.value))} className={inp} />
+            <NumericInput value={data.golf_bags} min={0} onChange={v => onChange('golf_bags', v)} className={inp} />
           </div>
         )}
       </div>
@@ -544,12 +643,20 @@ function Step3Confirm({ product, data, onChange, error }) {
         <h3 className="font-semibold text-navy text-sm mb-3">Review your information</h3>
         <InfoRow label="Service" value={product?.product_name} />
         <InfoRow label="Pickup" value={
-          catId === 1 && data.direction === 'from_airport' ? 'Sân bay Đà Nẵng' : data.pickup_location
+          catId === 1 && data.direction === 'from_airport' ? 'Sân bay Đà Nẵng'
+          : catId === 3 && data.direction === 'from_golf' ? data.golf_course
+          : data.pickup_location
         } />
-        {catId === 1 && data.direction === 'from_airport' && data.pickup_location && (
-          <InfoRow label="Drop-off" value={data.pickup_location} />
+        {catId === 1 && (
+          <InfoRow label="Drop-off" value={
+            data.direction === 'from_airport' ? data.pickup_location : 'Sân bay Đà Nẵng'
+          } />
         )}
-        {catId === 3 && data.golf_course && <InfoRow label="Golf course" value={data.golf_course} />}
+        {catId === 3 && (
+          <InfoRow label="Drop-off" value={
+            data.direction === 'from_golf' ? data.pickup_location : data.golf_course
+          } />
+        )}
         <InfoRow label="Date & Time" value={fmtDT(data.date, data.time)} />
         <InfoRow label="Vehicle" value={`${data.model_name} (${data.passengers} passengers)`} />
         {catId === 3 && data.golf_bags > 0 && <InfoRow label="Golf bags" value={`${data.golf_bags} bags`} />}
@@ -703,6 +810,11 @@ export default function BookingPage() {
           const autoTime = parseItineraryTime(p.itinerary[0].items[0].time)
           setData(prev => ({ ...prev, time: autoTime }))
         }
+        // Golf Transfer: tự động set tên sân golf từ tên product
+        if (p?.category?.id === 3 && p?.product_name) {
+          const courseName = p.product_name.replace(/^Golf Transfer\s*[–-]\s*/i, '').trim()
+          setData(prev => ({ ...prev, golf_course: courseName }))
+        }
       })
       .catch(() => setProduct(null))
       .finally(() => setLoading(false))
@@ -728,7 +840,6 @@ export default function BookingPage() {
   const validate = () => {
     if (step === 1) {
       if (!data.pickup_location.trim()) return 'Please enter pickup address'
-      if (catId === 3 && !data.golf_course) return 'Please select a golf course'
       if (!data.date) return 'Please select a departure date'
       if (data.date) {
         const minDate = new Date(); minDate.setDate(minDate.getDate() + 3); minDate.setHours(0,0,0,0)
@@ -851,7 +962,7 @@ export default function BookingPage() {
             {/* Main content */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7">
-                {step === 1 && <Step1Schedule catId={catId} data={data} onChange={onChange} error={error} numDays={product?.num_days} itinerary={product?.itinerary} />}
+                {step === 1 && <Step1Schedule catId={catId} data={data} onChange={onChange} error={error} numDays={product?.num_days} itinerary={product?.itinerary} product={product} />}
                 {step === 2 && <Step2Vehicle pricesByModel={pricesByModel} data={data} onChange={onChange} error={error} catId={catId} />}
                 {step === 3 && <Step3Confirm product={product} data={data} onChange={onChange} error={error} />}
                 {step === 4 && <Step4Payment data={data} submitting={submitting} onSubmit={handleSubmit} error={error} success={success} />}

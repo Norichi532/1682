@@ -28,6 +28,7 @@ export default function GoogleCallbackPage() {
     } catch {
       navigate('/login?error=google_failed')
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
