@@ -58,16 +58,16 @@ function DriverModal({ driver, onClose, onSave }) {
           )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name <span className="text-red-500">*</span></label>
-            <input value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Nguyễn Văn A" className={iCls} />
+            <input value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Full name" className={iCls} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Email <span className="text-red-500">*</span></label>
-            <input value={form.email} onChange={e => set('email', e.target.value)} placeholder="taixe@gmail.com" type="email" disabled={isEdit} className={`${iCls} ${isEdit ? 'bg-gray-50 text-gray-400' : ''}`} />
+            <input value={form.email} onChange={e => set('email', e.target.value)} placeholder="driver@phuongtravel.vn" type="email" disabled={isEdit} className={`${iCls} ${isEdit ? 'bg-gray-50 text-gray-400' : ''}`} />
             {isEdit && <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone number</label>
-            <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="0905 xxx xxx" className={iCls} />
+            <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="Phone number" className={iCls} />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">

@@ -54,6 +54,14 @@ const createBooking = async (req, res) => {
       additional_data: additional_data || null
     });
 
+    // Auto-save phone to user account if not set yet
+    if (additional_data?.contact_phone) {
+      const customer = await User.findByPk(customer_id);
+      if (customer && !customer.phone) {
+        await customer.update({ phone: additional_data.contact_phone });
+      }
+    }
+
     // Lưu notification cho admin
     await Notification.create({
       user_id: customer_id,

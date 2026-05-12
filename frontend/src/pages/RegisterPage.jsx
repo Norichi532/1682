@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
-import heroBg from '../assets/hero.png'
+import heroBg from '../assets/login.png'
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/
 const PASSWORD_REGEX = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{6,}$/
@@ -63,16 +63,10 @@ export default function RegisterPage() {
         <div className="absolute inset-0 bg-navy/80" />
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
           <div className="mb-10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-11 h-11 bg-ochre rounded-xl flex items-center justify-center shadow-lg">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/>
-                  <circle cx="7.5" cy="14.5" r="1.5"/>
-                  <circle cx="16.5" cy="14.5" r="1.5"/>
-                </svg>
-              </div>
+            <Link to="/" className="flex items-center gap-3 mb-8 hover:opacity-80 transition">
+              <img src="/logo.png" alt="logo" className="w-11 h-11 rounded-xl object-contain" />
               <span className="font-display text-2xl font-bold tracking-wide">PhuOng Tourist Car</span>
-            </div>
+            </Link>
             <h2 className="font-display text-4xl font-bold leading-tight mb-4">Create your account</h2>
             <p className="text-white/70 text-lg leading-relaxed">
               Register to experience our premium tour car services.
@@ -97,15 +91,21 @@ export default function RegisterPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-mist/30 px-6 py-10">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-6 lg:hidden">
-            <div className="w-9 h-9 bg-navy rounded-xl flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/>
-                <circle cx="7.5" cy="14.5" r="1.5"/>
-                <circle cx="16.5" cy="14.5" r="1.5"/>
+          <div className="flex items-center justify-between mb-8 lg:hidden">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition">
+              <img src="/logo.png" alt="logo" className="w-9 h-9 rounded-xl object-contain" />
+              <span className="font-display text-xl font-bold text-navy">PhuOng Tourist Car</span>
+            </Link>
+          </div>
+
+          {/* Back to home button */}
+          <div className="mb-6 hidden lg:block">
+            <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-navy transition font-medium">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-            </div>
-            <span className="font-display text-xl font-bold text-navy">PhuOng Tourist Car</span>
+              Back to home
+            </Link>
           </div>
 
           <div className="mb-6">
@@ -116,7 +116,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-navy mb-1.5">Full name <span className="text-red-500">*</span></label>
-              <input type="text" name="full_name" value={form.full_name} onChange={handleChange} placeholder="Nguyễn Văn A" required className={inputClass} />
+              <input type="text" name="full_name" value={form.full_name} onChange={handleChange} placeholder="Full name" required className={inputClass} />
             </div>
             <div>
               <label className="block text-sm font-medium text-navy mb-1.5">Email <span className="text-red-500">*</span></label>
@@ -124,7 +124,7 @@ export default function RegisterPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-navy mb-1.5">Phone number <span className="text-red-500">*</span></label>
-              <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="0901234567" required className={inputClass} />
+              <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="Phone number" required className={inputClass} />
             </div>
             <div>
               <label className="block text-sm font-medium text-navy mb-1.5">Password <span className="text-red-500">*</span></label>

@@ -71,7 +71,7 @@ export default function CarModelsManagePage() {
       const urls = await Promise.all(files.map(async file => {
         const formData = new FormData()
         formData.append('image', file)
-        const res = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+        const res = await api.post('/upload/car_models', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
         return res.data.url
       }))
       setForm(prev => ({ ...prev, images: [...(prev.images || []), ...urls] }))
@@ -156,7 +156,7 @@ export default function CarModelsManagePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Model name *</label>
-                  <input value={form.model_name} onChange={e => setForm({...form, model_name: e.target.value})} required placeholder="vd: Ford Transit"
+                  <input value={form.model_name} onChange={e => setForm({...form, model_name: e.target.value})} required placeholder="Vehicle type"
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
                 </div>
                 <div>

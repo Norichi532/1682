@@ -290,12 +290,12 @@ function BookingDetailModal({ booking, onClose, onRefresh }) {
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">License plate xe <span className="text-red-500">*</span></label>
                         <input value={extForm.license_plate} onChange={e => setExtForm(f => ({ ...f, license_plate: e.target.value }))}
-                          placeholder="VD: 43C-005.55" className={iCls} />
+                          placeholder="Vehicle license plate" className={iCls} />
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Vehicle type</label>
                         <input value={extForm.car_type} onChange={e => setExtForm(f => ({ ...f, car_type: e.target.value }))}
-                          placeholder="VD: Toyota Hiace 16 seats" className={iCls} />
+                          placeholder="e.g.: Toyota Hiace 16 seats" className={iCls} />
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Driver name <span className="text-red-500">*</span></label>

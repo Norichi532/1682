@@ -8,7 +8,7 @@ import api from '../services/api'
  *   onChange   — callback(newUrl) called after successful upload
  *   label      — optional label text
  */
-export default function ImageUpload({ value, onChange, label = 'Image' }) {
+export default function ImageUpload({ value, onChange, label = 'Image', folder = 'products' }) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef()
@@ -24,7 +24,7 @@ export default function ImageUpload({ value, onChange, label = 'Image' }) {
       const formData = new FormData()
       formData.append('image', file)
 
-      const res = await api.post('/upload', formData, {
+      const res = await api.post(`/upload/${folder}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
 

@@ -5,7 +5,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const now = new Date();
     const salt  = await bcrypt.genSalt(10);
-    const pw    = await bcrypt.hash('Pass@123', salt);
+    const pw    = await bcrypt.hash('Pass@123456', salt);
 
     // ── 1. ROLES ──────────────────────────────────────────────────────────────
     await queryInterface.bulkInsert('roles', [
@@ -18,7 +18,7 @@ module.exports = {
     await queryInterface.bulkInsert('users', [
       // Admin
       { id: '00000000-0000-0000-0000-000000000001', role_id: 1,
-        full_name: 'Quản Trị Viên', email: 'admin@phuongtravel.vn',
+        full_name: 'Admin', email: 'admin@phuongtravel.vn',
         password: pw, phone: '0901000001', is_active: true,
         created_at: now, updated_at: now },
       // Customers

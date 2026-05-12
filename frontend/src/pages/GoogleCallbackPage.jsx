@@ -22,14 +22,13 @@ export default function GoogleCallbackPage() {
       login(user, token)  // AuthContext: login(userData, authToken)
 
       // Redirect theo role
-      if (user.role_id === 1) navigate('/admin/dashboard')
-      else if (user.role_id === 3) navigate('/admin/my-schedule')
+      if (user.role_id === 1) navigate('/admin')
+      else if (user.role_id === 3) navigate('/admin/schedule')
       else navigate('/')
     } catch {
       navigate('/login?error=google_failed')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [login, navigate, params])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-mist/30">

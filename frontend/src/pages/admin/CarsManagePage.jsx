@@ -152,7 +152,7 @@ export default function CarsManagePage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fivehiclesd inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">{editCar ? 'Edit vehicle' : 'Add new vehicle'}</h2>
@@ -172,7 +172,7 @@ export default function CarsManagePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">License plate vehicles *</label>
-                <input value={form.license_plate} onChange={e => setForm({...form, license_plate: e.target.value})} required placeholder="vd: 43A-12345"
+                <input value={form.license_plate} onChange={e => setForm({...form, license_plate: e.target.value})} required placeholder="e.g.: 43A-12345"
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
               </div>
               <div>
@@ -210,7 +210,7 @@ export default function CarsManagePage() {
 
       {/* Delete Confirm */}
       {deleteConfirm && (
-        <div className="fivehiclesd inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>

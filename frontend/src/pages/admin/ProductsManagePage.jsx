@@ -345,7 +345,7 @@ export default function ProductsManagePage() {
                       <div className="col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Service name *</label>
                         <input value={form.product_name} onChange={e => setForm({...form, product_name: e.target.value})} required
-                          placeholder="vd: Tour Đà Nẵng – Hội An 1 days"
+                          placeholder="e.g.: Da Nang – Hoi An Tour 1 day"
                           className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
                       </div>
                       <div className={isTour ? '' : 'col-span-2'}>
@@ -369,7 +369,7 @@ export default function ProductsManagePage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">Location / Route</label>
-                      <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="vd: Đà Nẵng → Hội An"
+                      <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="e.g.: Da Nang → Hoi An"
                         className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm" />
                     </div>
 

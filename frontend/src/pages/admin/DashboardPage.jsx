@@ -25,7 +25,7 @@ const STATUS_LABELS = {
   IN_PROGRESS: 'In Progress', COMPLETED: 'Completed', CANCELLED: 'Cancelled',
 }
 
-const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12']
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
 function StatCard({ icon, title, value, sub, color }) {
   return (
@@ -84,16 +84,22 @@ export default function DashboardPage() {
   const revenue   = bookings.filter(b => b.status === 'COMPLETED')
                             .reduce((s, b) => s + parseFloat(b.total_price || 0), 0)
 
-  // ── Revenue and bookings by month (current year) ────────────────────────────
-  const currentYear = new Date().getFullYear()
-  const monthlyData = MONTHS.map((month, i) => {
-    const inMonth = bookings.filter(b => {
+  // ── Revenue by day in current month ────────────────────────────────────────
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth()
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+  const monthLabel = `${MONTH_NAMES[currentMonth]} ${currentYear}`
+
+  const dailyData = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1
+    const inDay = bookings.filter(b => {
       const d = new Date(b.created_at)
-      return d.getFullYear() === currentYear && d.getMonth() === i
+      return d.getFullYear() === currentYear && d.getMonth() === currentMonth && d.getDate() === day
     })
-    const rev = inMonth.filter(b => b.status === 'COMPLETED')
-                       .reduce((s, b) => s + parseFloat(b.total_price || 0), 0)
-    return { month, revenue: rev, orders: inMonth.length }
+    const rev = inDay.filter(b => b.status === 'COMPLETED')
+                     .reduce((s, b) => s + parseFloat(b.total_price || 0), 0)
+    return { day: `${day}`, revenue: rev, orders: inDay.length }
   })
 
   // ── Booking status breakdown (Pie chart) ────────────────────────────────────────
@@ -149,20 +155,26 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* ── Monthly revenue chart ── */}
+        {/* ── Daily revenue chart (current month) ── */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="font-display text-lg font-bold text-navy mb-6">
-            Revenue & Bookings by Month ({currentYear})
-          </h2>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={monthlyData} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
-              <YAxis yAxisId="left" tickFormatter={fmtShort} tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-display text-lg font-bold text-navy">
+              Revenue — {monthLabel}
+            </h2>
+            <span className="text-sm text-gray-400 bg-gray-50 px-3 py-1 rounded-full">
+              {fmt(dailyData.reduce((s, d) => s + d.revenue, 0))} total
+            </span>
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={dailyData} barGap={2} margin={{ bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#9CA3AF' }} axisLine={false} tickLine={false}
+                interval={0} angle={-45} textAnchor="end" height={40} />
+              <YAxis yAxisId="left" tickFormatter={fmtShort} tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} width={48} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={<CustomTooltipRevenue />} />
-              <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#C9A84C" radius={[6,6,0,0]} />
-              <Bar yAxisId="right" dataKey="orders" name="Orders" fill="#1B2A4A" radius={[6,6,0,0]} opacity={0.7} />
+              <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#C9A84C" radius={[4,4,0,0]} />
+              <Bar yAxisId="right" dataKey="orders" name="Orders" fill="#1B2A4A" radius={[4,4,0,0]} opacity={0.7} />
             </BarChart>
           </ResponsiveContainer>
           <div className="flex items-center gap-6 mt-4 justify-center">

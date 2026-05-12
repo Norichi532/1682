@@ -93,8 +93,8 @@ const googleCallback = async (req, res) => {
       });
       isNewUser = true;
     } else if (!user.google_id) {
-      // Tài khoản email đã tồn tại → liên kết Google
-      await user.update({ google_id: profile.id, avatar_url: user.avatar_url || profile.picture });
+      // Tài khoản đã đăng ký bằng mật khẩu → không cho phép đăng nhập Google
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=email_password_account`);
     }
 
     if (user.is_active === false) {
@@ -311,6 +311,10 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: 'No account found with this email.' });
+    }
+
+    if (user.google_id && !user.password) {
+      return res.status(400).json({ message: 'This account uses Google login. Please sign in with Google.' });
     }
 
     const chars = 'abcdefghijklmnopqrstuvwxyz';

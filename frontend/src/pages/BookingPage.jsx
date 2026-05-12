@@ -490,7 +490,7 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">Flight code</label>
           <input type="text" value={data.flight_code} onChange={e => onChange('flight_code', e.target.value)}
-            placeholder="VD: VN123, QH456" className={inp} />
+            placeholder="e.g.: VN123, QH456" className={inp} />
           <p className="text-xs text-gray-400 mt-1">Enter so we can monitor your actual landing time</p>
         </div>
       )}
@@ -630,11 +630,11 @@ function Step3Confirm({ product, data, onChange, error }) {
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">Full name <span className="text-red-500">*</span></label>
-          <input type="text" value={data.full_name} onChange={e => onChange('full_name', e.target.value)} placeholder="Nguyễn Văn A" className={inp} />
+          <input type="text" value={data.full_name} onChange={e => onChange('full_name', e.target.value)} placeholder="Full name" className={inp} />
         </div>
         <div>
           <label className="block text-sm font-medium text-navy mb-1.5">Phone number <span className="text-red-500">*</span></label>
-          <input type="tel" value={data.phone} onChange={e => onChange('phone', e.target.value)} placeholder="0901234567" className={inp} />
+          <input type="tel" value={data.phone} onChange={e => onChange('phone', e.target.value)} placeholder="Phone number" className={inp} />
         </div>
       </div>
 

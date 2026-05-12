@@ -1,16 +1,34 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 
 import api from '../services/api'
-import heroBg from '../assets/hero.png'
+import heroBg from '../assets/login.png'
 import { useAuth } from '../context/AuthContext'
+
+const ERROR_MESSAGES = {
+  email_password_account: 'This email is already registered with a password. Please log in with your password.',
+
+  google_failed: 'Google login failed. Please try again.',
+
+  account_disabled: 'Your account has been disabled. Please contact an administrator.',
+
+  no_code: 'No verification code received from Google.',
+
+  token_failed: 'Google authentication failed. Please try again.',
+
+  server_error: 'Server error. Please try again later.',
+}
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const [searchParams] = useSearchParams()
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
+  const errorCode = searchParams.get('error')
+  const [error, setError] = useState(
+    errorCode ? (ERROR_MESSAGES[errorCode] || 'An error occurred. Please try again.') : ''
+  )
   const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {

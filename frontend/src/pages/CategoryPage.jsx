@@ -2,19 +2,22 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import PublicLayout from '../components/PublicLayout'
 import api from '../services/api'
+import airportHero from '../assets/Airport.png'
+import tourHero from '../assets/tour.png'
+import golfHero from '../assets/golf.png'
 
 const CATEGORY_META = {
   1: {
-    hero: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200',
+    hero: airportHero,
     intro: 'Professional, punctual airport transfer service with experienced drivers. We monitor actual flight status to adjust pickup times accordingly.',
   },
   2: {
-    hero: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=1200',
-    intro: 'Khám phá vẻ đẹp Đà Nẵng – Hội An – Huế và vùng lân cận cùng xe du lịch tiện nghi. Tài xế am hiểu địa bàn, sẵn sàng tư vấn lịch trình phù hợp.',
+    hero: tourHero,
+    intro: 'Discover the beauty of Da Nang and its surroundings with a comfortable tour vehicle. Our drivers are knowledgeable about the area and are ready to advise on a suitable itinerary.',
   },
   3: {
-    hero: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=1200',
-    intro: 'Xe đưa đón sân golf cao cấp, phục vụ hội viên và khách vip các sân golf lớn tại Đà Nẵng. Xe rộng rãi, khoang chứa túi golf tiêu chuẩn.',
+    hero: golfHero,
+    intro: 'Premium golf shuttle service, serving members and VIP guests of major golf courses in Da Nang. Spacious vehicles with standard golf bag storage compartments.',
   },
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PublicLayout from '../components/PublicLayout'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -22,13 +22,21 @@ function EyeToggle({ visible, onClick }) {
 }
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth()
+  const { user, token, logout, login } = useAuth()
   const navigate = useNavigate()
   const [activeSection, setActiveSection] = useState('edit') // 'edit' | 'password'
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
   const [profileForm, setProfileForm] = useState({ full_name: user?.full_name || '', phone: user?.phone || '' })
+
+  useEffect(() => {
+    api.get('/auth/me').then(res => {
+      const fresh = res.data.user
+      login(fresh, token)
+      setProfileForm({ full_name: fresh.full_name || '', phone: fresh.phone || '' })
+    }).catch(() => {})
+  }, [token, login])
   const [profileSubmitting, setProfileSubmitting] = useState(false)
 
   const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' })
@@ -39,7 +47,8 @@ export default function ProfilePage() {
     e.preventDefault()
     setProfileSubmitting(true); setError(''); setSuccess('')
     try {
-      await api.patch('/auth/profile', { full_name: profileForm.full_name, phone: profileForm.phone })
+      const res = await api.patch('/auth/profile', { full_name: profileForm.full_name, phone: profileForm.phone })
+      login(res.data.user, token)
       setSuccess('Profile updated successfully!')
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update profile')

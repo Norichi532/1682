@@ -8,29 +8,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: (req, file) => ({
-    folder: 'phuong-tourist-car',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 1200, height: 800, crop: 'limit', quality: 'auto' }],
-    public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}`,
-  }),
-});
-
 const fileFilter = (req, file, cb) => {
   const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-  if (allowed.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only JPG, PNG, WEBP images are allowed'), false);
-  }
+  if (allowed.includes(file.mimetype)) cb(null, true);
+  else cb(new Error('Only JPG, PNG, WEBP images are allowed'), false);
 };
 
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
-});
+const createUploader = (folder) => {
+  const storage = new CloudinaryStorage({
+    cloudinary,
+    params: (req, file) => ({
+      folder,
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+      transformation: [{ width: 1200, height: 800, crop: 'limit', quality: 'auto' }],
+      public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}`,
+    }),
+  });
 
-module.exports = { upload, cloudinary };
+  return multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
+};
+
+module.exports = { createUploader, cloudinary };
