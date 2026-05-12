@@ -81,7 +81,7 @@ export default function RegisterPage() {
           <div className="space-y-4">
             {['Quick and easy booking', 'Track your trip history', 'Receive notifications and special offers'].map((item) => (
               <div key={item} className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full bg-ochre/20 border border-ochre/40 flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-ochre/20 border border-ochre/40 flex items-center justify-center shrink-0">
                   <svg className="w-3.5 h-3.5 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
@@ -147,7 +147,7 @@ export default function RegisterPage() {
 
             {error && (
               <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
                 {error}

@@ -65,7 +65,7 @@ export default function VehicleDetailPage() {
         {/* ── Gallery ── */}
         <div className="space-y-3">
           {/* Main photo */}
-          <div className="rounded-2xl overflow-hidden shadow-xl bg-gray-900 h-80 md:h-[420px] flex items-center justify-center">
+          <div className="rounded-2xl overflow-hidden shadow-xl bg-gray-900 h-80 md:h-105 flex items-center justify-center">
             {gallery.length > 0
               ? <img src={gallery[activeImg]} alt={model.model_name} className="w-full h-full object-contain transition-all duration-300" />
               : <div className="w-full h-full flex items-center justify-center">
@@ -83,7 +83,7 @@ export default function VehicleDetailPage() {
                   key={idx}
                   type="button"
                   onClick={() => setActiveImg(idx)}
-                  className={`flex-shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                  className={`shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 transition-all ${
                     idx === activeImg ? 'border-ochre scale-105 shadow-md' : 'border-gray-200 hover:border-ochre/50'
                   }`}
                 >
@@ -116,7 +116,7 @@ export default function VehicleDetailPage() {
               <div className="grid grid-cols-2 gap-3">
                 {features.map((f, i) => (
                   <div key={i} className="flex items-center gap-2.5 p-3 bg-mist/50 rounded-xl">
-                    <div className="w-6 h-6 rounded-full bg-ochre/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-ochre/10 flex items-center justify-center shrink-0">
                       <svg className="w-3.5 h-3.5 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
                       </svg>

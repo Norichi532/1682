@@ -43,7 +43,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <img src="/logo.png" alt="PhuOng Tourist Car" className="w-10 h-10 rounded-lg object-contain" />
             <span className="hidden sm:inline text-xl font-bold text-gray-900">PhuOng Tourist Car</span>
           </Link>

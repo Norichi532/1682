@@ -49,7 +49,7 @@ function ProductCard({ product, index, onClick, getMinPrice }) {
         <h3 className="font-display font-bold text-navy text-lg mb-2 line-clamp-2 group-hover:text-ochre transition-colors duration-200">{product.product_name}</h3>
         {product.address && (
           <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
-            <svg className="w-4 h-4 text-ochre flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-ochre shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
@@ -106,9 +106,9 @@ export default function CategoryPage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <div className="relative h-80 md:h-[420px] overflow-hidden">
+      <div className="relative h-80 md:h-105 overflow-hidden">
         <img src={meta.hero} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy/90 to-navy/50" />
+        <div className="absolute inset-0 bg-linear-to-r from-navy/90 to-navy/50" />
         <div className="relative z-10 h-full flex flex-col justify-end pb-12 px-6 max-w-5xl mx-auto text-white">
           {loading ? (
             <div className="h-10 w-64 bg-white/20 rounded animate-pulse mb-3" />

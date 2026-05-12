@@ -76,7 +76,7 @@ export default function ProductDetailPage() {
         {product.image_url && (
           <>
             <img src={product.image_url} alt={product.product_name} className="absolute inset-0 w-full h-full object-cover opacity-40" />
-            <div className="absolute inset-0 bg-gradient-to-r from-navy/95 to-navy/50" />
+            <div className="absolute inset-0 bg-linear-to-r from-navy/95 to-navy/50" />
           </>
         )}
         <div className="relative z-10 h-full flex flex-col justify-end pb-10 px-6 max-w-6xl mx-auto">
@@ -178,7 +178,7 @@ export default function ProductDetailPage() {
                     <div key={di} className="relative">
                       {/* Day header */}
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-9 h-9 bg-ochre text-white text-sm font-bold rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                        <div className="w-9 h-9 bg-ochre text-white text-sm font-bold rounded-full flex items-center justify-center shrink-0 shadow-md">
                           {day.day}
                         </div>
                         <h3 className="font-display text-lg font-bold text-navy">{day.label}</h3>
@@ -189,10 +189,10 @@ export default function ProductDetailPage() {
                         {Array.isArray(day.items) && day.items.map((item, ii) => (
                           <div key={ii} className="relative">
                             {/* Dot on the line */}
-                            <div className="absolute -left-[1.65rem] top-1 w-3 h-3 bg-ochre rounded-full border-2 border-white shadow-sm" />
+                            <div className="absolute left-[-1.65rem] top-1 w-3 h-3 bg-ochre rounded-full border-2 border-white shadow-sm" />
                             <div className="flex gap-4 items-start">
                               {item.time && (
-                                <span className="flex-shrink-0 font-mono text-xs font-bold text-ochre bg-ochre/10 px-2 py-1 rounded-lg min-w-[3.5rem] text-center">
+                                <span className="shrink-0 font-mono text-xs font-bold text-ochre bg-ochre/10 px-2 py-1 rounded-lg min-w-14 text-center">
                                   {item.time}
                                 </span>
                               )}
@@ -290,7 +290,7 @@ export default function ProductDetailPage() {
                     '24/7 phone support',
                   ].map(item => (
                     <div key={item} className="flex items-center gap-2 text-sm text-gray-500">
-                      <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
+                      <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
                       {item}
                     </div>
                   ))}

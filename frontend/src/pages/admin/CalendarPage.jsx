@@ -197,7 +197,7 @@ function Row({ label, value, highlight }) {
   if (!value) return null
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-gray-400 flex-shrink-0">{label}</span>
+      <span className="text-gray-400 shrink-0">{label}</span>
       <span className={`font-semibold text-right ${highlight ? 'text-ochre text-base' : 'text-navy'}`}>{value}</span>
     </div>
   )

@@ -48,7 +48,7 @@ function ItineraryEditor({ value, onChange }) {
         <div key={di} className="border border-gray-200 rounded-xl overflow-hidden">
           {/* Day header */}
           <div className="flex items-center gap-2 bg-slate-50 px-4 py-2.5 border-b border-gray-200">
-            <span className="w-7 h-7 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center flex-shrink-0">{day.day}</span>
+            <span className="w-7 h-7 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center shrink-0">{day.day}</span>
             <input
               value={day.label}
               onChange={e => updateDayLabel(di, e.target.value)}
@@ -69,7 +69,7 @@ function ItineraryEditor({ value, onChange }) {
                   value={item.time}
                   onChange={e => updateItem(di, ii, 'time', e.target.value)}
                   placeholder="07h30"
-                  className="w-20 flex-shrink-0 px-2 py-1.5 border border-gray-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-blue-300 focus:outline-none"
+                  className="w-20 shrink-0 px-2 py-1.5 border border-gray-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-blue-300 focus:outline-none"
                 />
                 <textarea
                   value={item.desc}
@@ -259,8 +259,8 @@ export default function ProductsManagePage() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         {p.image_url
-                          ? <img src={p.image_url} alt={p.product_name} className="w-12 h-10 rounded-lg object-cover flex-shrink-0" />
-                          : <div className="w-12 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">{CAT_ICONS[p.category_id]}</div>
+                          ? <img src={p.image_url} alt={p.product_name} className="w-12 h-10 rounded-lg object-cover shrink-0" />
+                          : <div className="w-12 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl shrink-0">{CAT_ICONS[p.category_id]}</div>
                         }
                         <div>
                           <p className="font-semibold text-gray-900 text-sm">{p.product_name}</p>
@@ -385,11 +385,11 @@ export default function ProductsManagePage() {
                         <div className="space-y-2 p-4 bg-gray-50 rounded-xl">
                           {form.prices.map(p => (
                             <div key={p.model_id} className="flex items-center gap-3">
-                              <span className="text-sm text-gray-600 w-32 flex-shrink-0">{p.model_name} ({p.num_seats} seats)</span>
+                              <span className="text-sm text-gray-600 w-32 shrink-0">{p.model_name} ({p.num_seats} seats)</span>
                               <input type="number" value={p.price} onChange={e => handlePriceChange(p.model_id, e.target.value)}
                                 min={0} placeholder="0"
                                 className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" />
-                              <span className="text-xs text-gray-400 flex-shrink-0">VND</span>
+                              <span className="text-xs text-gray-400 shrink-0">VND</span>
                             </div>
                           ))}
                         </div>

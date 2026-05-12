@@ -30,7 +30,7 @@ const MONTHS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12']
 function StatCard({ icon, title, value, sub, color }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-5">
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${color}`}>
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${color}`}>
         {icon}
       </div>
       <div>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                 <p className="text-gray-400 text-sm text-center py-8">No bookings yet</p>
               ) : recent.map(b => (
                 <div key={b.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-mist/40 transition">
-                  <div className="w-9 h-9 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-navy flex items-center justify-center shrink-0">
                     <span className="text-white text-xs font-bold">
                       {b.customer?.full_name?.charAt(0)?.toUpperCase() || 'K'}
                     </span>
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                     <p className="text-sm font-semibold text-navy truncate">{b.customer?.full_name}</p>
                     <p className="text-xs text-gray-400 truncate">{b.product?.product_name}</p>
                   </div>
-                  <div className="text-right flex-shrink-0">
+                  <div className="text-right shrink-0">
                     <p className="text-sm font-bold text-ochre">{fmt(b.total_price)}</p>
                     <span className="text-xs px-2 py-0.5 rounded-full font-medium"
                       style={{ background: STATUS_COLORS[b.status] + '20', color: STATUS_COLORS[b.status] }}>

@@ -1,8 +1,16 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { connectSocket } from '../utils/socket'
+
+function formatTime(d) {
+  const diff = (Date.now() - new Date(d)) / 1000
+  if (diff < 60) return 'Just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`
+  return new Date(d).toLocaleDateString('en-GB')
+}
 
 export default function NotificationBell() {
   const { user } = useAuth()
@@ -11,34 +19,52 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
-  const fetchNotifications = async () => {
+  // useCallback de fetchNotifications la stable reference - dung cho socket va button
+  const fetchNotifications = useCallback(async () => {
     try {
       const res = await api.get('/notifications')
       setNotifications(res.data.data || [])
     } catch { /* silent */ }
-  }
+  }, [])
 
+  // Subscribe socket events
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) return
     const socket = connectSocket(token)
-    const handleRefresh = () => fetchNotifications()
-    socket.on('new_booking', handleRefresh)
-    socket.on('payment_confirmed', handleRefresh)
+    socket.on('new_booking', fetchNotifications)
+    socket.on('payment_confirmed', fetchNotifications)
     return () => {
-      socket.off('new_booking', handleRefresh)
-      socket.off('payment_confirmed', handleRefresh)
+      socket.off('new_booking', fetchNotifications)
+      socket.off('payment_confirmed', fetchNotifications)
+    }
+  }, [fetchNotifications])
+
+  // Initial load + polling moi 30s
+  // load duoc dinh nghia trong effect de setState nam trong async callback
+  useEffect(() => {
+    let active = true
+
+    const load = async () => {
+      try {
+        const res = await api.get('/notifications')
+        if (active) setNotifications(res.data.data || [])
+      } catch { /* silent */ }
+    }
+
+    load()
+    const interval = setInterval(load, 30000)
+    return () => {
+      active = false
+      clearInterval(interval)
     }
   }, [])
 
+  // Dong dropdown khi click ra ngoai
   useEffect(() => {
-    fetchNotifications()
-    const interval = setInterval(fetchNotifications, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
@@ -63,14 +89,6 @@ export default function NotificationBell() {
       await api.patch('/notifications/read-all')
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
     } catch { /* silent */ }
-  }
-
-  const formatTime = (d) => {
-    const diff = (Date.now() - new Date(d)) / 1000
-    if (diff < 60) return 'Just now'
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`
-    return new Date(d).toLocaleDateString('en-GB')
   }
 
   return (
@@ -111,7 +129,7 @@ export default function NotificationBell() {
                   className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition ${!n.is_read ? 'bg-blue-50/60' : ''}`}
                 >
                   <div className="flex gap-3 items-start">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${!n.is_read ? 'bg-blue-500' : 'bg-gray-200'}`} />
+                    <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${!n.is_read ? 'bg-blue-500' : 'bg-gray-200'}`} />
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm leading-snug ${!n.is_read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
                         {n.content}

@@ -144,7 +144,7 @@ const sendCancelEmail = async (toEmail, customerName, productName, refundAmount,
           <div style="background:#fef3f2;border-left:4px solid ${color};border-radius:8px;padding:16px;margin:20px 0;">
             <p style="margin:0;color:${color};font-size:14px;">${refundText}</p>
           </div>
-          <a href="${process.env.FRONTEND_URL}/services" style="display:block;text-align:center;background:#1d4ed8;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:20px;">Đặt xe mới</a>
+          <a href="${process.env.FRONTEND_URL}/services" style="display:block;text-align:center;background:#1d4ed8;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:20px;">Order a new car</a>
         </div>
         <div style="background:#f9fafb;padding:14px 32px;text-align:center;border-top:1px solid #e5e7eb;">
           <p style="color:#9ca3af;font-size:12px;margin:0;">PhuOng Tourist Car — Đà Nẵng, Việt Nam</p>

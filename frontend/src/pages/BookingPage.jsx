@@ -114,7 +114,7 @@ function SummaryRow({ icon, label, value, always }) {
   if (!always && !value) return null
   return (
     <div className="flex gap-3">
-      <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0 text-sm">{icon}</div>
+      <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center shrink-0 text-sm">{icon}</div>
       <div>
         <p className="text-white/40 text-xs">{label}</p>
         <p className="font-semibold text-sm leading-snug">{value || '—'}</p>
@@ -378,7 +378,7 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
           {/* Giờ đón tự động từ lịch trình */}
           {tourPickupTime && (
             <div className="flex items-center gap-3 p-4 bg-ochre/5 border border-ochre/20 rounded-xl">
-              <div className="w-9 h-9 bg-ochre/10 rounded-lg flex items-center justify-center flex-shrink-0 text-lg">🕐</div>
+              <div className="w-9 h-9 bg-ochre/10 rounded-lg flex items-center justify-center shrink-0 text-lg">🕐</div>
               <div>
                 <p className="text-sm font-semibold text-navy">Pickup at {tourPickupTime}</p>
                 <p className="text-xs text-gray-400">Fixed by tour schedule — Day 1 departure time</p>
@@ -397,7 +397,7 @@ function Step1Schedule({ catId, data, onChange, error, numDays, itinerary }) {
                   const firstItem = day.items?.[0]
                   return (
                     <div key={day.day} className="flex items-start gap-3 px-4 py-3">
-                      <div className="w-14 flex-shrink-0">
+                      <div className="w-14 shrink-0">
                         <span className="text-xs font-bold text-ochre">Day {day.day}</span>
                         {firstItem?.time && (
                           <p className="text-[11px] text-gray-400 mt-0.5">{parseItineraryTime(firstItem.time)}</p>
@@ -546,7 +546,7 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
         }`}
       >
         {/* Icon */}
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${selected ? 'bg-ochre/10' : 'bg-gray-50'}`}>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${selected ? 'bg-ochre/10' : 'bg-gray-50'}`}>
           {model.image_url
             ? <img src={model.image_url} alt={model.model_name} className="w-10 h-10 object-cover rounded-lg" />
             : <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
@@ -575,14 +575,14 @@ function Step2Vehicle({ pricesByModel, data, onChange, error, catId }) {
         </div>
 
         {/* Price */}
-        <div className="text-right flex-shrink-0">
+        <div className="text-right shrink-0">
           <p className={`font-bold text-lg ${disabled ? 'text-gray-400' : 'text-ochre'}`}>{fmt(price)}</p>
           <p className="text-gray-400 text-xs">/trip</p>
         </div>
 
         {/* Selected indicator */}
         {selected && !disabled && (
-          <div className="w-6 h-6 rounded-full bg-ochre flex items-center justify-center flex-shrink-0">
+          <div className="w-6 h-6 rounded-full bg-ochre flex items-center justify-center shrink-0">
             <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
           </div>
         )}
@@ -678,7 +678,7 @@ function InfoRow({ label, value }) {
   if (!value) return null
   return (
     <div className="flex justify-between text-sm gap-4">
-      <span className="text-gray-400 flex-shrink-0">{label}</span>
+      <span className="text-gray-400 shrink-0">{label}</span>
       <span className="text-navy font-medium text-right">{value}</span>
     </div>
   )
@@ -695,7 +695,7 @@ function Step4Payment({ data, submitting, onSubmit, error, success }) {
 
       {/* VNPay info card */}
       <div className="border-2 border-blue-500 bg-blue-50 rounded-2xl p-5 flex items-start gap-4">
-        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
           <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
           </svg>
@@ -704,7 +704,7 @@ function Step4Payment({ data, submitting, onSubmit, error, success }) {
           <p className="font-bold text-blue-900">Pay via VNPay</p>
           <p className="text-blue-700 text-sm mt-0.5">Pay a 30% deposit to confirm your trip. The remaining balance is paid directly to the driver upon completion.</p>
         </div>
-        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
           <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
         </div>
       </div>
@@ -759,7 +759,7 @@ function Step4Payment({ data, submitting, onSubmit, error, success }) {
 function ErrorMsg({ msg }) {
   return (
     <div className="flex items-center gap-2 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-      <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/></svg>
+      <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/></svg>
       {msg}
     </div>
   )

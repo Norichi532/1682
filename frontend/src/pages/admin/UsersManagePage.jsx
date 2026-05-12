@@ -106,7 +106,7 @@ export default function UsersManagePage() {
     finally { setLoading(false) }
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
   const loadDrivers = async () => {
     await fetchDrivers()
@@ -211,7 +211,7 @@ export default function UsersManagePage() {
                         <td className="px-5 py-4 text-sm text-gray-400">{i + 1}</td>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${active ? 'bg-navy' : 'bg-gray-400'}`}>
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0 ${active ? 'bg-navy' : 'bg-gray-400'}`}>
                               {d.full_name?.charAt(0)?.toUpperCase() || 'T'}
                             </div>
                             <span className="font-semibold text-gray-900 text-sm">{d.full_name}</span>

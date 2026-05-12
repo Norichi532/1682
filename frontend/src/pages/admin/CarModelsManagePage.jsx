@@ -26,7 +26,7 @@ export default function CarModelsManagePage() {
     finally { setLoading(false) }
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
   const loadModels = async () => {
     await fetchModels()
@@ -107,7 +107,7 @@ export default function CarModelsManagePage() {
             {models.map(m => (
               <div key={m.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group">
                 {/* Image */}
-                <div className="relative h-44 bg-gradient-to-br from-gray-700 to-gray-900 overflow-hidden">
+                <div className="relative h-44 bg-linear-to-br from-gray-700 to-gray-900 overflow-hidden">
                   {m.image_url
                     ? <img src={m.image_url} alt={m.model_name} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     : <div className="flex items-center justify-center h-full">

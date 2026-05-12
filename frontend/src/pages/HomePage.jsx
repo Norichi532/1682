@@ -93,7 +93,7 @@ function ServiceCard({ cat, index, onClick }) {
         View details
         <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
       </div>
-      <div className="mt-6 h-0.5 bg-gradient-to-r from-ochre/0 via-ochre/40 to-ochre/0 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center" />
+      <div className="mt-6 h-0.5 bg-linear-to-r from-ochre/0 via-ochre/40 to-ochre/0 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center" />
     </div>
   )
 }
@@ -136,8 +136,8 @@ function VehicleCard({ model, index, onClick }) {
       {/* Overlay */}
       <div className={`absolute inset-0 transition-all duration-500 ${
         hovered
-          ? 'bg-gradient-to-t from-navy/95 via-navy/60 to-navy/20'
-          : 'bg-gradient-to-t from-navy/85 via-navy/50 to-transparent'
+          ? 'bg-linear-to-t from-navy/95 via-navy/60 to-navy/20'
+          : 'bg-linear-to-t from-navy/85 via-navy/50 to-transparent'
       }`} />
       {/* Tag */}
       {tag && (
@@ -154,7 +154,7 @@ function VehicleCard({ model, index, onClick }) {
         <span className="font-body text-sm text-white/60 mt-2 tracking-wide">{model.model_name}</span>
       </div>
       {/* Hover: specs panel */}
-      <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-navy via-navy/95 to-transparent pt-12 pb-6 px-6 transition-all duration-300 ${
+      <div className={`absolute bottom-0 left-0 right-0 bg-linear-to-t from-navy via-navy/95 to-transparent pt-12 pb-6 px-6 transition-all duration-300 ${
         hovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}>
         <div className="text-ochre text-xs font-semibold tracking-widest uppercase font-body mb-2">{model.model_name}</div>
@@ -162,7 +162,7 @@ function VehicleCard({ model, index, onClick }) {
         <div className="space-y-2">
           {specs.map(spec => (
             <div key={spec} className="flex items-center gap-2 text-white/80 text-sm font-body">
-              <div className="w-1.5 h-1.5 bg-ochre rounded-full flex-shrink-0" />
+              <div className="w-1.5 h-1.5 bg-ochre rounded-full shrink-0" />
               {spec}
             </div>
           ))}
@@ -275,8 +275,8 @@ export default function HomePage() {
             alt="Luxury van"
             className="w-full h-full object-cover scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy/95 via-navy/75 to-navy/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-navy/95 via-navy/75 to-navy/40" />
+          <div className="absolute inset-0 bg-linear-to-t from-navy via-transparent to-transparent" />
         </div>
 
         {/* Ambient orb */}
@@ -304,7 +304,7 @@ export default function HomePage() {
               {showMap && (
                 <div className="absolute top-full left-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl overflow-hidden w-80">
                   <div className="p-3 bg-navy flex items-center gap-2">
-                    <IconMapPin className="w-4 h-4 text-ochre flex-shrink-0" />
+                    <IconMapPin className="w-4 h-4 text-ochre shrink-0" />
                     <span className="text-white text-sm font-medium">09 Tiên Sơn 06, Đà Nẵng</span>
                   </div>
                   <iframe
@@ -330,7 +330,7 @@ export default function HomePage() {
                 <span className="block text-3xl lg:text-5xl font-normal text-white/80 mb-2">Tour Car Service</span>
                 {/* Ochre rule — above DA NANG heading */}
                 <div
-                  className={`h-0.5 bg-gradient-to-r from-ochre to-transparent mb-3 transition-all duration-700 ${
+                  className={`h-0.5 bg-linear-to-r from-ochre to-transparent mb-3 transition-all duration-700 ${
                     loaded ? 'opacity-100 w-32' : 'opacity-0 w-0'
                   }`}
                   style={{ transitionDelay: '400ms' }}
@@ -486,7 +486,7 @@ export default function HomePage() {
           </div>
 
           {/* CTA Banner */}
-          <div className="mt-16 rounded-3xl bg-gradient-to-r from-navy to-navy-light p-10 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+          <div className="mt-16 rounded-3xl bg-linear-to-r from-navy to-navy-light p-10 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-ochre/10 rounded-full blur-3xl pointer-events-none" />
             <div className="text-center lg:text-left">
               <h3 className="font-display font-bold text-white text-3xl lg:text-4xl mb-3">Ready for Your Journey?</h3>
