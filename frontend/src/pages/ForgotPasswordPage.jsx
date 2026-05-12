@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
-import heroBg from '../assets/hero.png'
+import heroBg from '../assets/login.png'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
