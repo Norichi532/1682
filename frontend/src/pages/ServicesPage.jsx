@@ -77,6 +77,7 @@ export default function ServicesPage() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,9 +97,11 @@ export default function ServicesPage() {
     fetchData()
   }, [])
 
-  const filteredProducts = selectedCategory === 'all'
-    ? products
-    : products.filter(p => p.category?.id === parseInt(selectedCategory))
+  const filteredProducts = products.filter(p => {
+    const matchCat = selectedCategory === 'all' || p.category?.id === parseInt(selectedCategory)
+    const matchSearch = !search || p.product_name?.toLowerCase().includes(search.toLowerCase()) || p.address?.toLowerCase().includes(search.toLowerCase())
+    return matchCat && matchSearch
+  })
 
   const getMinPrice = (prices) => {
     if (!prices || prices.length === 0) return 0
@@ -126,7 +129,7 @@ export default function ServicesPage() {
 
       {/* Filter Tabs */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedCategory('all')}
@@ -147,6 +150,17 @@ export default function ServicesPage() {
                 {cat.category_name}
               </button>
             ))}
+          </div>
+          <div className="relative">
+            <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search services or locations..."
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy w-64 transition"
+            />
           </div>
         </div>
       </div>
