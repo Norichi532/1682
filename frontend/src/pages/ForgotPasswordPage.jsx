@@ -30,20 +30,17 @@ export default function ForgotPasswordPage() {
         <img src={heroBg} alt="PhuOng Tourist Car" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-navy/80" />
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-11 h-11 bg-ochre rounded-xl flex items-center justify-center shadow-lg">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/>
-                <circle cx="7.5" cy="14.5" r="1.5"/>
-                <circle cx="16.5" cy="14.5" r="1.5"/>
-              </svg>
-            </div>
-            <span className="font-display text-2xl font-bold tracking-wide">PhuOng Tourist Car</span>
-          </div>
+          <div className="mb-10">
+            <Link to="/" className="flex items-center gap-3 mb-8 hover:opacity-80 transition">
+              <img src="/logo.png" alt="logo" className="w-11 h-11 rounded-xl object-contain" />
+              <span className="font-display text-2xl font-bold tracking-wide">PhuOng Tourist Car</span>
+            </Link>
+
           <h2 className="font-display text-4xl font-bold leading-tight mb-4">Forgot Password?</h2>
           <p className="text-white/70 text-lg leading-relaxed">
             No worries — enter your email and we'll send you a new password right away.
           </p>
+          </div>
         </div>
       </div>
 
